@@ -1,0 +1,56 @@
+@import url('https://fonts.googleapis.com/css2?family=Rethink+Sans:wght@400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: 'Rethink Sans', system-ui, -apple-system, sans-serif;
+  
+  /* Sautuliman theme background - very light cool gray */
+  --color-brand-bg: #f8f9fa; 
+  --color-brand-surface: #ffffff; /* Pure white panels */
+  
+  /* Sautuliman Navy Blue */
+  --color-brand-accent: #0f3c6e; 
+  --color-brand-accent-hover: #0a2f5c; 
+  
+  --color-brand-input: #f8fafc;
+  --color-brand-footer: #e2e8f0;
+}
+
+@layer base {
+  body {
+    @apply bg-brand-bg text-slate-800 font-sans antialiased min-h-screen w-full;
+  }
+}
+
+@layer components {
+  /* Minimalist light cards with enhanced 3D depth */
+  .clean-panel {
+    @apply bg-white border border-slate-200 rounded-2xl shadow-[0_8px_30px_rgba(0,0,0,0.1)] overflow-hidden transition-all duration-300;
+  }
+  
+  .clean-panel:hover {
+    @apply shadow-[0_20px_40px_rgba(0,0,0,0.15)] border-slate-300 -translate-y-1;
+  }
+  
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-5 py-2.5 bg-white border-2 border-brand-accent text-brand-accent text-sm font-semibold rounded shadow-sm hover:bg-brand-accent hover:text-white transition-all focus:outline-none focus:ring-2 focus:ring-brand-accent focus:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-white text-slate-700 border border-slate-200 hover:bg-slate-50 hover:text-slate-900 font-medium py-2.5 px-6 rounded-lg transition-all duration-300 shadow-sm hover:shadow-md text-sm active:scale-[0.97];
+  }
+  
+  .input-field {
+    @apply w-full bg-slate-50/50 border border-slate-200 rounded-lg px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-brand-accent focus:ring-2 focus:ring-brand-accent/20 transition-all duration-300 shadow-sm hover:border-slate-300;
+  }
+}
+
+@keyframes gentle-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-4px); }
+  75% { transform: translateX(4px); }
+}
+
+.animate-gentle-shake {
+  animation: gentle-shake 0.3s cubic-bezier(.36,.07,.19,.97) both;
+}

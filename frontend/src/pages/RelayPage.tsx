@@ -1,0 +1,358 @@
+import React, { useState, useRef, useEffect } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, FileText, ChevronRight, Share2, MessageSquare, Plus, Trash2, Calendar, Menu, Home, Video, LogOut, User, Bell, Maximize, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Link, useNavigate } from 'react-router-dom';
+import VideoPlayer from '../components/VideoPlayer';
+import ReactPlayer from 'react-player';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'react-hot-toast';
+import { apiClient } from '../api/apiClient';
+
+const RelayPage = () => {
+  const queryClient = useQueryClient();
+
+  // Get current user from local storage
+  const userStr = localStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+  const userName = user?.fullName || 'User';
+  const isAdmin = user?.role === 'ADMIN';
+  const displayName = isAdmin ? `${userName} (Admin)` : userName;
+
+  const navigate = useNavigate();
+  const [showUserMenu, setShowUserMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowUserMenu(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleLogoutWithConfirm = () => {
+    if (window.confirm("Do you want to logout?")) {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      navigate('/login');
+    }
+  };
+
+  const [selectedServer, setSelectedServer] = useState<{ name: string, url: string } | null>(null);
+
+  const handleServerSelect = (server: any) => {
+    setSelectedServer(server);
+  };
+
+  // Fetch active stream
+  const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError } = useQuery({
+    queryKey: ['activeStream'],
+    queryFn: () => apiClient('/streams/active'),
+    refetchInterval: 10000,
+    retry: false, // Do not retry 404s, fail immediately
+  });
+
+  useEffect(() => {
+    if (!isLoadingStream) {
+      if (isStreamError || !activeStream || !activeStream.isLive) {
+        toast.error('The live stream is currently offline.', { icon: '📡' });
+        navigate('/dashboard', { replace: true });
+      }
+    }
+  }, [activeStream, isLoadingStream, isStreamError, navigate]);
+
+  // Fetch announcements/schedule
+  const { data: announcements, isLoading: isLoadingAnnouncements } = useQuery({
+    queryKey: ['announcements'],
+    queryFn: () => apiClient('/announcements'),
+    refetchInterval: 10000,
+  });
+
+  // Mutations for Announcements
+  const createAnnMutation = useMutation({
+    mutationFn: (data: { content: string, type: string, time: string }) => apiClient('/announcements', {
+      method: 'POST', body: JSON.stringify(data),
+    }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['announcements'] })
+  });
+
+  const deleteAnnMutation = useMutation({
+    mutationFn: (id: string) => apiClient(`/announcements/${id}`, { method: 'DELETE' }),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ['announcements'] })
+  });
+
+  // State for inline forms
+  const [scheduleContent, setScheduleContent] = useState('');
+  const [updateContent, setUpdateContent] = useState('');
+  const [scheduleError, setScheduleError] = useState(false);
+  const [updateError, setUpdateError] = useState(false);
+
+  const getCurrentTime = () => {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
+
+  const handleAddSchedule = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!scheduleContent.trim()) {
+      setScheduleError(true);
+      return;
+    }
+    createAnnMutation.mutate({ type: 'SCHEDULE', time: getCurrentTime(), content: scheduleContent }, {
+      onSuccess: () => setScheduleContent('')
+    });
+  };
+
+  const handleAddUpdate = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!updateContent.trim()) {
+      setUpdateError(true);
+      return;
+    }
+    createAnnMutation.mutate({ type: 'UPDATE', time: getCurrentTime(), content: updateContent }, {
+      onSuccess: () => setUpdateContent('')
+    });
+  };
+
+  const isCurrentlyLive = activeStream?.isLive || false;
+  
+  // Backward compatibility: If no servers array exists but legacy streamUrl does, create a mock server button
+  let servers = activeStream?.servers || [];
+  if (servers.length === 0 && activeStream?.streamUrl) {
+    servers = [{ name: 'Server A', url: activeStream.streamUrl }];
+  }
+
+  useEffect(() => {
+    // No longer auto-selecting servers, letting user decide or loading from session
+  }, [servers]);
+
+  const schedules = announcements?.filter((a: any) => a.type === 'SCHEDULE') || [];
+  const updates = announcements?.filter((a: any) => a.type === 'UPDATE') || [];
+
+  return (
+    <>
+      <div className="relative z-10 flex justify-between items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-800">Relay Room</h2>
+          <p className="text-sm text-slate-500">Live streaming and session management</p>
+        </div>
+        {isCurrentlyLive && (
+          <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
+            <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
+          </span>
+        )}
+      </div>
+
+      <div className="relative z-10 flex flex-col lg:flex-row gap-6 w-full flex-1 min-w-0">
+        {/* Left/Main Column - Video Player */}
+        <div className="flex-1 flex flex-col space-y-6">
+          
+          {/* Server Selection Area - Inline Buttons */}
+          {isCurrentlyLive && (
+            <div className="flex flex-wrap gap-3 items-center">
+              <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider mr-2">Select Server:</span>
+              {servers.length > 0 ? (
+                servers.map((server: any, idx: number) => (
+                  <button
+                    key={idx}
+                    onClick={() => handleServerSelect(server)}
+                    className={`btn-primary flex items-center space-x-2 ${
+                      selectedServer?.name === server.name 
+                        ? '!bg-brand-accent !text-white' 
+                        : ''
+                    }`}
+                  >
+                    <span>{server.name}</span>
+                  </button>
+                ))
+              ) : (
+                <span className="text-sm text-red-500 font-medium">No servers configured.</span>
+              )}
+            </div>
+          )}
+
+          {isCurrentlyLive ? (
+            selectedServer ? (
+              <div className="w-full aspect-video relative rounded-2xl overflow-hidden shadow-xl bg-black border border-slate-800">
+                {activeStream.streamType === 'YOUTUBE' ? (
+                  <ReactPlayer 
+                    url={
+                      selectedServer.url.includes('<iframe') 
+                        ? (selectedServer.url.match(/src="([^"]+)"/) || [])[1] || selectedServer.url 
+                        : selectedServer.url
+                    } 
+                    width="100%" 
+                    height="100%" 
+                    controls 
+                    playing={true}
+                    className="absolute inset-0"
+                    config={{
+                      youtube: {
+                        playerVars: { autoplay: 1 }
+                      }
+                    }}
+                  />
+                ) : (
+                  <VideoPlayer 
+                    className="w-full h-full absolute inset-0" 
+                    fallbackUrl={selectedServer?.url} 
+                    serverName={selectedServer.name}
+                  />
+                )}
+              </div>
+            ) : null
+          ) : (
+            <div 
+              onClick={() => toast.error('The live stream is currently offline.', { icon: '📡' })}
+              className="w-full aspect-video flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 text-slate-400 cursor-pointer hover:bg-slate-800 transition-colors"
+            >
+              <Radio className="w-12 h-12 mb-4 opacity-50" />
+              <p className="text-sm font-medium">No active relays currently.</p>
+            </div>
+          )}
+
+          {/* Stream Info Card */}
+          <div className="clean-panel overflow-hidden">
+            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-start">
+              <div>
+                <h2 className="text-xl font-semibold tracking-tight mb-1 text-slate-800">{activeStream?.title || 'Relay Offline'}</h2>
+                <p className="text-brand-accent text-xs font-bold uppercase tracking-widest">{activeStream?.speaker || 'Waiting for connection...'}</p>
+              </div>
+              {selectedServer && (
+                <div className="bg-white text-brand-accent border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center shadow-sm">
+                  Connected to {selectedServer.name}
+                </div>
+              )}
+            </div>
+            
+            {activeStream?.description && (
+              <div className="p-6 bg-white">
+                <p className="text-slate-600 leading-relaxed text-sm">
+                  {activeStream.description}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Column - Sidebar */}
+        <aside className="w-full lg:w-[450px] flex flex-col gap-6 shrink-0">
+          {/* Today's Schedule Card */}
+          <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
+            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 flex items-center">
+                <Calendar className="w-4 h-4 mr-2 text-slate-500" />
+                Schedule
+              </h3>
+            </div>
+            
+            {/* Admin Add Schedule Inline Form */}
+            {isAdmin && (
+              <form onSubmit={handleAddSchedule} className="p-4 border-b border-slate-100 bg-sky-50/30 flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Schedule Event Title..." 
+                    value={scheduleContent}
+                    onChange={(e) => {
+                      setScheduleContent(e.target.value);
+                      if (scheduleError) setScheduleError(false);
+                    }}
+                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${scheduleError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200'}`}
+                  />
+                  <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                {scheduleError && <p className="text-red-500 text-xs px-1">Schedule Event Title is required</p>}
+              </form>
+            )}
+
+            <div className="p-6 overflow-y-auto space-y-2 custom-scrollbar">
+              {isLoadingAnnouncements ? (
+                <p className="text-sm text-slate-400">Loading schedule...</p>
+              ) : schedules.length > 0 ? (
+                schedules.map((item: any) => (
+                  <div key={item._id} className="flex items-center justify-between py-3 px-4 rounded bg-slate-50 border-l-2 border-slate-300 hover:border-brand-accent transition-colors group">
+                    <div className="flex items-baseline overflow-hidden">
+                      <div className="text-xs font-mono w-auto shrink-0 pr-4 text-brand-accent font-semibold">
+                        {item.time}
+                      </div>
+                      <div className="text-sm text-slate-700 truncate">
+                        {item.content}
+                      </div>
+                    </div>
+                    {isAdmin && (
+                      <button onClick={() => deleteAnnMutation.mutate(item._id)} className="text-slate-300 hover:text-red-500 transition-colors ml-2 flex-shrink-0">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-slate-400">No scheduled events yet.</p>
+              )}
+            </div>
+          </div>
+
+          {/* Announcements Card */}
+          <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
+            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 flex items-center">
+                <Bell className="w-4 h-4 mr-2 text-slate-500" />
+                Live Updates
+              </h3>
+            </div>
+
+            {/* Admin Add Update Inline Form */}
+            {isAdmin && (
+              <form onSubmit={handleAddUpdate} className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col gap-2">
+                <div className="flex gap-2">
+                  <input 
+                    type="text" 
+                    placeholder="Post a live update..." 
+                    value={updateContent}
+                    onChange={(e) => {
+                      setUpdateContent(e.target.value);
+                      if (updateError) setUpdateError(false);
+                    }}
+                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${updateError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200'}`}
+                  />
+                  <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
+                    <Plus className="w-4 h-4" />
+                  </button>
+                </div>
+                {updateError && <p className="text-red-500 text-xs px-1">Live Update is required</p>}
+              </form>
+            )}
+
+            <div className="p-6 overflow-y-auto space-y-6 custom-scrollbar">
+              {isLoadingAnnouncements ? (
+                <p className="text-sm text-slate-400">Loading announcements...</p>
+              ) : updates.length > 0 ? (
+                updates.map((ann: any) => (
+                  <div key={ann._id} className="group border-b border-slate-100 pb-4 last:border-0 last:pb-0 flex justify-between items-start">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-brand-accent mb-1 font-semibold">{ann.time}</div>
+                      <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors pr-2">{ann.content}</p>
+                    </div>
+                    {isAdmin && (
+                      <button onClick={() => deleteAnnMutation.mutate(ann._id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 pt-1">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                ))
+              ) : (
+                <p className="text-sm text-slate-400">No announcements at this time.</p>
+              )}
+            </div>
+          </div>
+        </aside>
+      </div>
+    </>
+  );
+};
+
+export default RelayPage;
