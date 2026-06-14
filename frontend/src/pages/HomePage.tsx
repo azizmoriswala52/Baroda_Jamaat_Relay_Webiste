@@ -1,7 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const HomePage = () => {
+  const userStr = sessionStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : { fullName: 'User', jamaatName: '' };
+  useDocumentTitle('Dashboard');
+
   return (
     <div className="flex flex-col space-y-8">
       {/* Hero Section */}

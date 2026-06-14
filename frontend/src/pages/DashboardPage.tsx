@@ -14,7 +14,7 @@ const DashboardPage = () => {
     queryFn: () => apiClient('/streams'),
   });
 
-  const userStr = localStorage.getItem('user');
+  const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
   const isAdmin = user?.role === 'ADMIN';
 

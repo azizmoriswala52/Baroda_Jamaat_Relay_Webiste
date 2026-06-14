@@ -4,8 +4,8 @@
 @theme {
   --font-sans: 'Rethink Sans', system-ui, -apple-system, sans-serif;
   
-  /* Sautuliman theme background - very light cool gray */
-  --color-brand-bg: #f8f9fa; 
+  /* Gentle recycled paper background */
+  --color-brand-bg: #fcfbfa; 
   --color-brand-surface: #ffffff; /* Pure white panels */
   
   /* Sautuliman Navy Blue */
@@ -19,6 +19,13 @@
 @layer base {
   body {
     @apply bg-brand-bg text-slate-800 font-sans antialiased min-h-screen w-full;
+    background-image: linear-gradient(rgba(252, 251, 250, 0.75), rgba(252, 251, 250, 0.75)), url("https://www.transparenttextures.com/patterns/natural-paper.png");
+    background-attachment: fixed;
+  }
+
+  ::selection {
+    background-color: var(--color-brand-accent);
+    color: #ffffff;
   }
 }
 

@@ -2,10 +2,12 @@ import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
 import { HelpCircle, Send } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
 
 const HelpSupportPage = () => {
+  useDocumentTitle('Help & Support');
   const [formData, setFormData] = useState({
     name: '',
     mobile: '',

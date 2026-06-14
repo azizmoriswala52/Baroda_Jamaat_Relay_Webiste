@@ -1,7 +1,7 @@
-const API_BASE_URL = 'http://localhost:5000/api';
+const API_BASE_URL = `http://${window.location.hostname}:5000/api`;
 
 export const apiClient = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',

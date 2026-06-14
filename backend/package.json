@@ -12,6 +12,8 @@
   "license": "ISC",
   "type": "commonjs",
   "dependencies": {
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@types/ua-parser-js": "^0.7.39",
     "bcrypt": "^6.0.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
@@ -19,7 +21,9 @@
     "express-rate-limit": "^8.5.2",
     "http-proxy-middleware": "^4.1.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.6.3"
+    "mongoose": "^9.6.3",
+    "node-media-server": "^4.2.8",
+    "ua-parser-js": "^2.0.10"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",

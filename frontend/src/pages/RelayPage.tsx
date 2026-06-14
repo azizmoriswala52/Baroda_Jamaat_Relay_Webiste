@@ -4,6 +4,7 @@ import { PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, Fi
 import { Link, useNavigate } from 'react-router-dom';
 import VideoPlayer from '../components/VideoPlayer';
 import ReactPlayer from 'react-player';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
@@ -12,7 +13,7 @@ const RelayPage = () => {
   const queryClient = useQueryClient();
 
   // Get current user from local storage
-  const userStr = localStorage.getItem('user');
+  const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
   const userName = user?.fullName || 'User';
   const isAdmin = user?.role === 'ADMIN';
@@ -32,10 +33,15 @@ const RelayPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogoutWithConfirm = () => {
+  const handleLogoutWithConfirm = async () => {
     if (window.confirm("Do you want to logout?")) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      try {
+        await apiClient('/auth/logout', { method: 'POST' });
+      } catch (e) {
+        // Ignore error
+      }
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       navigate('/login');
     }
   };
@@ -86,8 +92,11 @@ const RelayPage = () => {
   // State for inline forms
   const [scheduleContent, setScheduleContent] = useState('');
   const [updateContent, setUpdateContent] = useState('');
-  const [scheduleError, setScheduleError] = useState(false);
+  const [serverError, setServerError] = useState(false);
+
+  useDocumentTitle(activeStream?.title || 'Relay');
   const [updateError, setUpdateError] = useState(false);
+  const [scheduleError, setScheduleError] = useState(false);
 
   const getCurrentTime = () => {
     return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
@@ -172,9 +181,14 @@ const RelayPage = () => {
             </div>
           )}
 
-          {isCurrentlyLive ? (
+          {isLoadingStream ? (
+            <div className="w-full aspect-video flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 text-slate-400">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-accent mb-4"></div>
+              <p className="text-sm font-medium">Connecting to relay...</p>
+            </div>
+          ) : isCurrentlyLive ? (
             selectedServer ? (
-              <div className="w-full aspect-video relative rounded-2xl overflow-hidden shadow-xl bg-black border border-slate-800">
+              <div className="w-full aspect-video relative rounded-2xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/5">
                 {activeStream.streamType === 'YOUTUBE' ? (
                   <ReactPlayer 
                     url={

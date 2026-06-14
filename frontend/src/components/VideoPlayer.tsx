@@ -2,7 +2,6 @@ import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
 import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
-import { toast } from 'react-hot-toast';
 
 interface VideoPlayerProps {
   className?: string;
@@ -15,22 +14,27 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
-  const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const retryTimeoutRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
 
   const [streamUrl, setStreamUrl] = useState<string | null>(null);
+  const [streamFormat, setStreamFormat] = useState<'FLV' | 'HLS' | null>(null);
   const [playbackToken, setPlaybackToken] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(true); // Start muted for autoplay
+  const [isMuted, setIsMuted] = useState(false); // Start unmuted, let browser block autoplay if needed
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
   
   const [isBuffering, setIsBuffering] = useState(true);
   const [isOffline, setIsOffline] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showControls, setShowControls] = useState(true);
+  const [showVolumeSlider, setShowVolumeSlider] = useState(false);
 
   // Auto-hide controls timeout
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
+  const volumeTimeoutRef = useRef<number | ReturnType<typeof setTimeout> | null>(null);
 
   // 1. Fetch Secure Stream URL (Tokenized Proxy)
   const fetchStreamUrl = async () => {
@@ -41,15 +45,21 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       const res = await apiClient(url);
       
       if (res && res.playbackToken) {
+        const format = res.streamFormat || 'HLS';
+        setStreamFormat(format);
+        
+        // Proxying infinite chunked HTTP-FLV streams through Express is highly error-prone and can cause 500 NetworkErrors.
         // Construct proxy URL
-        const proxyUrl = `${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/streams/play/${res.playbackToken}/index.m3u8`;
+        const fileName = format === 'FLV' ? 'stream.flv' : 'index.m3u8';
+        const proxyUrl = `${import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`}/streams/play/${res.playbackToken}/${fileName}`;
         setStreamUrl(proxyUrl);
+        
         setPlaybackToken(res.playbackToken);
         setIsOffline(false);
       } else {
         throw new Error("No playback token returned");
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error("Stream fetch error:", err);
       if (fallbackUrl) {
         setStreamUrl(fallbackUrl);
@@ -63,11 +73,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
 
   useEffect(() => {
     if (serverName !== undefined) {
+      // eslint-disable-next-line
       fetchStreamUrl();
     }
     return () => {
       if (retryTimeoutRef.current) clearTimeout(retryTimeoutRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serverName]);
 
   // 1.5 Auto-renew token every 3 hours (10800000 ms)
@@ -89,73 +101,92 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     return () => clearInterval(intervalId);
   }, [playbackToken]);
 
-  // 2. Initialize HLS.js
+  // 2. Initialize Player
   useEffect(() => {
     const video = videoRef.current;
     if (!video || !streamUrl) return;
 
     const initPlayer = () => {
-      if (Hls.isSupported()) {
-        if (hlsRef.current) {
-          hlsRef.current.destroy();
-        }
+      if (streamFormat === 'HLS') {
+        try {
+          if (hlsRef.current) hlsRef.current.destroy();
 
-        const hls = new Hls({
-          maxLoadingDelay: 4,
-          minAutoBitrate: 0,
-          lowLatencyMode: true,
-          manifestLoadingMaxRetry: 5,
-        });
+          if (Hls.isSupported()) {
+            const hls = new Hls({
+              maxLoadingDelay: 2,
+              minAutoBitrate: 0,
+              lowLatencyMode: true,
+              backBufferLength: 5,
+              liveSyncDurationCount: 2,
+              liveMaxLatencyDurationCount: 4,
+              manifestLoadingMaxRetry: 5,
+            });
 
-        hlsRef.current = hls;
+            hlsRef.current = hls;
+            hls.loadSource(streamUrl);
+            hls.attachMedia(video);
 
-        hls.loadSource(streamUrl);
-        hls.attachMedia(video);
+            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+              setIsBuffering(false);
+              setError(null);
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch((e) => {
+                  console.log("Autoplay blocked:", e);
+                  setIsPlaying(false);
+                });
+              }
+            });
 
-        hls.on(Hls.Events.MANIFEST_PARSED, () => {
-          setIsBuffering(false);
-          setError(null);
-          video.play().catch(e => {
-            console.log("Autoplay blocked:", e);
-            setIsPlaying(false);
-          });
-        });
-
-        hls.on(Hls.Events.ERROR, (event, data) => {
-          if (data.fatal) {
-            switch (data.type) {
-              case Hls.ErrorTypes.NETWORK_ERROR:
-                console.error("Network error, attempting to recover...");
-                setIsBuffering(true);
-                hls.startLoad();
-                break;
-              case Hls.ErrorTypes.MEDIA_ERROR:
-                console.error("Media error, attempting to recover...");
-                hls.recoverMediaError();
-                break;
-              default:
-                hls.destroy();
-                setError("Stream disconnected or unavailable.");
-                setIsOffline(true);
-                // Auto-reconnect after 5 seconds
-                retryTimeoutRef.current = setTimeout(() => {
-                  fetchStreamUrl();
-                }, 5000);
-                break;
-            }
+            hls.on(Hls.Events.ERROR, (event, data) => {
+              if (data.fatal) {
+                switch (data.type) {
+                  case Hls.ErrorTypes.NETWORK_ERROR:
+                    console.error("HLS Network Error:", data);
+                    setError("Network error connecting to stream. Retrying...");
+                    setIsOffline(true);
+                    hls.startLoad();
+                    break;
+                  case Hls.ErrorTypes.MEDIA_ERROR:
+                    console.error("HLS Media Error:", data);
+                    hls.recoverMediaError();
+                    break;
+                  default:
+                    console.error("Fatal HLS Error:", data);
+                    hls.destroy();
+                    setError("Fatal stream error. Waiting to retry...");
+                    setIsOffline(true);
+                    retryTimeoutRef.current = setTimeout(() => {
+                      fetchStreamUrl();
+                    }, 5000);
+                    break;
+                }
+              }
+            });
+          } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+            // Native HLS support (Safari)
+            video.src = streamUrl;
+            video.addEventListener('loadedmetadata', () => {
+              setIsBuffering(false);
+              setError(null);
+              const playPromise = video.play();
+              if (playPromise !== undefined) {
+                playPromise.catch((e) => {
+                  console.log("Autoplay blocked:", e);
+                  setIsPlaying(false);
+                });
+              }
+            });
+          } else {
+            console.error("HLS is not supported in this browser");
+            setError("Stream format not supported by browser.");
+            setIsOffline(true);
           }
-        });
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-        // Native HLS support (Safari)
-        video.src = streamUrl;
-        video.addEventListener('loadedmetadata', () => {
-          setIsBuffering(false);
-          video.play().catch(() => setIsPlaying(false));
-        });
-        video.addEventListener('error', () => {
-          setError("Native playback error");
+        } catch (err) {
+          console.error("Fatal error initializing HLS player:", err);
+          setError("Video player crashed.");
           setIsOffline(true);
-        });
+        }
       }
     };
 
@@ -164,9 +195,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     return () => {
       if (hlsRef.current) {
         hlsRef.current.destroy();
+        hlsRef.current = null;
       }
     };
-  }, [streamUrl]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [streamUrl, streamFormat]);
 
   // Video Event Listeners
   useEffect(() => {
@@ -181,12 +214,17 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       setIsMuted(video.muted);
       setVolume(video.volume);
     };
+    const onTimeUpdate = () => {
+      setCurrentTime(video.currentTime);
+      setDuration(video.duration || 0);
+    };
 
     video.addEventListener('play', onPlay);
     video.addEventListener('pause', onPause);
     video.addEventListener('waiting', onWaiting);
     video.addEventListener('playing', onPlaying);
     video.addEventListener('volumechange', onVolumeChange);
+    video.addEventListener('timeupdate', onTimeUpdate);
 
     return () => {
       video.removeEventListener('play', onPlay);
@@ -194,11 +232,15 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       video.removeEventListener('waiting', onWaiting);
       video.removeEventListener('playing', onPlaying);
       video.removeEventListener('volumechange', onVolumeChange);
+      video.removeEventListener('timeupdate', onTimeUpdate);
     };
-  }, [videoRef.current]);
+  }, []);
 
   // Handle Controls Visibility
   const handleMouseMove = () => {
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    if (isTouchDevice) return; // Prevent touch screens from firing mouse events
+
     setShowControls(true);
     if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
     controlsTimeoutRef.current = setTimeout(() => {
@@ -222,6 +264,24 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     }
   };
 
+  const handleSpeakerClick = () => {
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    
+    if (isTouchDevice) {
+      if (!showVolumeSlider) {
+        setShowVolumeSlider(true);
+      } else {
+        toggleMute();
+      }
+      
+      // Auto-hide the volume slider after 4 seconds of inactivity
+      if (volumeTimeoutRef.current) clearTimeout(volumeTimeoutRef.current);
+      volumeTimeoutRef.current = setTimeout(() => setShowVolumeSlider(false), 4000);
+    } else {
+      toggleMute();
+    }
+  };
+
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = parseFloat(e.target.value);
     if (videoRef.current) {
@@ -234,15 +294,63 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     }
   };
 
-  const toggleFullscreen = () => {
+  const handleSeek = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const time = parseFloat(e.target.value);
+    if (videoRef.current) {
+      videoRef.current.currentTime = time;
+      setCurrentTime(time);
+    }
+  };
+
+  const jumpToLive = () => {
+    if (videoRef.current) {
+      // Seek to very near the end for live HLS streams
+      videoRef.current.currentTime = videoRef.current.duration - 2;
+    }
+  };
+
+  const toggleFullscreen = async () => {
     if (!containerRef.current) return;
     
-    if (!document.fullscreenElement) {
-      containerRef.current.requestFullscreen().catch(err => {
-        toast.error(`Error attempting to enable fullscreen: ${err.message}`);
+    try {
+      if (!document.fullscreenElement) {
+        await containerRef.current.requestFullscreen();
+        // Lock to landscape on mobile devices
+        if (window.innerWidth < 768 && window.screen && window.screen.orientation && (window.screen.orientation as any).lock) {
+          try {
+            await (window.screen.orientation as any).lock('landscape');
+          } catch {
+            console.log("Orientation lock not supported/denied");
+          }
+        }
+      } else {
+        await document.exitFullscreen();
+        // Unlock orientation on mobile
+        if (window.innerWidth < 768 && window.screen && window.screen.orientation && (window.screen.orientation as any).unlock) {
+          (window.screen.orientation as any).unlock();
+        }
+      }
+    } catch (err: unknown) {
+      console.error("Fullscreen toggle error:", err);
+    }
+  };
+
+  const handleVideoClick = () => {
+    const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+    
+    if (isTouchDevice) {
+      setShowControls((prev) => {
+        const nextState = !prev;
+        if (nextState) {
+          if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+          controlsTimeoutRef.current = setTimeout(() => {
+            if (videoRef.current && !videoRef.current.paused) setShowControls(false);
+          }, 3500);
+        }
+        return nextState;
       });
     } else {
-      document.exitFullscreen();
+      togglePlay();
     }
   };
 
@@ -264,19 +372,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     >
       <video
         ref={videoRef}
-        className="w-full h-full object-contain cursor-pointer"
+        className="w-full h-full object-contain cursor-pointer lg:scale-[1.005]"
         playsInline
+        autoPlay
         muted={isMuted}
-        onClick={togglePlay}
+        onClick={handleVideoClick}
         onContextMenu={(e) => e.preventDefault()}
       />
 
       {/* Offline State */}
-      {isOffline && !streamUrl && (
+      {isOffline && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-20">
           <AlertCircle className="w-12 h-12 text-red-500 mb-4 opacity-80" />
           <p className="text-white font-medium text-lg tracking-wide">Stream Offline</p>
-          <p className="text-slate-400 text-sm mt-2">Waiting for broadcast to begin...</p>
+          <p className="text-slate-400 text-sm mt-2 text-center max-w-md break-words">
+            {error || 'Waiting for broadcast to begin...'}
+          </p>
           <button 
             onClick={() => fetchStreamUrl()} 
             className="mt-6 flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-sm font-semibold"
@@ -286,19 +397,35 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
         </div>
       )}
 
-      {/* Buffering Indicator */}
+      {/* Loading State */}
       {isBuffering && !isOffline && (
-        <div className="absolute inset-0 flex items-center justify-center bg-black/40 z-10 pointer-events-none">
-          <Loader2 className="w-12 h-12 text-white animate-spin opacity-80 drop-shadow-lg" />
+        <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
+          <Loader2 className="w-10 h-10 text-white animate-spin" />
         </div>
       )}
 
       {/* Custom Controls Overlay (Glassmorphism) */}
       <div 
-        className={`absolute bottom-0 left-0 right-0 p-4 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-30 flex items-end ${
+        className={`absolute bottom-0 left-0 right-0 p-4 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-30 flex flex-col justify-end ${
           showControls || !isPlaying ? 'opacity-100' : 'opacity-0 pointer-events-none'
         }`}
       >
+        {/* Progress Bar */}
+        <div className="w-full flex items-center space-x-3 mb-4 group/progress cursor-pointer relative z-40">
+          <input 
+            type="range" 
+            min="0" 
+            max={duration || 100} 
+            step="0.1" 
+            value={currentTime} 
+            onChange={handleSeek}
+            style={{
+              background: `linear-gradient(to right, var(--color-brand-accent) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255, 255, 255, 0.3) ${duration > 0 ? (currentTime / duration) * 100 : 0}%)`
+            }}
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-brand-accent hover:h-2 transition-all duration-200"
+          />
+        </div>
+
         <div className="flex items-center justify-between w-full">
           {/* Left Controls */}
           <div className="flex items-center space-x-6">
@@ -311,7 +438,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
 
             <div className="flex items-center space-x-3 group/volume">
               <button 
-                onClick={toggleMute}
+                onClick={handleSpeakerClick}
                 className="text-white hover:text-brand-accent transition-colors"
               >
                 {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
@@ -323,15 +450,19 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
                 step="0.01" 
                 value={isMuted ? 0 : volume} 
                 onChange={handleVolumeChange}
-                className="w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100 transition-all duration-300 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-brand-accent"
+                className={`transition-all duration-300 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-brand-accent ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100'}`}
               />
             </div>
 
             {/* Live Badge */}
-            <div className="flex items-center px-2 py-1 bg-red-600/90 rounded text-[10px] font-bold text-white tracking-widest uppercase">
-              <span className={`w-1.5 h-1.5 rounded-full bg-white mr-1.5 ${isPlaying && !isBuffering ? 'animate-pulse' : ''}`}></span>
+            <button 
+              onClick={jumpToLive}
+              className={`flex items-center px-2 py-1 bg-red-600/90 rounded text-[10px] font-bold text-white tracking-widest uppercase hover:bg-red-500 transition-colors cursor-pointer ${duration - currentTime > 10 ? 'opacity-70' : 'opacity-100'}`}
+              title={duration - currentTime > 10 ? "Click to jump to live edge" : "You are watching live"}
+            >
+              <span className={`w-1.5 h-1.5 rounded-full bg-white mr-1.5 ${isPlaying && !isBuffering && (duration - currentTime <= 10) ? 'animate-pulse' : ''}`}></span>
               Live
-            </div>
+            </button>
           </div>
 
           {/* Right Controls */}

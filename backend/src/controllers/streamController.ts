@@ -53,7 +53,7 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
     });
 
     await newStream.save();
-    
+
     // Cascade delete existing announcements and queries to start fresh
     await Promise.all([
       Announcement.deleteMany({}),
@@ -101,18 +101,18 @@ export const deleteStream = async (req: Request, res: Response): Promise<void> =
   try {
     const { id } = req.params;
     const deletedStream = await StreamSession.findByIdAndDelete(id);
-    
+
     if (!deletedStream) {
       res.status(404).json({ message: 'Stream not found' });
       return;
     }
-    
+
     // Cascade delete existing announcements and queries when a stream is removed
     await Promise.all([
       Announcement.deleteMany({}),
       SupportQuery.deleteMany({})
     ]);
-    
+
     res.json({ message: 'Stream deleted successfully' });
   } catch (error) {
     console.error('Delete Stream Error:', error);
@@ -156,7 +156,7 @@ export const getStreamAccess = async (req: Request, res: Response): Promise<void
 
     // Generate token
     const tokenStr = crypto.randomBytes(32).toString('hex');
-    const expiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes
+    const expiresAt = new Date(Date.now() + 4 * 60 * 60 * 1000); // 4 hours
 
     await StreamToken.create({
       token: tokenStr,
@@ -175,7 +175,10 @@ export const getStreamAccess = async (req: Request, res: Response): Promise<void
       ipAddress: req.ip || req.socket.remoteAddress || 'unknown'
     });
 
-    res.json({ playbackToken: tokenStr });
+    const streamFormat = activeStream.streamType || 'HLS';
+    
+    // Always use proxy for HLS to hide origin
+    res.json({ playbackToken: tokenStr, streamFormat });
   } catch (error) {
     console.error('Get Stream Access Error:', error);
     res.status(500).json({ message: 'Server error' });

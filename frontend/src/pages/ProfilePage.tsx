@@ -1,12 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ArrowLeft } from 'lucide-react';
+import { User, LogOut, ArrowLeft, Edit2, X } from 'lucide-react';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
 
 const ProfilePage = () => {
   const navigate = useNavigate();
+  useDocumentTitle('Profile');
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -14,6 +16,7 @@ const ProfilePage = () => {
     password: ''
   });
   const [successMsg, setSuccessMsg] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
 
   const { data: user, isLoading, error } = useQuery({
     queryKey: ['userProfile'],
@@ -38,9 +41,10 @@ const ProfilePage = () => {
     }),
     onSuccess: (data) => {
       setSuccessMsg('Profile updated successfully!');
-      localStorage.setItem('user', JSON.stringify(data.user));
+      sessionStorage.setItem('user', JSON.stringify(data.user));
       setTimeout(() => setSuccessMsg(''), 3000);
       setFormData(prev => ({ ...prev, password: '' })); // Clear password field after save
+      setIsEditing(false);
     },
   });
 
@@ -66,10 +70,15 @@ const ProfilePage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const handleLogoutWithConfirm = () => {
+  const handleLogoutWithConfirm = async () => {
     if (window.confirm("Do you want to logout?")) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      try {
+        await apiClient('/auth/logout', { method: 'POST' });
+      } catch (e) {
+        // Ignore error
+      }
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       navigate('/login');
     }
   };
@@ -88,21 +97,28 @@ const ProfilePage = () => {
     <>
       <div className="max-w-5xl mx-auto w-full">
 
+        {/* Mobile Tabs */}
+        <div className="w-full lg:hidden bg-slate-50 border-b border-slate-200 sticky top-0 z-20 -mx-4 px-4 sm:-mx-6 sm:px-6 md:-mx-8 md:px-8 mb-8">
+          <div className="flex overflow-x-auto hide-scrollbar py-3 space-x-2">
+            <button className="shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors bg-sky-100 text-brand-accent shadow-sm">
+              <User className="w-4 h-4 mr-2" /> General
+            </button>
+            <button 
+              onClick={handleLogoutWithConfirm}
+              className="shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors text-red-600 hover:bg-red-50"
+            >
+              <LogOut className="w-4 h-4 mr-2" /> Logout
+            </button>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 lg:grid-cols-4 gap-12">
-          {/* Sidebar Navigation */}
-          <div className="lg:col-span-1">
+          {/* Desktop Sidebar Navigation */}
+          <div className="hidden lg:block lg:col-span-1">
             <nav className="flex flex-col space-y-1 sticky top-0 self-start">
-              <a href="#" className="px-4 py-2.5 rounded-md bg-white border border-slate-200 text-brand-accent text-sm font-medium shadow-sm">
-                General
+              <a href="#" className="px-4 py-2.5 rounded-md bg-white border border-slate-200 text-brand-accent text-sm font-medium shadow-sm flex items-center">
+                <User className="w-4 h-4 mr-2" /> General
               </a>
-              <div className="my-4 border-t border-slate-200"></div>
-              <button 
-                onClick={handleLogoutWithConfirm}
-                className="px-4 py-2.5 rounded-md text-red-600 hover:bg-red-50 text-sm font-medium transition-colors text-left flex items-center w-full"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
-              </button>
             </nav>
           </div>
 
@@ -125,41 +141,64 @@ const ProfilePage = () => {
               )}
 
               {/* Profile Overview */}
-              <div className="flex items-center space-x-6 pb-8 border-b border-slate-200">
-                <div className="w-20 h-20 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                  <User className="w-8 h-8 text-slate-400" />
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200 gap-6">
+                <div className="flex items-center space-x-4 sm:space-x-6">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
+                    <User className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg sm:text-xl font-semibold mb-1 text-slate-800 break-words">{user?.fullName}</h2>
+                    <p className="text-slate-500 text-sm">ITS: {user?.itsId}</p>
+                  </div>
                 </div>
-                <div>
-                  <h2 className="text-xl font-semibold mb-1 text-slate-800">{user?.fullName}</h2>
-                  <p className="text-slate-500 text-sm">ITS: {user?.itsId}</p>
-                </div>
+                {!isEditing && (
+                  <button onClick={() => setIsEditing(true)} className="btn-secondary flex items-center justify-center w-full sm:w-auto shrink-0">
+                    <Edit2 className="w-4 h-4 mr-2" />
+                    Edit Profile
+                  </button>
+                )}
               </div>
 
               {/* Form Fields */}
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                 <div className="md:col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className="input-field" required />
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : ''}`} disabled={!isEditing} required />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className="input-field" required />
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : ''}`} disabled={!isEditing} required />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
-                  <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className="input-field" required />
+                  <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : ''}`} disabled={!isEditing} required />
                 </div>
 
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Jamaat Name</label>
-                  <input type="text" className="input-field bg-slate-50 border-slate-200 text-slate-500" value={user?.jamaatName || ''} readOnly />
+                  <input type="text" className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed" value={user?.jamaatName || ''} disabled />
                 </div>
 
-                <div className="md:col-span-2 pt-6 border-t border-slate-200 flex justify-end">
-                  <button type="submit" disabled={updateProfileMutation.isPending} className="btn-primary">
-                    {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
-                  </button>
-                </div>
+                {isEditing && (
+                  <div className="md:col-span-2 pt-6 border-t border-slate-200 flex justify-end space-x-4">
+                    <button type="button" onClick={() => {
+                      setIsEditing(false);
+                      if (user) {
+                        setFormData({
+                          fullName: user.fullName || '',
+                          email: user.email || '',
+                          mobile: user.mobile || '',
+                          password: ''
+                        });
+                      }
+                    }} className="btn-secondary">
+                      Cancel
+                    </button>
+                    <button type="submit" disabled={updateProfileMutation.isPending} className="btn-primary">
+                      {updateProfileMutation.isPending ? 'Saving...' : 'Save Changes'}
+                    </button>
+                  </div>
+                )}
               </form>
             </motion.div>
           </div>

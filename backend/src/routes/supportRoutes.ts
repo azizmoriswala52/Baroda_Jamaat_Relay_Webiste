@@ -4,7 +4,7 @@ import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
 
 const router = express.Router();
 
-router.post('/', authMiddleware, createSupportQuery);
+router.post('/', createSupportQuery);
 router.get('/', authMiddleware, adminMiddleware, getAllSupportQueries);
 router.delete('/:id', authMiddleware, adminMiddleware, deleteSupportQuery);
 

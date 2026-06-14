@@ -16,7 +16,7 @@ const queryClient = new QueryClient();
 
 // Redirects authenticated users AWAY from public pages (like login) to the dashboard
 const PublicOnlyRoute = ({ children }: { children: JSX.Element }) => {
-  const token = localStorage.getItem('token');
+  const token = sessionStorage.getItem('token');
   if (token) {
     return <Navigate to="/home" replace />;
   }
@@ -25,8 +25,8 @@ const PublicOnlyRoute = ({ children }: { children: JSX.Element }) => {
 
 // Protected Route Component to prevent unauthorized access
 const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
-  const token = localStorage.getItem('token');
-  const userStr = localStorage.getItem('user');
+  const token = sessionStorage.getItem('token');
+  const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
 
   if (!token) {

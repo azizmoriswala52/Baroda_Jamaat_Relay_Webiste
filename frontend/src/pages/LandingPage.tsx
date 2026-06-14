@@ -1,9 +1,12 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useDocumentTitle } from '../hooks/useDocumentTitle';
 
 const LandingPage = () => {
-  const token = localStorage.getItem('token');
+  const navigate = useNavigate();
+  useDocumentTitle('Welcome');
+  const token = sessionStorage.getItem('token');
   
   return (
     <div className="min-h-screen bg-brand-bg flex flex-col items-center justify-center px-6">

@@ -50,7 +50,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
-  const userStr = localStorage.getItem('user');
+  const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
   const displayName = user?.role === 'ADMIN' ? `${user?.fullName || 'User'} (Admin)` : user?.fullName || 'User';
 
@@ -71,7 +71,15 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     enabled: user?.role === 'ADMIN'
   });
 
+  const { data: loginIssues } = useQuery({
+    queryKey: ['adminLoginIssues'],
+    queryFn: () => apiClient('/login-issues'),
+    refetchInterval: 10000,
+    enabled: user?.role === 'ADMIN'
+  });
+
   const [previousQueryCount, setPreviousQueryCount] = useState<number | null>(null);
+  const [previousLoginIssueCount, setPreviousLoginIssueCount] = useState<number | null>(null);
 
   useEffect(() => {
     if (user?.role === 'ADMIN' && supportQueries) {
@@ -91,10 +99,53 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }, [supportQueries, previousQueryCount, user?.role]);
 
-  const handleLogoutWithConfirm = () => {
+  useEffect(() => {
+    if (user?.role === 'ADMIN' && loginIssues) {
+      if (previousLoginIssueCount !== null && loginIssues.length > previousLoginIssueCount) {
+        toast('A user reported a login issue! Please check the Login Issues tab.', {
+          icon: '🔑',
+          duration: 8000,
+          style: {
+            background: '#fff',
+            color: '#d97706',
+            fontWeight: 'bold',
+            border: '1px solid #d97706'
+          }
+        });
+      }
+      setPreviousLoginIssueCount(loginIssues.length);
+    }
+  }, [loginIssues, previousLoginIssueCount, user?.role]);
+
+  useEffect(() => {
+    if (user) {
+      const pingInterval = setInterval(() => {
+        apiClient('/auth/ping', { method: 'POST' }).catch((err) => {
+          if (err.message === 'FORCE_LOGOUT') {
+            clearInterval(pingInterval);
+            sessionStorage.removeItem('token');
+            sessionStorage.removeItem('user');
+            toast.error('Your session has been terminated by an administrator.', {
+              duration: 8000,
+              icon: '🚨'
+            });
+            navigate('/login');
+          }
+        });
+      }, 5000);
+      return () => clearInterval(pingInterval);
+    }
+  }, [user]);
+
+  const handleLogoutWithConfirm = async () => {
     if (window.confirm("Do you want to logout?")) {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      try {
+        await apiClient('/auth/logout', { method: 'POST' });
+      } catch (e) {
+        // Ignore error
+      }
+      sessionStorage.removeItem('token');
+      sessionStorage.removeItem('user');
       navigate('/login');
     }
   };
@@ -108,47 +159,47 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         
         {/* Dawoodi Bohra Fatimid Shurafat (Stepped Crenellations) */}
         <div 
-          className="absolute inset-0 pointer-events-none opacity-80 mix-blend-overlay"
+          className="absolute inset-0 pointer-events-none opacity-40"
           style={{ 
-            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg stroke='%23ffffff' stroke-width='1.5' stroke-opacity='0.6' stroke-linejoin='round'%3E%3Cpath d='M 0 45 H 10 V 35 H 15 V 25 H 20 V 15 H 25 V 5 H 35 V 15 H 40 V 25 H 45 V 35 H 50 V 45 H 60 V 60 H 0 Z M 26 35 H 34 V 28 A 4 4 0 0 0 26 28 Z' fill='%23ffffff' fill-opacity='0.15' fill-rule='evenodd' /%3E%3Cpath d='M 0 48 H 60 M 0 58 H 60' fill='none' /%3E%3Ccircle cx='30' cy='53' r='2.5' fill='%23ffffff' fill-opacity='0.4' stroke='none' /%3E%3Cpath d='M 12 53 H 18 M 42 53 H 48' fill='none' stroke-width='2.5' /%3E%3Ccircle cx='0' cy='53' r='2.5' fill='%23ffffff' fill-opacity='0.4' stroke='none' /%3E%3Ccircle cx='60' cy='53' r='2.5' fill='%23ffffff' fill-opacity='0.4' stroke='none' /%3E%3C/g%3E%3C/svg%3E\")",
+            backgroundImage: "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cg stroke='%23D4AF37' stroke-width='1.5' stroke-opacity='0.8' stroke-linejoin='round'%3E%3Cpath d='M 0 45 H 10 V 35 H 15 V 25 H 20 V 15 H 25 V 5 H 35 V 15 H 40 V 25 H 45 V 35 H 50 V 45 H 60 V 60 H 0 Z M 26 35 H 34 V 28 A 4 4 0 0 0 26 28 Z' fill='%23D4AF37' fill-opacity='0.25' fill-rule='evenodd' /%3E%3Cpath d='M 0 48 H 60 M 0 58 H 60' fill='none' /%3E%3Ccircle cx='30' cy='53' r='2.5' fill='%23D4AF37' fill-opacity='0.5' stroke='none' /%3E%3Cpath d='M 12 53 H 18 M 42 53 H 48' fill='none' stroke-width='2.5' /%3E%3Ccircle cx='0' cy='53' r='2.5' fill='%23D4AF37' fill-opacity='0.5' stroke='none' /%3E%3Ccircle cx='60' cy='53' r='2.5' fill='%23D4AF37' fill-opacity='0.5' stroke='none' /%3E%3C/g%3E%3C/svg%3E\")",
             backgroundRepeat: "repeat-x",
             backgroundPosition: "bottom",
             backgroundSize: "40px 40px"
           }}
         ></div>
 
-        <div className="flex items-center space-x-3 sm:space-x-4 w-1/3 relative z-10">
+        <div className="flex items-center space-x-1 sm:space-x-2 flex-1 relative z-10">
           <button 
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
             className="text-white hover:text-slate-200 transition-colors hidden md:block focus:outline-none p-1"
           >
-            <Menu className="w-7 h-6 scale-x-[1.4]" />
+            <Menu className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
           </button>
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white hover:text-slate-200 transition-colors md:hidden focus:outline-none p-1"
           >
             {isMobileMenuOpen ? (
-              <svg className="w-7 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
             ) : (
-              <Menu className="w-7 h-6 scale-x-[1.4]" />
+              <Menu className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
             )}
           </button>
-          <Link to="/home" className="flex items-center group">
-            <div className="w-9 h-9 sm:w-10 sm:h-10 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat opacity-90 mr-2 sm:mr-3 group-hover:opacity-100 transition-opacity" style={{ filter: 'brightness(0) invert(1)' }}></div>
-            <h1 className="text-xl sm:text-2xl font-medium tracking-widest text-white uppercase whitespace-nowrap">Baroda Jamaat</h1>
+          <Link to="/home" className="flex items-center group ml-1 sm:ml-2">
+            <div className="w-6 h-6 sm:w-7 sm:h-7 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat opacity-90 mr-1.5 sm:mr-2 group-hover:opacity-100 transition-opacity" style={{ filter: 'brightness(0) invert(1)' }}></div>
+            <h1 className="text-base sm:text-lg font-medium tracking-widest text-white uppercase whitespace-nowrap">Baroda Jamaat</h1>
           </Link>
         </div>
 
-        <div className="flex items-center justify-end space-x-4 w-2/3 relative z-10">
+        <div className="flex items-center justify-end space-x-2 sm:space-x-4 shrink-0 relative z-10">
           <div className="relative">
             <div className="flex items-center space-x-2 group">
               <span className="text-xs sm:text-sm text-white/90 font-medium hidden md:flex items-center">
                 {getBohraDate()} ({getEnglishDate()}) 
                 <div className="w-[1px] h-5 bg-white/30 mx-3"></div>
               </span>
-              <span className="text-sm text-white font-medium group-hover:text-slate-200 transition-colors hidden md:block">{displayName}</span>
-              <div className="w-8 h-8 rounded-full bg-white text-brand-accent flex items-center justify-center font-bold shadow-sm">
+              <span className="text-sm text-white font-medium group-hover:text-slate-200 transition-colors max-w-[120px] sm:max-w-[200px] truncate block">{displayName}</span>
+              <div className="w-8 h-8 shrink-0 rounded-full bg-white text-brand-accent flex items-center justify-center font-bold shadow-sm">
                 <User className="w-4 h-4" />
               </div>
             </div>

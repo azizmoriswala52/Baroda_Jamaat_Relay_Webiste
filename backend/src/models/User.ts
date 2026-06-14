@@ -10,6 +10,9 @@ export interface IUser extends Document {
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   lastLogin?: Date;
+  lastIpAddress?: string;
+  lastDeviceDetails?: string;
+  sessionStartTime?: Date;
 }
 
 const UserSchema: Schema = new Schema({
@@ -21,7 +24,10 @@ const UserSchema: Schema = new Schema({
   jamaatName: { type: String, required: true },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
   isActive: { type: Boolean, default: true },
-  lastLogin: { type: Date }
+  lastLogin: { type: Date },
+  lastIpAddress: { type: String },
+  lastDeviceDetails: { type: String },
+  sessionStartTime: { type: Date }
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);
