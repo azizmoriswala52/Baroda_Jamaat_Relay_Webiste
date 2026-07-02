@@ -50,6 +50,8 @@ nms.on('postPublish', (session: any) => {
 
   console.log('[FFmpeg] Starting HLS Transmuxing for', rtmpUrl);
 
+  const startTime = Date.now();
+
   const ffmpegArgs = [
     '-i', rtmpUrl,
     '-c:v', 'libx264',
@@ -61,8 +63,9 @@ nms.on('postPublish', (session: any) => {
     '-b:a', '128k',
     '-f', 'hls',
     '-hls_time', '2', // 2 second chunks for stability
-    '-hls_list_size', '3600', // Keep up to 2 hours of history for DVR scrub back
+    '-hls_list_size', '5', // Keep only 5 chunks on disk to prevent file accumulation
     '-hls_flags', 'delete_segments',
+    '-hls_segment_filename', path.join(mediaPath, `${startTime}_%04d.ts`),
     m3u8Path
   ];
 

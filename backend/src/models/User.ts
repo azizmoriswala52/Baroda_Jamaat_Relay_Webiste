@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   mobile: string;
   jamaatName: string;
+  mohalla?: string;
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   lastLogin?: Date;
@@ -22,6 +23,7 @@ const UserSchema: Schema = new Schema({
   email: { type: String, required: true },
   mobile: { type: String, required: true },
   jamaatName: { type: String, required: true },
+  mohalla: { type: String },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },

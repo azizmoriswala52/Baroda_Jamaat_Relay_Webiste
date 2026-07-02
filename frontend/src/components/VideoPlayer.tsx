@@ -123,12 +123,14 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
             });
 
             hlsRef.current = hls;
-            hls.loadSource(streamUrl);
+            const bustedUrl = `${streamUrl}${streamUrl.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+            hls.loadSource(bustedUrl);
             hls.attachMedia(video);
 
             hls.on(Hls.Events.MANIFEST_PARSED, () => {
               setIsBuffering(false);
               setError(null);
+              setIsOffline(false);
               const playPromise = video.play();
               if (playPromise !== undefined) {
                 playPromise.catch((e) => {
@@ -136,6 +138,11 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
                   setIsPlaying(false);
                 });
               }
+            });
+
+            hls.on(Hls.Events.FRAG_LOADED, () => {
+              setError(null);
+              setIsOffline(false);
             });
 
             hls.on(Hls.Events.ERROR, (event, data) => {
@@ -165,10 +172,12 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
             });
           } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
             // Native HLS support (Safari)
-            video.src = streamUrl;
+            const bustedUrl = `${streamUrl}${streamUrl.includes('?') ? '&' : '?'}cb=${Date.now()}`;
+            video.src = bustedUrl;
             video.addEventListener('loadedmetadata', () => {
               setIsBuffering(false);
               setError(null);
+              setIsOffline(false);
               const playPromise = video.play();
               if (playPromise !== undefined) {
                 playPromise.catch((e) => {
@@ -206,10 +215,22 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
     const video = videoRef.current;
     if (!video) return;
 
-    const onPlay = () => setIsPlaying(true);
-    const onPause = () => setIsPlaying(false);
+    const onPlay = () => {
+      setIsPlaying(true);
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 2500);
+    };
+    const onPause = () => {
+      setIsPlaying(false);
+      setShowControls(true);
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+    };
     const onWaiting = () => setIsBuffering(true);
-    const onPlaying = () => setIsBuffering(false);
+    const onPlaying = () => {
+      setIsBuffering(false);
+      if (controlsTimeoutRef.current) clearTimeout(controlsTimeoutRef.current);
+      controlsTimeoutRef.current = setTimeout(() => setShowControls(false), 2500);
+    };
     const onVolumeChange = () => {
       setIsMuted(video.muted);
       setVolume(video.volume);
@@ -450,7 +471,10 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
                 step="0.01" 
                 value={isMuted ? 0 : volume} 
                 onChange={handleVolumeChange}
-                className={`transition-all duration-300 h-1.5 bg-white/30 rounded-lg appearance-none cursor-pointer accent-brand-accent ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100'}`}
+                className={`transition-all duration-300 h-1.5 rounded-lg appearance-none cursor-pointer accent-brand-accent ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100'}`}
+                style={{
+                  background: `linear-gradient(to right, var(--color-brand-accent) ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)`
+                }}
               />
             </div>
 

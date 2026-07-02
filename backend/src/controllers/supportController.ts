@@ -3,13 +3,14 @@ import SupportQuery from '../models/SupportQuery';
 
 export const createSupportQuery = async (req: Request, res: Response) => {
   try {
-    const { name, mobile, city, mohalla, query } = req.body;
+    const { itsId, name, mobile, city, mohalla, query } = req.body;
     
-    if (!name || !mobile || !city || !mohalla || !query) {
+    if (!itsId || !name || !mobile || !city || !mohalla || !query) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
     const newQuery = new SupportQuery({
+      itsId,
       name,
       mobile,
       city,

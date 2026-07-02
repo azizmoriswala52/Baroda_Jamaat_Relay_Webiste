@@ -32,16 +32,16 @@ export const login = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
+    const isMatch = await bcrypt.compare(password, user.password as string);
+    if (!isMatch) {
+      res.status(401).json({ message: 'Invalid ITS ID or password' });
+      return;
+    }
+
     // Single Session Lock Check
     const lastSeen = activeSessions.get(itsId);
     if (lastSeen && (Date.now() - lastSeen < 15000)) { // 15 seconds heartbeat timeout
       res.status(403).json({ message: 'The session is already in use for this ITS ID. Please logout from the previous session or contact the administrator.' });
-      return;
-    }
-
-    const isMatch = await bcrypt.compare(password, user.password as string);
-    if (!isMatch) {
-      res.status(401).json({ message: 'Invalid ITS ID or password' });
       return;
     }
 
@@ -72,7 +72,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role, itsId: user.itsId },
+      { userId: user._id, role: user.role, itsId: user.itsId, mohalla: user.mohalla },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -87,7 +87,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         itsId: user.itsId,
         fullName: user.fullName,
         role: user.role,
-        jamaatName: user.jamaatName
+        jamaatName: user.jamaatName,
+        mohalla: user.mohalla
       }
     });
   } catch (error) {
@@ -98,7 +99,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { itsId, password, fullName, email, mobile, jamaatName } = req.body;
+    const { itsId, password, fullName, email, mobile, jamaatName, mohalla } = req.body;
 
     if (!itsId || !password) {
       res.status(400).json({ message: 'ITS ID and password are required' });
@@ -124,7 +125,8 @@ export const register = async (req: Request, res: Response): Promise<void> => {
       fullName,
       email,
       mobile,
-      jamaatName
+      jamaatName,
+      mohalla
     });
 
     await newUser.save();

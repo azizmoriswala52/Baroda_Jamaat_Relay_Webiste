@@ -9,6 +9,7 @@ import { motion } from 'framer-motion';
 const HelpSupportPage = () => {
   useDocumentTitle('Help & Support');
   const [formData, setFormData] = useState({
+    itsId: '',
     name: '',
     mobile: '',
     city: '',
@@ -17,6 +18,7 @@ const HelpSupportPage = () => {
   });
   
   const [formErrors, setFormErrors] = useState({
+    itsId: false,
     name: false,
     mobile: false,
     city: false,
@@ -33,7 +35,7 @@ const HelpSupportPage = () => {
     },
     onSuccess: () => {
       toast.success('Your support query has been submitted successfully!');
-      setFormData({ name: '', mobile: '', city: '', mohalla: '', query: '' });
+      setFormData({ itsId: '', name: '', mobile: '', city: '', mohalla: '', query: '' });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to submit query');
@@ -42,9 +44,10 @@ const HelpSupportPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormErrors({ name: false, mobile: false, city: false, mohalla: false, query: false });
+    setFormErrors({ itsId: false, name: false, mobile: false, city: false, mohalla: false, query: false });
     
     const newErrors = {
+      itsId: !formData.itsId.trim() || !/^\d{8}$/.test(formData.itsId.trim()),
       name: !formData.name.trim(),
       mobile: !formData.mobile.trim(),
       city: !formData.city.trim(),
@@ -85,6 +88,24 @@ const HelpSupportPage = () => {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1">
+                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">ITS ID</label>
+                <input
+                  type="text"
+                  name="itsId"
+                  value={formData.itsId}
+                  onChange={handleChange}
+                  onBlur={(e) => {
+                    if (!/^\d{8}$/.test(e.target.value.trim())) {
+                      setFormErrors((prev) => ({ ...prev, itsId: true }));
+                    }
+                  }}
+                  placeholder="8-digit ITS Number"
+                  className={`input-field ${formErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
+                />
+                {formErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
+              </div>
+
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
                 <input

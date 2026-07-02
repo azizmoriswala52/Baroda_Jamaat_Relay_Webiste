@@ -10,6 +10,7 @@ export interface IStreamSession extends Document {
   scheduledDate: Date;
   viewCount: number;
   thumbnail: string;
+  allowedMohalla: string;
 }
 
 const StreamSessionSchema: Schema = new Schema({
@@ -24,7 +25,8 @@ const StreamSessionSchema: Schema = new Schema({
   isLive: { type: Boolean, default: false },
   scheduledDate: { type: Date, required: true },
   viewCount: { type: Number, default: 0 },
-  thumbnail: { type: String, default: '' }
+  thumbnail: { type: String, default: '' },
+  allowedMohalla: { type: String, default: 'All' }
 }, { timestamps: true });
 
 export default mongoose.model<IStreamSession>('StreamSession', StreamSessionSchema);

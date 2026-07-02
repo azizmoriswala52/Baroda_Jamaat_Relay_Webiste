@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PlayCircle, Radio } from 'lucide-react';
+import { PlayCircle, Radio, RefreshCw } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
@@ -9,7 +9,7 @@ import { apiClient } from '../api/apiClient';
 const DashboardPage = () => {
   const navigate = useNavigate();
 
-  const { data: streams, isLoading } = useQuery({
+  const { data: streams, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['streams'],
     queryFn: () => apiClient('/streams'),
   });
@@ -26,7 +26,17 @@ const DashboardPage = () => {
   return (
     <>
       <div className="mb-8">
-        <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Available Relays</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Available Relays</h3>
+          <button 
+            onClick={() => refetch()}
+            className="p-2 hover:bg-slate-200 rounded-lg transition-colors flex items-center text-sm font-medium text-slate-600"
+            title="Refresh Relays"
+          >
+            <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin text-brand-accent' : ''}`} />
+            Refresh
+          </button>
+        </div>
         <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
       </div>
 
@@ -100,7 +110,7 @@ const DashboardPage = () => {
                   {/* Bottom Text Area */}
                   <div className="p-5 bg-white border-t border-slate-100 flex flex-col justify-center">
                     <h4 className="text-xl sm:text-2xl font-bold text-slate-800 truncate mb-1">{relay.title}</h4>
-                    <p className="text-xs text-slate-500 font-medium">Speaker Name: {relay.speaker}</p>
+                    <p className="text-xs text-slate-500 font-medium">Waaz karnar: {relay.speaker}</p>
                   </div>
                 </motion.div>
               ))}

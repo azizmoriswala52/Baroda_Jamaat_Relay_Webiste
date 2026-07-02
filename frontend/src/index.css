@@ -27,6 +27,10 @@
     background-color: var(--color-brand-accent);
     color: #ffffff;
   }
+
+  button, a, [role="button"] {
+    cursor: pointer;
+  }
 }
 
 @layer components {

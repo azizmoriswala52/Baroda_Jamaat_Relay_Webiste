@@ -19,7 +19,7 @@ const AdminDashboard = () => {
   const [showStreamForm, setShowStreamForm] = useState(false);
   const [editingStreamId, setEditingStreamId] = useState<string | null>(null);
   const [streamFormData, setStreamFormData] = useState({
-    title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: ''
+    title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All'
   });
   const [streamFormErrors, setStreamFormErrors] = useState<{ title?: boolean, speaker?: boolean, servers?: { name?: boolean, url?: boolean }[] }>({});
   const [showStreamTypeDropdown, setShowStreamTypeDropdown] = useState(false);
@@ -35,7 +35,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
       toast.success('Stream created successfully!');
     },
     onError: () => toast.error('Failed to create stream.')
@@ -47,7 +47,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
       setEditingStreamId(null);
       toast.success('Stream updated successfully!');
     },
@@ -166,7 +166,8 @@ const AdminDashboard = () => {
       description: stream.description,
       servers: stream.servers?.length ? stream.servers : [{ name: 'Server A', url: stream.streamUrl || '' }],
       streamType: stream.streamType,
-      thumbnail: stream.thumbnail || ''
+      thumbnail: stream.thumbnail || '',
+      allowedMohalla: stream.allowedMohalla || 'All'
     });
     setEditingStreamId(stream._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -176,7 +177,7 @@ const AdminDashboard = () => {
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [showUserForm, setShowUserForm] = useState(false);
   const [userFormData, setUserFormData] = useState({
-    itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER'
+    itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani'
   });
   const [userFormErrors, setUserFormErrors] = useState<{ itsId?: boolean, fullName?: boolean, email?: boolean, mobile?: boolean }>({});
 
@@ -196,6 +197,36 @@ const AdminDashboard = () => {
   const { data: loginIssues, isLoading: isLoadingLoginIssues, refetch: refetchLoginIssues, isFetching: isFetchingLoginIssues } = useQuery({
     queryKey: ['loginIssues'],
     queryFn: () => apiClient('/login-issues'),
+  });
+
+  // --- MOHALLA STATE & MUTATIONS ---
+  const [showMohallaManager, setShowMohallaManager] = useState(false);
+  const [newMohallaName, setNewMohallaName] = useState('');
+
+  const { data: mohallas, isLoading: isLoadingMohallas } = useQuery({
+    queryKey: ['mohallas'],
+    queryFn: () => apiClient('/mohallas'),
+  });
+
+  const createMohallaMutation = useMutation({
+    mutationFn: (data: { name: string }) => apiClient('/mohallas', {
+      method: 'POST', body: JSON.stringify(data),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mohallas'] });
+      toast.success('Mohalla added successfully!');
+      setNewMohallaName('');
+    },
+    onError: (err: any) => toast.error(err.message || 'Failed to add Mohalla')
+  });
+
+  const deleteMohallaMutation = useMutation({
+    mutationFn: (id: string) => apiClient(`/mohallas/${id}`, { method: 'DELETE' }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mohallas'] });
+      toast.success('Mohalla deleted!');
+    },
+    onError: () => toast.error('Failed to delete Mohalla')
   });
 
   const deleteQueryMutation = useMutation({
@@ -222,7 +253,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
       setShowUserForm(false);
       toast.success('User created successfully!');
     },
@@ -264,7 +295,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
       setShowUserForm(false);
       setEditingUserId(null);
       toast.success('User updated successfully!');
@@ -290,10 +321,9 @@ const AdminDashboard = () => {
     const newErrors = {
       itsId: !userFormData.itsId.trim() || !/^\d{8}$/.test(userFormData.itsId.trim()),
       fullName: !userFormData.fullName.trim(),
-      email: !userFormData.email.trim(),
       mobile: !userFormData.mobile.trim()
     };
-    if (newErrors.itsId || newErrors.fullName || newErrors.email || newErrors.mobile) hasErrors = true;
+    if (newErrors.itsId || newErrors.fullName || newErrors.mobile) hasErrors = true;
 
     if (hasErrors) {
       setUserFormErrors(newErrors);
@@ -318,7 +348,8 @@ const AdminDashboard = () => {
       email: user.email,
       mobile: user.mobile,
       password: '', // Leave empty to not change
-      role: user.role
+      role: user.role,
+      mohalla: user.mohalla || 'Burhani'
     });
     setEditingUserId(user._id);
     setShowUserForm(true);
@@ -390,7 +421,7 @@ const AdminDashboard = () => {
                       onClick={() => {
                         if (editingStreamId) {
                           setEditingStreamId(null);
-                          setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '' });
+                          setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
                           setShowStreamForm(false);
                         } else {
                           setShowStreamForm(!showStreamForm);
@@ -429,7 +460,7 @@ const AdminDashboard = () => {
                             type="button"
                             onClick={() => {
                               setEditingStreamId(null);
-                              setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '' });
+                              setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
                               setShowStreamForm(false);
                             }}
                             className="absolute top-8 right-8 text-xs font-medium text-slate-500 hover:text-slate-800"
@@ -445,13 +476,24 @@ const AdminDashboard = () => {
                             {streamFormErrors.title && <p className="text-red-500 text-xs px-1">Stream Title is required</p>}
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Speaker Name</label>
+                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Waaz karnar</label>
                             <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="e.g. Syedi Mukasir Saheb" />
-                            {streamFormErrors.speaker && <p className="text-red-500 text-xs px-1">Speaker Name is required</p>}
+                            {streamFormErrors.speaker && <p className="text-red-500 text-xs px-1">Waaz karnar is required</p>}
                           </div>
                           <div className="md:col-span-2">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Description (Optional)</label>
                             <input type="text" name="description" value={streamFormData.description} onChange={handleStreamChange} className="input-field" placeholder="Description of the event" />
+                          </div>
+
+                          <div className="md:col-span-2">
+                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Mohalla</label>
+                            <select name="allowedMohalla" value={streamFormData.allowedMohalla} onChange={handleStreamChange} className="input-field bg-white">
+                              <option value="All">All</option>
+                              {mohallas?.map((m: any) => (
+                                <option key={m._id} value={m.name}>{m.name}</option>
+                              ))}
+                            </select>
+                            <p className="text-xs text-slate-400 mt-1">Users not in the selected Mohalla will not be able to view this stream.</p>
                           </div>
 
                           <div className="md:col-span-2">
@@ -609,7 +651,7 @@ const AdminDashboard = () => {
                   <div className="p-4 border-b border-slate-200"><h3 className="text-lg font-medium">Relay History</h3></div>
                   <table className="w-full text-left text-sm text-slate-600">
                     <thead className="bg-slate-200 border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-semibold">
-                      <tr><th className="px-6 py-4">Title</th><th className="px-6 py-4">Speaker</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
+                      <tr><th className="px-6 py-4">Title</th><th className="px-6 py-4">Waaz karnar</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {isLoadingStreams ? (
@@ -656,6 +698,13 @@ const AdminDashboard = () => {
                   </div>
                   <div className="flex items-center space-x-3">
                     <button
+                      onClick={() => setShowMohallaManager(!showMohallaManager)}
+                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200"
+                    >
+                      <Plus className="w-4 h-4 mr-2" />
+                      Manage Mohallas
+                    </button>
+                    <button
                       onClick={() => refetchUsers()}
                       className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
                       title="Refresh Members"
@@ -668,7 +717,7 @@ const AdminDashboard = () => {
                         if (showUserForm) {
                           setShowUserForm(false);
                           setEditingUserId(null);
-                          setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER' });
+                          setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
                         } else {
                           setShowUserForm(true);
                         }
@@ -692,6 +741,61 @@ const AdminDashboard = () => {
                 </div>
 
                 <AnimatePresence>
+                  {showMohallaManager && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, y: -20 }}
+                      animate={{ opacity: 1, height: 'auto', y: 0 }}
+                      exit={{ opacity: 0, height: 0, y: -20, margin: 0, padding: 0, overflow: 'hidden' }}
+                      transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    >
+                      <div className="clean-panel p-6 bg-purple-50/50 border-purple-100 mb-6">
+                        <div className="flex justify-between items-center mb-4">
+                          <h3 className="text-lg font-medium text-purple-900">Manage Mohallas</h3>
+                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                        </div>
+                        <div className="flex gap-4 mb-6">
+                          <input 
+                            type="text" 
+                            value={newMohallaName} 
+                            onChange={(e) => setNewMohallaName(e.target.value)} 
+                            placeholder="Enter new Mohalla name..." 
+                            className="input-field flex-1 max-w-sm bg-white"
+                          />
+                          <button 
+                            onClick={() => {
+                              if (newMohallaName.trim()) createMohallaMutation.mutate({ name: newMohallaName });
+                            }} 
+                            disabled={createMohallaMutation.isPending || !newMohallaName.trim()}
+                            className="btn-primary bg-purple-600 hover:bg-purple-700 shadow-purple-600/20"
+                          >
+                            {createMohallaMutation.isPending ? 'Adding...' : 'Add Mohalla'}
+                          </button>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {isLoadingMohallas ? (
+                            <span className="text-sm text-slate-500">Loading...</span>
+                          ) : mohallas?.map((m: any) => (
+                            <div key={m._id} className="flex items-center bg-white border border-purple-200 rounded-full pl-3 pr-1 py-1 shadow-sm">
+                              <span className="text-sm font-medium text-purple-800 mr-2">{m.name}</span>
+                              <button 
+                                onClick={() => {
+                                  if (window.confirm(`Delete ${m.name}? This might break existing users assigned to it.`)) {
+                                    deleteMohallaMutation.mutate(m._id);
+                                  }
+                                }}
+                                className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
+                <AnimatePresence>
                   {showUserForm && (
                     <motion.div
                       initial={{ opacity: 0, height: 0, y: -20 }}
@@ -704,7 +808,11 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">ITS ID</label>
-                            <input type="text" name="itsId" value={userFormData.itsId} onChange={handleUserChange} placeholder="8-digit ITS Number" className={`input-field ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
+                            <input type="text" name="itsId" value={userFormData.itsId} onChange={handleUserChange} onBlur={(e) => {
+                              if (!/^\d{8}$/.test(e.target.value.trim())) {
+                                setUserFormErrors((prev) => ({ ...prev, itsId: true }));
+                              }
+                            }} placeholder="8-digit ITS Number" className={`input-field ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
                             {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
                           </div>
                           <div className="space-y-1">
@@ -714,8 +822,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Email</label>
-                            <input type="email" name="email" value={userFormData.email} onChange={handleUserChange} className={`input-field ${userFormErrors.email ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
-                            {userFormErrors.email && <p className="text-red-500 text-xs px-1">Email is required</p>}
+                            <input type="email" name="email" value={userFormData.email} onChange={handleUserChange} className="input-field" placeholder="Optional" />
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
@@ -731,6 +838,14 @@ const AdminDashboard = () => {
                             <select name="role" value={userFormData.role} onChange={handleUserChange} className="input-field bg-white">
                               <option value="USER">User</option>
                               <option value="ADMIN">Admin</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mohalla</label>
+                            <select name="mohalla" value={userFormData.mohalla} onChange={handleUserChange} className="input-field bg-white">
+                              {mohallas?.map((m: any) => (
+                                <option key={m._id} value={m.name}>{m.name}</option>
+                              ))}
                             </select>
                           </div>
                           <div className="md:col-span-2 pt-6 border-t border-slate-200 mt-2">
@@ -750,6 +865,7 @@ const AdminDashboard = () => {
                       <tr>
                         <th className="px-4 py-4 whitespace-nowrap">ITS ID</th>
                         <th className="px-4 py-4 whitespace-nowrap">Member</th>
+                        <th className="px-4 py-4 whitespace-nowrap">Mohallah</th>
                         <th className="px-4 py-4 whitespace-nowrap">Email</th>
                         <th className="px-4 py-4 whitespace-nowrap">Mobile NO.</th>
                         <th className="px-4 py-4 whitespace-nowrap">Session Status</th>
@@ -774,6 +890,11 @@ const AdminDashboard = () => {
                                 {user.isActive ? 'ACTIVE' : 'DISABLED'}
                               </span>
                             </div>
+                          </td>
+                          <td className="px-4 py-4">
+                            <span className="px-2 py-0.5 rounded text-[10px] font-bold border text-purple-700 bg-purple-50 border-purple-200">
+                              {user.mohalla || 'Burhani'}
+                            </span>
                           </td>
                           <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
                             {user.email || <span className="text-slate-400 italic">N/A</span>}
@@ -908,10 +1029,14 @@ const AdminDashboard = () => {
                               </button>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date Submitted</span>
                                 <span className="text-sm font-medium text-slate-800">{new Date(selectedQuery.createdAt).toLocaleDateString()}</span>
+                              </div>
+                              <div>
+                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">ITS ID</span>
+                                <span className="text-sm font-medium text-brand-accent font-mono">{selectedQuery.itsId}</span>
                               </div>
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mobile</span>
@@ -942,6 +1067,7 @@ const AdminDashboard = () => {
                               <thead>
                                 <tr className="bg-slate-50 border-b border-slate-200">
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mobile</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">City/Town</th>
@@ -955,6 +1081,9 @@ const AdminDashboard = () => {
                                   <tr key={q._id} onClick={() => setSelectedQuery(q)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
                                       {new Date(q.createdAt).toLocaleDateString()}
+                                    </td>
+                                    <td className="py-4 px-6 whitespace-nowrap text-sm font-mono text-brand-accent font-medium">
+                                      {q.itsId}
                                     </td>
                                     <td className="py-4 px-6 whitespace-nowrap">
                                       <div className="text-sm font-semibold text-slate-800">{q.name}</div>

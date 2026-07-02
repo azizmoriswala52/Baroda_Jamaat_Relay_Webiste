@@ -18,19 +18,54 @@ const BOHRA_MONTHS = [
 
 const getBohraDate = () => {
   try {
-    const formatter = new Intl.DateTimeFormat('en-US-u-ca-islamic-civil', {
-      day: 'numeric', month: 'numeric', year: 'numeric'
-    });
+    const date = new Date();
+    // The user explicitly stated they are observing dates 1 day ahead of the standard tabular calculation
+    date.setDate(date.getDate() + 1);
     
-    // Offset by +1 day to align with the Dawoodi Bohra Misri calendar
-    const targetDate = new Date();
-    targetDate.setDate(targetDate.getDate() + 1);
+    // Offset for timezones to ensure we get the local day correctly
+    const unixEpoch = Date.UTC(date.getFullYear(), date.getMonth(), date.getDate());
+    const daysSinceUnix = Math.floor(unixEpoch / (1000 * 60 * 60 * 24));
     
-    const parts = formatter.format(targetDate).split(' ')[0].split('/');
-    const month = parseInt(parts[0], 10) - 1;
-    const day = parts[1];
-    const year = parts[2];
-    return `${day} ${BOHRA_MONTHS[month]} ${year}H`;
+    // Misri Epoch (July 15, 622 CE) is exactly 492148 days before Unix Epoch
+    const daysSinceMisriEpoch = daysSinceUnix + 492148;
+    
+    // 30-year cycle has 10631 days
+    const cycles = Math.floor(daysSinceMisriEpoch / 10631);
+    const daysInCurrentCycle = daysSinceMisriEpoch % 10631;
+    
+    let yearInCycle = 0;
+    let remainingDays = daysInCurrentCycle;
+    
+    // Fatimid Leap years in 30-year cycle
+    const isLeapYear = (y: number) => [2, 5, 8, 10, 13, 16, 19, 21, 24, 27, 29].includes(y);
+    
+    for (let i = 1; i <= 30; i++) {
+      const daysInYear = isLeapYear(i) ? 355 : 354;
+      if (remainingDays < daysInYear) {
+        yearInCycle = i;
+        break;
+      }
+      remainingDays -= daysInYear;
+    }
+    
+    const hijriYear = cycles * 30 + yearInCycle;
+    
+    let month = 0;
+    for (let i = 1; i <= 12; i++) {
+      let daysInMonth = (i % 2 !== 0) ? 30 : 29;
+      if (i === 12 && isLeapYear(yearInCycle)) {
+        daysInMonth = 30;
+      }
+      
+      if (remainingDays < daysInMonth) {
+        month = i;
+        break;
+      }
+      remainingDays -= daysInMonth;
+    }
+    
+    const day = remainingDays + 1;
+    return `${day} ${BOHRA_MONTHS[month - 1]} ${hijriYear}H`;
   } catch (e) {
     return '';
   }

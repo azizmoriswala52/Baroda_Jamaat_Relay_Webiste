@@ -10,6 +10,7 @@ import userRoutes from './routes/userRoutes';
 import announcementRoutes from './routes/announcementRoutes';
 import supportRoutes from './routes/supportRoutes';
 import loginIssueRoutes from './routes/loginIssueRoutes';
+import mohallaRoutes from './routes/mohallaRoutes';
 
 dotenv.config();
 
@@ -27,6 +28,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/login-issues', loginIssueRoutes);
+app.use('/api/mohallas', mohallaRoutes);
 
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', message: 'Jamaat Waaz Relay API is running' });

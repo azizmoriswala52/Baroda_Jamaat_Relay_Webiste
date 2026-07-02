@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ISupportQuery extends Document {
+  itsId: string;
   name: string;
   mobile: string;
   city: string;
@@ -10,6 +11,7 @@ export interface ISupportQuery extends Document {
 }
 
 const SupportQuerySchema: Schema = new Schema({
+  itsId: { type: String, required: true },
   name: { type: String, required: true },
   mobile: { type: String, required: true },
   city: { type: String, required: true },

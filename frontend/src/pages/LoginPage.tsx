@@ -81,18 +81,9 @@ const LoginPage = () => {
         setIsLoading(false);
       }
     } catch (err) {
-      if (itsId === '40421333' && password === '1234') {
-        sessionStorage.setItem('token', 'mock-token');
-        sessionStorage.setItem('user', JSON.stringify({ itsId: '40421333', fullName: 'Abbas Ali', role: 'ADMIN' }));
-        toast.success('Login successful (Mock Mode)');
-        setTimeout(() => {
-          navigate('/dashboard');
-        }, 800);
-      } else {
-        setError('Cannot connect to backend server. Make sure MongoDB is running.');
-        toast.error('Login failed');
-        setIsLoading(false);
-      }
+      setError('Cannot connect to backend server. Make sure MongoDB is running.');
+      toast.error('Login failed');
+      setIsLoading(false);
     }
   };
 
@@ -192,6 +183,11 @@ const LoginPage = () => {
                           setItsId(val);
                           if (fieldErrors.itsId) setFieldErrors({ ...fieldErrors, itsId: false });
                         }}
+                        onBlur={(e) => {
+                          if (!/^\d{8}$/.test(e.target.value.trim())) {
+                            setFieldErrors((prev) => ({ ...prev, itsId: true }));
+                          }
+                        }}
                       />
                       {fieldErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
                     </div>
@@ -285,6 +281,11 @@ const LoginPage = () => {
                         name="itsId"
                         value={issueFormData.itsId}
                         onChange={handleIssueChange}
+                        onBlur={(e) => {
+                          if (!/^\d{8}$/.test(e.target.value.trim())) {
+                            setIssueFormErrors((prev) => ({ ...prev, itsId: true }));
+                          }
+                        }}
                         placeholder="Enter your 8-digit ITS Number"
                         className={`input-field ${issueFormErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />

@@ -4,11 +4,45 @@ import Announcement from '../models/Announcement';
 import SupportQuery from '../models/SupportQuery';
 import jwt from 'jsonwebtoken';
 import mongoose from 'mongoose';
+import fs from 'fs';
+import path from 'path';
+
+const clearLiveMedia = () => {
+  try {
+    const liveDir = path.join(__dirname, '../../media/live');
+    if (fs.existsSync(liveDir)) {
+      // Read all stream directories (e.g. streamA, streamB)
+      const dirs = fs.readdirSync(liveDir);
+      for (const dir of dirs) {
+        const streamPath = path.join(liveDir, dir);
+        if (fs.statSync(streamPath).isDirectory()) {
+          // Delete all .ts and .m3u8 files in the stream directory
+          const files = fs.readdirSync(streamPath);
+          for (const file of files) {
+            if (file.endsWith('.ts') || file.endsWith('.m3u8')) {
+              fs.unlinkSync(path.join(streamPath, file));
+            }
+          }
+        }
+      }
+    }
+  } catch (error) {
+    console.error('Error clearing live media:', error);
+  }
+};
 
 // Get all stream sessions
 export const getAllStreams = async (req: Request, res: Response): Promise<void> => {
   try {
-    const streams = await StreamSession.find().sort({ createdAt: -1 });
+    let streams = await StreamSession.find().sort({ createdAt: -1 });
+    
+    const user = (req as any).user;
+    if (user && user.role !== 'ADMIN') {
+      streams = streams.filter(stream => 
+        !stream.allowedMohalla || stream.allowedMohalla === 'All' || stream.allowedMohalla === user.mohalla
+      );
+    }
+    
     res.json(streams);
   } catch (error) {
     console.error('Get Streams Error:', error);
@@ -24,6 +58,15 @@ export const getActiveStream = async (req: Request, res: Response): Promise<void
       res.status(404).json({ message: 'No active stream found' });
       return;
     }
+
+    const user = (req as any).user;
+    if (activeStream.allowedMohalla && activeStream.allowedMohalla !== 'All') {
+      if (!user || user.mohalla !== activeStream.allowedMohalla) {
+        res.status(403).json({ message: 'This relay is restricted to specific Mohallas.' });
+        return;
+      }
+    }
+
     res.json(activeStream);
   } catch (error) {
     console.error('Get Active Stream Error:', error);
@@ -34,7 +77,7 @@ export const getActiveStream = async (req: Request, res: Response): Promise<void
 // Create a new stream session (Admin only)
 export const createStream = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { title, speaker, description, servers, streamType, scheduledDate, isLive, thumbnail } = req.body;
+    const { title, speaker, description, servers, streamType, scheduledDate, isLive, thumbnail, allowedMohalla } = req.body;
 
     // If setting this stream as live, deactivate all others
     if (isLive) {
@@ -49,7 +92,8 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
       streamType: streamType || 'YOUTUBE',
       scheduledDate: scheduledDate || new Date(),
       isLive: isLive || false,
-      thumbnail: thumbnail || ''
+      thumbnail: thumbnail || '',
+      allowedMohalla: allowedMohalla || 'All'
     });
 
     await newStream.save();
@@ -59,6 +103,9 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
       Announcement.deleteMany({}),
       SupportQuery.deleteMany({})
     ]);
+
+    // Clear old video files from disk to prevent playing past streams
+    clearLiveMedia();
 
     res.status(201).json(newStream);
   } catch (error) {
@@ -71,7 +118,7 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
 export const updateStream = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { isLive, ...updateData } = req.body;
+    const { isLive, allowedMohalla, ...updateData } = req.body;
 
     // If setting this stream as live, deactivate all others
     if (isLive === true) {
@@ -80,7 +127,7 @@ export const updateStream = async (req: Request, res: Response): Promise<void> =
 
     const updatedStream = await StreamSession.findByIdAndUpdate(
       id,
-      { ...updateData, isLive },
+      { ...updateData, isLive, allowedMohalla: allowedMohalla || 'All' },
       { returnDocument: 'after' }
     );
 
@@ -112,6 +159,9 @@ export const deleteStream = async (req: Request, res: Response): Promise<void> =
       Announcement.deleteMany({}),
       SupportQuery.deleteMany({})
     ]);
+
+    // Clear old video files from disk
+    clearLiveMedia();
 
     res.json({ message: 'Stream deleted successfully' });
   } catch (error) {

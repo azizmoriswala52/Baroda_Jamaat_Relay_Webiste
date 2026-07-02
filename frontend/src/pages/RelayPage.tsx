@@ -53,7 +53,7 @@ const RelayPage = () => {
   };
 
   // Fetch active stream
-  const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError } = useQuery({
+  const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError, refetch: refetchStream, isFetching: isFetchingStream } = useQuery({
     queryKey: ['activeStream'],
     queryFn: () => apiClient('/streams/active'),
     refetchInterval: 10000,
@@ -133,8 +133,10 @@ const RelayPage = () => {
   }
 
   useEffect(() => {
-    // No longer auto-selecting servers, letting user decide or loading from session
-  }, [servers]);
+    if (servers.length === 1 && !selectedServer) {
+      setSelectedServer(servers[0]);
+    }
+  }, [servers, selectedServer]);
 
   const schedules = announcements?.filter((a: any) => a.type === 'SCHEDULE') || [];
   const updates = announcements?.filter((a: any) => a.type === 'UPDATE') || [];
@@ -147,9 +149,18 @@ const RelayPage = () => {
           <p className="text-sm text-slate-500">Live streaming and session management</p>
         </div>
         {isCurrentlyLive && (
-          <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
-            <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
-          </span>
+          <div className="flex items-center space-x-3">
+            <button 
+              onClick={() => refetchStream()}
+              className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
+              title="Refresh Stream"
+            >
+              <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStream ? 'animate-spin text-brand-accent' : ''}`} />
+            </button>
+            <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
+              <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
+            </span>
+          </div>
         )}
       </div>
 
@@ -158,26 +169,22 @@ const RelayPage = () => {
         <div className="flex-1 flex flex-col space-y-6">
           
           {/* Server Selection Area - Inline Buttons */}
-          {isCurrentlyLive && (
+          {isCurrentlyLive && servers.length > 1 && (
             <div className="flex flex-wrap gap-3 items-center">
               <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider mr-2">Select Server:</span>
-              {servers.length > 0 ? (
-                servers.map((server: any, idx: number) => (
-                  <button
-                    key={idx}
-                    onClick={() => handleServerSelect(server)}
-                    className={`btn-primary flex items-center space-x-2 ${
-                      selectedServer?.name === server.name 
-                        ? '!bg-brand-accent !text-white' 
-                        : ''
-                    }`}
-                  >
-                    <span>{server.name}</span>
-                  </button>
-                ))
-              ) : (
-                <span className="text-sm text-red-500 font-medium">No servers configured.</span>
-              )}
+              {servers.map((server: any, idx: number) => (
+                <button
+                  key={idx}
+                  onClick={() => handleServerSelect(server)}
+                  className={`btn-primary flex items-center space-x-2 ${
+                    selectedServer?.name === server.name 
+                      ? '!bg-brand-accent !text-white' 
+                      : ''
+                  }`}
+                >
+                  <span>{server.name}</span>
+                </button>
+              ))}
             </div>
           )}
 
@@ -233,7 +240,7 @@ const RelayPage = () => {
                 <h2 className="text-xl font-semibold tracking-tight mb-1 text-slate-800">{activeStream?.title || 'Relay Offline'}</h2>
                 <p className="text-brand-accent text-xs font-bold uppercase tracking-widest">{activeStream?.speaker || 'Waiting for connection...'}</p>
               </div>
-              {selectedServer && (
+              {selectedServer && servers.length > 1 && (
                 <div className="bg-white text-brand-accent border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center shadow-sm">
                   Connected to {selectedServer.name}
                 </div>
