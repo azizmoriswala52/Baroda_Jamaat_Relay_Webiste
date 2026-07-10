@@ -1,13 +1,13 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, FileText, ChevronRight, Share2, MessageSquare, Plus, Trash2, Calendar, Menu, Home, Video, LogOut, User, Bell, Maximize, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
-import VideoPlayer from '../components/VideoPlayer';
-import ReactPlayer from 'react-player';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
+import { useConfirm } from '../contexts/ConfirmContext';
+import { usePlayer } from '../contexts/PlayerContext';
 
 const RelayPage = () => {
   const queryClient = useQueryClient();
@@ -33,8 +33,10 @@ const RelayPage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const confirm = useConfirm();
+
   const handleLogoutWithConfirm = async () => {
-    if (window.confirm("Do you want to logout?")) {
+    if (await confirm("Do you want to logout?")) {
       try {
         await apiClient('/auth/logout', { method: 'POST' });
       } catch (e) {
@@ -46,19 +48,61 @@ const RelayPage = () => {
     }
   };
 
-  const [selectedServer, setSelectedServer] = useState<{ name: string, url: string } | null>(null);
+  const { 
+    activeStream, 
+    isLoadingStream, 
+    isStreamError, 
+    refetchStream, 
+    isFetchingStream,
+    isCurrentlyLive,
+    servers,
+    selectedServer,
+    setSelectedServer,
+    setPlayerRect
+  } = usePlayer();
+
+  const placeholderRef = useRef<HTMLDivElement>(null);
+
+  useLayoutEffect(() => {
+    const updateRect = () => {
+      if (placeholderRef.current) {
+        const mainContainer = document.getElementById('main-scroll-container');
+        if (!mainContainer) return;
+        
+        const mainRect = mainContainer.getBoundingClientRect();
+        const phRect = placeholderRef.current.getBoundingClientRect();
+        
+        setPlayerRect({
+          top: phRect.top - mainRect.top + mainContainer.scrollTop,
+          left: phRect.left - mainRect.left,
+          width: phRect.width,
+          height: phRect.height
+        });
+      }
+    };
+
+    updateRect();
+    
+    // We use a small timeout to ensure layout is fully settled
+    setTimeout(updateRect, 100);
+
+    const observer = new ResizeObserver(updateRect);
+    if (placeholderRef.current) {
+      observer.observe(placeholderRef.current);
+    }
+    window.addEventListener('resize', updateRect);
+    
+    return () => {
+      observer.disconnect();
+      window.removeEventListener('resize', updateRect);
+      // Reset when unmounting relay page
+      setPlayerRect({ top: 0, left: 0, width: 0, height: 0 });
+    };
+  }, [setPlayerRect]);
 
   const handleServerSelect = (server: any) => {
     setSelectedServer(server);
   };
-
-  // Fetch active stream
-  const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError, refetch: refetchStream, isFetching: isFetchingStream } = useQuery({
-    queryKey: ['activeStream'],
-    queryFn: () => apiClient('/streams/active'),
-    refetchInterval: 10000,
-    retry: false, // Do not retry 404s, fail immediately
-  });
 
   useEffect(() => {
     if (!isLoadingStream) {
@@ -73,7 +117,7 @@ const RelayPage = () => {
   const { data: announcements, isLoading: isLoadingAnnouncements } = useQuery({
     queryKey: ['announcements'],
     queryFn: () => apiClient('/announcements'),
-    refetchInterval: 10000,
+    refetchInterval: 5000,
   });
 
   // Mutations for Announcements
@@ -124,19 +168,7 @@ const RelayPage = () => {
     });
   };
 
-  const isCurrentlyLive = activeStream?.isLive || false;
-  
-  // Backward compatibility: If no servers array exists but legacy streamUrl does, create a mock server button
-  let servers = activeStream?.servers || [];
-  if (servers.length === 0 && activeStream?.streamUrl) {
-    servers = [{ name: 'Server A', url: activeStream.streamUrl }];
-  }
 
-  useEffect(() => {
-    if (servers.length === 1 && !selectedServer) {
-      setSelectedServer(servers[0]);
-    }
-  }, [servers, selectedServer]);
 
   const schedules = announcements?.filter((a: any) => a.type === 'SCHEDULE') || [];
   const updates = announcements?.filter((a: any) => a.type === 'UPDATE') || [];
@@ -188,50 +220,8 @@ const RelayPage = () => {
             </div>
           )}
 
-          {isLoadingStream ? (
-            <div className="w-full aspect-video flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 text-slate-400">
-              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-accent mb-4"></div>
-              <p className="text-sm font-medium">Connecting to relay...</p>
-            </div>
-          ) : isCurrentlyLive ? (
-            selectedServer ? (
-              <div className="w-full aspect-video relative rounded-2xl overflow-hidden shadow-2xl bg-black ring-1 ring-white/5">
-                {activeStream.streamType === 'YOUTUBE' ? (
-                  <ReactPlayer 
-                    url={
-                      selectedServer.url.includes('<iframe') 
-                        ? (selectedServer.url.match(/src="([^"]+)"/) || [])[1] || selectedServer.url 
-                        : selectedServer.url
-                    } 
-                    width="100%" 
-                    height="100%" 
-                    controls 
-                    playing={true}
-                    className="absolute inset-0"
-                    config={{
-                      youtube: {
-                        playerVars: { autoplay: 1 }
-                      }
-                    }}
-                  />
-                ) : (
-                  <VideoPlayer 
-                    className="w-full h-full absolute inset-0" 
-                    fallbackUrl={selectedServer?.url} 
-                    serverName={selectedServer.name}
-                  />
-                )}
-              </div>
-            ) : null
-          ) : (
-            <div 
-              onClick={() => toast.error('The live stream is currently offline.', { icon: '📡' })}
-              className="w-full aspect-video flex flex-col items-center justify-center bg-slate-900 rounded-2xl border border-slate-800 text-slate-400 cursor-pointer hover:bg-slate-800 transition-colors"
-            >
-              <Radio className="w-12 h-12 mb-4 opacity-50" />
-              <p className="text-sm font-medium">No active relays currently.</p>
-            </div>
-          )}
+          {/* Placeholder for the Persistent Player */}
+          <div ref={placeholderRef} className="w-full aspect-video rounded-2xl bg-transparent" />
 
           {/* Stream Info Card */}
           <div className="clean-panel overflow-hidden">

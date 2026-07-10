@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
-import { HelpCircle, Send, ArrowLeft } from 'lucide-react';
+import { HelpCircle, Send, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -121,7 +121,7 @@ const LoginPage = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('All fields are required');
+        toast.error('All fields are required', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
       }
       return;
     }
@@ -132,11 +132,11 @@ const LoginPage = () => {
     let value = e.target.value;
     if (e.target.name === 'itsId') {
       value = value.replace(/\D/g, '').slice(0, 8);
+      if (issueFormErrors.itsId) setIssueFormErrors({ ...issueFormErrors, itsId: false });
+    } else {
+      if (issueFormErrors.issueDescription) setIssueFormErrors({ ...issueFormErrors, issueDescription: false });
     }
     setIssueFormData({ ...issueFormData, [e.target.name]: value });
-    if (issueFormErrors[e.target.name as keyof typeof issueFormErrors]) {
-      setIssueFormErrors({ ...issueFormErrors, [e.target.name]: false });
-    }
   };
 
   return (
@@ -174,8 +174,9 @@ const LoginPage = () => {
 
                     <div className="space-y-1">
                       <input
-                        type="text"
-                        className={`input-field focus:bg-white focus:border-brand-accent text-slate-800 ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-200 border-transparent'}`}
+                        type="number"
+                        inputMode="numeric"
+                        className={`input-field focus:bg-white focus:border-brand-accent text-slate-800 ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-200 border-transparent'} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                         placeholder="ITS ID"
                         value={itsId}
                         onChange={(e) => {
@@ -212,8 +213,8 @@ const LoginPage = () => {
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
                             <circle cx="12" cy="12" r="3" />
-                            <motion.line 
-                              x1="2" y1="2" x2="22" y2="22" 
+                            <motion.line
+                              x1="2" y1="2" x2="22" y2="22"
                               initial={false}
                               animate={{ pathLength: !showPassword ? 1 : 0, opacity: !showPassword ? 1 : 0 }}
                               transition={{ duration: 0.25, ease: "easeInOut" }}
@@ -264,9 +265,7 @@ const LoginPage = () => {
                   </button>
 
                   <div className="flex items-center space-x-3 mb-8">
-                    <div className="w-10 h-10 rounded-full bg-red-50 flex items-center justify-center text-red-500 shrink-0">
-                      <HelpCircle className="w-5 h-5" />
-                    </div>
+                    <HelpCircle className="w-5 h-5 text-brand-accent shrink-0" />
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800 leading-none mb-1">Login Issue</h2>
                       <p className="text-sm text-slate-500">Submit your details to get help.</p>
@@ -277,7 +276,8 @@ const LoginPage = () => {
                     <div className="space-y-1">
                       <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">ITS ID</label>
                       <input
-                        type="text"
+                        type="number"
+                        inputMode="numeric"
                         name="itsId"
                         value={issueFormData.itsId}
                         onChange={handleIssueChange}
@@ -287,7 +287,7 @@ const LoginPage = () => {
                           }
                         }}
                         placeholder="Enter your 8-digit ITS Number"
-                        className={`input-field ${issueFormErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
+                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />
                       {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
                     </div>
@@ -302,6 +302,7 @@ const LoginPage = () => {
                         rows={3}
                         className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />
+                      {issueFormErrors.issueDescription && <p className="text-red-500 text-xs px-1">Please describe your issue</p>}
                     </div>
 
                     <div className="pt-4">

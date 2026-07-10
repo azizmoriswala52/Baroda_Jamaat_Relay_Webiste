@@ -1,12 +1,17 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw } from 'lucide-react';
+import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw, LogOut, Search } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { apiClient } from '../api/apiClient';
+import CustomDropdown from '../components/CustomDropdown';
+import MultiSelectDropdown from '../components/MultiSelectDropdown';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 const AdminDashboard = () => {
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState('stream');
   const queryClient = useQueryClient();
 
@@ -15,30 +20,50 @@ const AdminDashboard = () => {
 
   useDocumentTitle('Admin Control Room');
 
+  const [searchItsId, setSearchItsId] = useState('');
+
   // --- STREAM STATE & MUTATIONS ---
   const [showStreamForm, setShowStreamForm] = useState(false);
   const [editingStreamId, setEditingStreamId] = useState<string | null>(null);
-  const [streamFormData, setStreamFormData] = useState({
-    title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All'
-  });
+  const defaultStreamData = { title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS' as 'YOUTUBE' | 'HLS' | 'RTMP', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' };
+  const [streamFormData, setStreamFormData] = useState(defaultStreamData);
+  const [initialStreamFormData, setInitialStreamFormData] = useState(defaultStreamData);
   const [streamFormErrors, setStreamFormErrors] = useState<{ title?: boolean, speaker?: boolean, servers?: { name?: boolean, url?: boolean }[] }>({});
   const [showStreamTypeDropdown, setShowStreamTypeDropdown] = useState(false);
 
   const { data: streams, isLoading: isLoadingStreams, refetch: refetchStreams, isFetching: isFetchingStreams } = useQuery({
     queryKey: ['streams'],
     queryFn: () => apiClient('/streams'),
+    refetchInterval: 5000,
   });
 
   const createStreamMutation = useMutation({
-    mutationFn: (data: typeof streamFormData) => apiClient('/streams', {
-      method: 'POST', body: JSON.stringify({ ...data, isLive: true }),
+    mutationFn: (data: typeof streamFormData & { isLive?: boolean }) => apiClient('/streams', {
+      method: 'POST', body: JSON.stringify({ ...data, isLive: data.isLive ?? true }),
     }),
+    onMutate: async (newStream) => {
+      await queryClient.cancelQueries({ queryKey: ['streams'] });
+      const previousStreams = queryClient.getQueryData(['streams']);
+      queryClient.setQueryData(['streams'], (old: any) => {
+        const optimistic = { ...newStream, _id: `temp-${Date.now()}`, isLive: newStream.isLive ?? true };
+        return old ? [optimistic, ...old] : [optimistic];
+      });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      return { previousStreams };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['streams'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
       toast.success('Stream created successfully!');
     },
-    onError: () => toast.error('Failed to create stream.')
+    onError: (err, variables, context: any) => {
+      if (context?.previousStreams) {
+        queryClient.setQueryData(['streams'], context.previousStreams);
+      }
+      toast.error('Failed to create stream.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['streams'] });
+      queryClient.invalidateQueries({ queryKey: ['activeStream'] });
+    }
   });
 
   const updateStreamMutation = useMutation({
@@ -47,7 +72,8 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
+      queryClient.invalidateQueries({ queryKey: ['activeStream'] });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
       setEditingStreamId(null);
       toast.success('Stream updated successfully!');
     },
@@ -58,21 +84,78 @@ const AdminDashboard = () => {
     mutationFn: ({ id, isLive }: { id: string, isLive: boolean }) => apiClient(`/streams/${id}`, {
       method: 'PUT', body: JSON.stringify({ isLive })
     }),
+    onMutate: async ({ id, isLive }) => {
+      await queryClient.cancelQueries({ queryKey: ['streams'] });
+      const previousStreams = queryClient.getQueryData(['streams']);
+      queryClient.setQueryData(['streams'], (old: any) => 
+        old?.map((stream: any) => stream._id === id ? { ...stream, isLive } : stream)
+      );
+      if (!isLive) {
+        queryClient.setQueryData(['activeStream'], null);
+      }
+      return { previousStreams };
+    },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['streams'] });
       toast.success('Stream live status updated!');
     },
-    onError: () => toast.error('Failed to update live status.')
+    onError: (err, variables, context: any) => {
+      if (context?.previousStreams) {
+        queryClient.setQueryData(['streams'], context.previousStreams);
+      }
+      toast.error('Failed to update live status.');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['streams'] });
+      queryClient.invalidateQueries({ queryKey: ['activeStream'] });
+    }
   });
 
   const deleteStreamMutation = useMutation({
     mutationFn: (id: string) => apiClient(`/streams/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
+      queryClient.invalidateQueries({ queryKey: ['activeStream'] });
       toast.success('Stream deleted!');
     },
     onError: () => toast.error('Failed to delete stream.')
   });
+
+  const handleToggleStreamForm = async () => {
+    if (showStreamForm || editingStreamId) {
+      const isDirty = JSON.stringify(streamFormData) !== JSON.stringify(initialStreamFormData);
+      if (isDirty) {
+        if (!await confirm("You have unsaved changes. Are you sure you want to close this form? All filled data will be lost.", { confirmText: 'Close Form' })) {
+          return;
+        }
+      }
+      setEditingStreamId(null);
+      setStreamFormData(defaultStreamData);
+      setInitialStreamFormData(defaultStreamData);
+      setShowStreamForm(false);
+      setStreamFormErrors({});
+    } else {
+      setShowStreamForm(true);
+    }
+  };
+
+  const handleToggleUserForm = async () => {
+    if (showUserForm) {
+      const isDirty = JSON.stringify(userFormData) !== JSON.stringify(initialUserFormData);
+      if (isDirty) {
+        if (!await confirm("You have unsaved changes. Are you sure you want to close this form? All filled data will be lost.", { confirmText: 'Close Form' })) {
+          return;
+        }
+      }
+      setEditingUserId(null);
+      setUserFormData(defaultUserData);
+      setInitialUserFormData(defaultUserData);
+      setSelectedUserParentMohalla('');
+      setShowUserForm(false);
+      setUserFormErrors({});
+    } else {
+      setShowUserForm(true);
+    }
+  };
 
   const handleStreamChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     let value = e.target.value;
@@ -131,7 +214,7 @@ const AdminDashboard = () => {
     setStreamFormData({ ...streamFormData, servers: newServers });
   };
 
-  const handleStreamSubmit = (e: React.FormEvent) => {
+  const handleStreamSubmit = (e: React.FormEvent | React.MouseEvent, isLive: boolean = true) => {
     e.preventDefault();
     setStreamFormErrors({});
     let hasErrors = false;
@@ -148,27 +231,32 @@ const AdminDashboard = () => {
 
     if (hasErrors) {
       setStreamFormErrors(newErrors);
-      toast.error('Please fill in all required fields');
+      toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
       return;
     }
 
     if (editingStreamId) {
       updateStreamMutation.mutate({ id: editingStreamId, data: streamFormData });
     } else {
-      createStreamMutation.mutate(streamFormData);
+      createStreamMutation.mutate({ ...streamFormData, isLive });
     }
   };
 
   const handleEditStream = (stream: any) => {
-    setStreamFormData({
+    const newData = {
       title: stream.title,
       speaker: stream.speaker,
       description: stream.description,
       servers: stream.servers?.length ? stream.servers : [{ name: 'Server A', url: stream.streamUrl || '' }],
       streamType: stream.streamType,
       thumbnail: stream.thumbnail || '',
-      allowedMohalla: stream.allowedMohalla || 'All'
-    });
+      allowedParentMohallas: stream.allowedParentMohallas || ['All'],
+      allowedChildMohallas: stream.allowedChildMohallas || ['All'],
+      allowedGender: stream.allowedGender || 'All',
+      visibility: stream.visibility || 'ADMIN'
+    };
+    setStreamFormData(newData);
+    setInitialStreamFormData(newData);
     setEditingStreamId(stream._id);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
@@ -176,10 +264,11 @@ const AdminDashboard = () => {
   // --- USER STATE & MUTATIONS ---
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [showUserForm, setShowUserForm] = useState(false);
-  const [userFormData, setUserFormData] = useState({
-    itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani'
-  });
+  const defaultUserData = { itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani', gender: 'Male' };
+  const [userFormData, setUserFormData] = useState(defaultUserData);
+  const [initialUserFormData, setInitialUserFormData] = useState(defaultUserData);
   const [userFormErrors, setUserFormErrors] = useState<{ itsId?: boolean, fullName?: boolean, email?: boolean, mobile?: boolean }>({});
+  const [selectedUserParentMohalla, setSelectedUserParentMohalla] = useState('');
 
   const [selectedQuery, setSelectedQuery] = useState<any>(null);
   const [selectedLoginIssue, setSelectedLoginIssue] = useState<any>(null);
@@ -199,9 +288,10 @@ const AdminDashboard = () => {
     queryFn: () => apiClient('/login-issues'),
   });
 
-  // --- MOHALLA STATE & MUTATIONS ---
   const [showMohallaManager, setShowMohallaManager] = useState(false);
   const [newMohallaName, setNewMohallaName] = useState('');
+  const [newMohallaParent, setNewMohallaParent] = useState('');
+  const [editingMohallaId, setEditingMohallaId] = useState<string | null>(null);
 
   const { data: mohallas, isLoading: isLoadingMohallas } = useQuery({
     queryKey: ['mohallas'],
@@ -209,15 +299,30 @@ const AdminDashboard = () => {
   });
 
   const createMohallaMutation = useMutation({
-    mutationFn: (data: { name: string }) => apiClient('/mohallas', {
+    mutationFn: (data: { name: string; parentMohalla: string }) => apiClient('/mohallas', {
       method: 'POST', body: JSON.stringify(data),
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['mohallas'] });
       toast.success('Mohalla added successfully!');
       setNewMohallaName('');
+      setNewMohallaParent('');
     },
     onError: (err: any) => toast.error(err.message || 'Failed to add Mohalla')
+  });
+
+  const updateMohallaMutation = useMutation({
+    mutationFn: (data: { id: string; name: string; parentMohalla: string }) => apiClient(`/mohallas/${data.id}`, {
+      method: 'PUT', body: JSON.stringify({ name: data.name, parentMohalla: data.parentMohalla }),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['mohallas'] });
+      toast.success('Mohalla updated successfully!');
+      setNewMohallaName('');
+      setNewMohallaParent('');
+      setEditingMohallaId(null);
+    },
+    onError: (err: any) => toast.error(err.message || 'Failed to update Mohalla')
   });
 
   const deleteMohallaMutation = useMutation({
@@ -253,11 +358,11 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
+      setUserFormData(defaultUserData);
       setShowUserForm(false);
       toast.success('User created successfully!');
     },
-    onError: () => toast.error('Failed to create user.')
+    onError: (err: any) => toast.error(err.message || 'Failed to create user.')
   });
 
   const toggleUserStatusMutation = useMutation({
@@ -295,7 +400,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
+      setUserFormData(defaultUserData);
       setShowUserForm(false);
       setEditingUserId(null);
       toast.success('User updated successfully!');
@@ -307,6 +412,8 @@ const AdminDashboard = () => {
     let value = e.target.value;
     if (e.target.name === 'itsId') {
       value = value.replace(/\D/g, '').slice(0, 8);
+    } else if (e.target.name === 'mobile') {
+      value = value.replace(/\D/g, '');
     }
     setUserFormData({ ...userFormData, [e.target.name]: value });
     if (userFormErrors[e.target.name as keyof typeof userFormErrors]) {
@@ -330,31 +437,70 @@ const AdminDashboard = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('Please fill in all required fields');
+        toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
       }
       return;
     }
+    const submitData = { ...userFormData };
+    if (!editingUserId && !submitData.password.trim()) {
+      submitData.password = '1234';
+    }
+
     if (editingUserId) {
-      updateUserMutation.mutate({ id: editingUserId, data: userFormData });
+      updateUserMutation.mutate({ id: editingUserId, data: submitData });
     } else {
-      createUserMutation.mutate(userFormData);
+      createUserMutation.mutate(submitData);
     }
   };
 
   const handleEditUser = (user: any) => {
-    setUserFormData({
+    const newData = {
       itsId: user.itsId,
       fullName: user.fullName,
       email: user.email,
       mobile: user.mobile,
       password: '', // Leave empty to not change
       role: user.role,
-      mohalla: user.mohalla || 'Burhani'
-    });
+      mohalla: user.mohalla || 'Burhani',
+      gender: user.gender || 'Male'
+    };
+    setUserFormData(newData);
+    setInitialUserFormData(newData);
     setEditingUserId(user._id);
+
+    const userMohallaObj = mohallas?.find((m: any) => m.name === (user.mohalla || 'Burhani'));
+    setSelectedUserParentMohalla(userMohallaObj?.parentMohalla || (userMohallaObj ? userMohallaObj.name : 'Burhani'));
+
     setShowUserForm(true);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+
+  const processedUsers = React.useMemo(() => {
+    if (!users) return [];
+    let result = [...users];
+
+    // Search by ITS ID
+    if (searchItsId.trim()) {
+      result = result.filter((u: any) => u.itsId?.toString().includes(searchItsId.trim()));
+    }
+
+    // Sort by Mohallah, and keep Admins on top
+    result.sort((a: any, b: any) => {
+      // 1. Admins on top
+      if (a.role === 'ADMIN' && b.role !== 'ADMIN') return -1;
+      if (a.role !== 'ADMIN' && b.role === 'ADMIN') return 1;
+
+      // 2. Sort by Mohallah alphabetically
+      const mohallaA = a.mohalla || 'Burhani';
+      const mohallaB = b.mohalla || 'Burhani';
+      return mohallaA.localeCompare(mohallaB);
+    });
+
+    return result;
+  }, [users, searchItsId]);
+
+  const totalMembers = processedUsers.length;
+  const sessionsInUse = processedUsers.filter((u: any) => u.sessionStatus === 'inUse').length;
 
 
   return (
@@ -403,46 +549,47 @@ const AdminDashboard = () => {
             {/* STREAMS TAB */}
             {activeTab === 'stream' && (
               <div className="space-y-8">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Live Stream Controls</h2>
-                    <p className="text-slate-500 text-sm">Create new relays and manage the active video feed.</p>
-                  </div>
-                  <div className="flex items-center space-x-3">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                  <div className="flex justify-between items-start w-full md:w-auto">
+                    <div>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Live Stream Controls</h2>
+                      <p className="text-slate-500 text-sm">Create new relays and manage the active video feed.</p>
+                    </div>
                     <button
                       onClick={() => refetchStreams()}
-                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      title="Refresh Streams"
+                    >
+                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStreams ? 'animate-spin text-brand-accent' : ''}`} />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
+                    <button
+                      onClick={() => refetchStreams()}
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
                       title="Refresh Streams"
                     >
                       <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStreams ? 'animate-spin text-brand-accent' : ''}`} />
                     </button>
                     <motion.button
                       layout
-                      onClick={() => {
-                        if (editingStreamId) {
-                          setEditingStreamId(null);
-                          setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
-                          setShowStreamForm(false);
-                        } else {
-                          setShowStreamForm(!showStreamForm);
-                        }
-                      }}
+                      onClick={handleToggleStreamForm}
                       className="btn-primary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4"
                     >
-                    <AnimatePresence mode="wait" initial={false}>
-                      <motion.div
-                        key={(showStreamForm || editingStreamId) ? 'close' : 'add'}
-                        initial={{ opacity: 0, scale: 0.9, y: 5 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.9, y: -5 }}
-                        transition={{ duration: 0.15 }}
-                        className="flex items-center whitespace-nowrap"
-                      >
-                        {(showStreamForm || editingStreamId) ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
-                        {(showStreamForm || editingStreamId) ? 'Close Form' : 'Create Relay'}
-                      </motion.div>
-                    </AnimatePresence>
-                  </motion.button>
+                      <AnimatePresence mode="wait" initial={false}>
+                        <motion.div
+                          key={(showStreamForm || editingStreamId) ? 'close' : 'add'}
+                          initial={{ opacity: 0, scale: 0.9, y: 5 }}
+                          animate={{ opacity: 1, scale: 1, y: 0 }}
+                          exit={{ opacity: 0, scale: 0.9, y: -5 }}
+                          transition={{ duration: 0.15 }}
+                          className="flex items-center whitespace-nowrap"
+                        >
+                          {(showStreamForm || editingStreamId) ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                          {(showStreamForm || editingStreamId) ? 'Close Form' : 'Create Relay'}
+                        </motion.div>
+                      </AnimatePresence>
+                    </motion.button>
                   </div>
                 </div>
 
@@ -458,11 +605,7 @@ const AdminDashboard = () => {
                         {editingStreamId && (
                           <button
                             type="button"
-                            onClick={() => {
-                              setEditingStreamId(null);
-                              setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'YOUTUBE', thumbnail: '', allowedMohalla: 'All' });
-                              setShowStreamForm(false);
-                            }}
+                            onClick={handleToggleStreamForm}
                             className="absolute top-8 right-8 text-xs font-medium text-slate-500 hover:text-slate-800"
                           >
                             Cancel Edit
@@ -472,12 +615,12 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Stream Title</label>
-                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="e.g. Lailatul Qadr Bayaan" />
+                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="Enter a Stream Title" />
                             {streamFormErrors.title && <p className="text-red-500 text-xs px-1">Stream Title is required</p>}
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Waaz karnar</label>
-                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="e.g. Syedi Mukasir Saheb" />
+                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="Enter the name of Waaz Karnar" />
                             {streamFormErrors.speaker && <p className="text-red-500 text-xs px-1">Waaz karnar is required</p>}
                           </div>
                           <div className="md:col-span-2">
@@ -485,18 +628,84 @@ const AdminDashboard = () => {
                             <input type="text" name="description" value={streamFormData.description} onChange={handleStreamChange} className="input-field" placeholder="Description of the event" />
                           </div>
 
-                          <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Mohalla</label>
-                            <select name="allowedMohalla" value={streamFormData.allowedMohalla} onChange={handleStreamChange} className="input-field bg-white">
-                              <option value="All">All</option>
-                              {mohallas?.map((m: any) => (
-                                <option key={m._id} value={m.name}>{m.name}</option>
-                              ))}
-                            </select>
-                            <p className="text-xs text-slate-400 mt-1">Users not in the selected Mohalla will not be able to view this stream.</p>
+                          <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Visibility</label>
+                              <CustomDropdown
+                                options={[
+                                  { label: 'Admin Only', value: 'ADMIN' },
+                                  { label: 'All Users', value: 'USERS' }
+                                ]}
+                                value={streamFormData.visibility}
+                                onChange={(val) => handleStreamChange({ target: { name: 'visibility', value: val } } as any)}
+                              />
+                              <p className="text-xs text-slate-400 mt-1">Controls who can see this relay in their dashboard.</p>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Parent Mohallas</label>
+                              <MultiSelectDropdown
+                                options={[{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                                values={streamFormData.allowedParentMohallas}
+                                onChange={(vals) => {
+                                  const newVals = vals.length === 0 ? ['All'] : vals;
+                                  
+                                  const childOptions = mohallas?.filter((m: any) => 
+                                    newVals.includes('All') || 
+                                    newVals.includes(m.parentMohalla) || 
+                                    newVals.includes(m.name)
+                                  ).map((m: any) => ({ label: m.name, value: m.name })) || [];
+
+                                  let newChildVals = streamFormData.allowedChildMohallas;
+                                  if (newVals.includes('All')) {
+                                    newChildVals = ['All'];
+                                  } else if (childOptions.length === 1) {
+                                    newChildVals = [childOptions[0].value];
+                                  }
+                                  
+                                  setStreamFormData({ ...streamFormData, allowedParentMohallas: newVals, allowedChildMohallas: newChildVals });
+                                }}
+                              />
+                              <p className="text-xs text-slate-400 mt-1">Grants access to everyone under this parent.</p>
+                            </div>
+                            <div>
+                              <label className={`block text-xs font-semibold mb-2 uppercase tracking-wide ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-400' : 'text-slate-500'}`}>Allowed Child Mohallas</label>
+                              <MultiSelectDropdown
+                                disabled={streamFormData.allowedParentMohallas.includes('All')}
+                                options={(() => {
+                                  const childOptions = mohallas?.filter((m: any) => 
+                                    streamFormData.allowedParentMohallas.includes('All') || 
+                                    streamFormData.allowedParentMohallas.includes(m.parentMohalla) || 
+                                    streamFormData.allowedParentMohallas.includes(m.name)
+                                  ).map((m: any) => ({ label: m.name, value: m.name })) || [];
+                                  
+                                  return childOptions.length > 1 
+                                    ? [{ label: 'All', value: 'All' }, ...childOptions] 
+                                    : childOptions;
+                                })()}
+                                values={streamFormData.allowedChildMohallas}
+                                onChange={(vals) => {
+                                  const newVals = vals.length === 0 ? ['All'] : vals;
+                                  setStreamFormData({ ...streamFormData, allowedChildMohallas: newVals });
+                                }}
+                              />
+                              <p className={`text-xs mt-1 ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-300' : 'text-slate-400'}`}>Grants access only to specific Mohallahs (including Mains).</p>
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Gender</label>
+                              <CustomDropdown
+                                options={[
+                                  { label: 'All', value: 'All' },
+                                  { label: 'Male Only', value: 'Male' },
+                                  { label: 'Female Only', value: 'Female' }
+                                ]}
+                                value={streamFormData.allowedGender}
+                                onChange={(val) => handleStreamChange({ target: { name: 'allowedGender', value: val } } as any)}
+                              />
+                              <p className="text-xs text-slate-400 mt-1">Restricts access to a specific gender.</p>
+                            </div>
                           </div>
 
-                          <div className="md:col-span-2">
+                          <div className="md:col-span-3">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Stream Type Architecture</label>
                             <div className="relative">
                               <button
@@ -527,28 +736,28 @@ const AdminDashboard = () => {
                                   >
                                     <div
                                       onClick={() => {
-                                        setStreamFormData({ ...streamFormData, streamType: 'YOUTUBE' });
-                                        setShowStreamTypeDropdown(false);
-                                      }}
-                                      className={`p-4 cursor-pointer transition-colors border-b border-slate-100 flex items-start ${streamFormData.streamType === 'YOUTUBE' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
-                                    >
-                                      <LinkIcon className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'YOUTUBE' ? 'text-red-500' : 'text-slate-400'}`} />
-                                      <div>
-                                        <div className={`font-semibold ${streamFormData.streamType === 'YOUTUBE' ? 'text-slate-900' : 'text-slate-700'}`}>YouTube / External Link</div>
-                                        <div className="text-xs text-slate-500 mt-1">Standard embedded player. Best for public youtube links or Google Drive.</div>
-                                      </div>
-                                    </div>
-                                    <div
-                                      onClick={() => {
                                         setStreamFormData({ ...streamFormData, streamType: 'HLS' });
                                         setShowStreamTypeDropdown(false);
                                       }}
-                                      className={`p-4 cursor-pointer transition-colors flex items-start ${streamFormData.streamType === 'HLS' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+                                      className={`p-4 cursor-pointer transition-colors border-b border-slate-100 flex items-start ${streamFormData.streamType === 'HLS' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
                                     >
                                       <Server className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'HLS' ? 'text-sky-500' : 'text-slate-400'}`} />
                                       <div>
                                         <div className={`font-semibold ${streamFormData.streamType === 'HLS' ? 'text-slate-900' : 'text-slate-700'}`}>Secure Proxy (HLS / RTMP)</div>
                                         <div className="text-xs text-slate-500 mt-1">Premium custom player. Hides origin URLs from users using tokens.</div>
+                                      </div>
+                                    </div>
+                                    <div
+                                      onClick={() => {
+                                        setStreamFormData({ ...streamFormData, streamType: 'YOUTUBE' });
+                                        setShowStreamTypeDropdown(false);
+                                      }}
+                                      className={`p-4 cursor-pointer transition-colors flex items-start ${streamFormData.streamType === 'YOUTUBE' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+                                    >
+                                      <LinkIcon className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'YOUTUBE' ? 'text-red-500' : 'text-slate-400'}`} />
+                                      <div>
+                                        <div className={`font-semibold ${streamFormData.streamType === 'YOUTUBE' ? 'text-slate-900' : 'text-slate-700'}`}>YouTube / External Link</div>
+                                        <div className="text-xs text-slate-500 mt-1">Standard embedded player. Best for public youtube links or Google Drive.</div>
                                       </div>
                                     </div>
                                   </motion.div>
@@ -633,13 +842,28 @@ const AdminDashboard = () => {
                             </div>
                           </div>
 
-                          <div className="md:col-span-2 flex items-center justify-between pt-6 border-t border-slate-200 mt-2">
-                            <button type="submit" disabled={createStreamMutation.isPending || updateStreamMutation.isPending} className="btn-primary">
+                          <div className="md:col-span-2 flex items-center justify-start gap-3 pt-6 border-t border-slate-200 mt-2">
+                            <button 
+                              type="button" 
+                              onClick={(e) => handleStreamSubmit(e, true)} 
+                              disabled={createStreamMutation.isPending || updateStreamMutation.isPending} 
+                              className="btn-primary"
+                            >
                               {editingStreamId
                                 ? (updateStreamMutation.isPending ? 'Saving...' : 'Save Changes')
                                 : (createStreamMutation.isPending ? 'Creating...' : 'Create & Go Live')
                               }
                             </button>
+                            {!editingStreamId && (
+                              <button 
+                                type="button" 
+                                onClick={(e) => handleStreamSubmit(e, false)} 
+                                disabled={createStreamMutation.isPending} 
+                                className="btn-secondary"
+                              >
+                                {createStreamMutation.isPending ? 'Creating...' : 'Create Only'}
+                              </button>
+                            )}
                           </div>
                         </div>
                       </form>
@@ -647,43 +871,88 @@ const AdminDashboard = () => {
                   )}
                 </AnimatePresence>
 
-                <div className="clean-panel overflow-x-auto mt-8">
-                  <div className="p-4 border-b border-slate-200"><h3 className="text-lg font-medium">Relay History</h3></div>
-                  <table className="w-full text-left text-sm text-slate-600">
-                    <thead className="bg-slate-200 border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-semibold">
-                      <tr><th className="px-6 py-4">Title</th><th className="px-6 py-4">Waaz karnar</th><th className="px-6 py-4">Status</th><th className="px-6 py-4 text-right">Actions</th></tr>
+                <div className="clean-panel mt-8 flex flex-col max-h-[70vh]">
+                  <div className="p-4 border-b border-slate-200 shrink-0"><h3 className="text-lg font-medium">Relay History</h3></div>
+                  <div className="flex-1 overflow-y-auto overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-600 relative">
+                      <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
+                      <tr>
+                        <th className="px-4 py-3">Title</th>
+                        <th className="px-4 py-3">Waaz karnar</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Visibility</th>
+                        <th className="px-4 py-3 min-w-[120px]">Parent Mohallahs</th>
+                        <th className="px-4 py-3 min-w-[120px]">Child Mohallahs</th>
+                        <th className="px-4 py-3 whitespace-nowrap">Gender Limit</th>
+                        <th className="px-4 py-3 whitespace-nowrap text-right">Actions</th>
+                      </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {isLoadingStreams ? (
-                        <tr><td colSpan={4} className="px-6 py-4 text-center">Loading streams...</td></tr>
+                        <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
                       ) : streams?.map((stream: any) => (
                         <tr key={stream._id} className={`hover:bg-slate-50 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50' : ''}`}>
-                          <td className="px-6 py-4 font-medium text-slate-900">{stream.title}</td>
-                          <td className="px-6 py-4">{stream.speaker}</td>
-                          <td className="px-6 py-4">
+                          <td className="px-4 py-3 font-medium text-slate-900">{stream.title}</td>
+                          <td className="px-4 py-3">{stream.speaker}</td>
+                          <td className="px-4 py-3 whitespace-nowrap">
                             {stream.isLive ? (
                               <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
                             ) : (
                               <span className="text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
                             )}
                           </td>
-                          <td className="px-6 py-4 text-right space-x-3">
-                            {stream.isLive ? (
-                              <button onClick={() => toggleLiveMutation.mutate({ id: stream._id, isLive: false })} className="text-slate-600 hover:text-slate-800 text-xs font-medium">Go Offline</button>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            {stream.visibility === 'USERS' ? (
+                              <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-semibold">All Users</span>
                             ) : (
-                              <button onClick={() => toggleLiveMutation.mutate({ id: stream._id, isLive: true })} className="text-blue-700 hover:text-blue-900 text-xs font-medium">Go Live</button>
+                              <span className="text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
                             )}
-                            <button onClick={() => handleEditStream(stream)} className="text-sky-600 hover:text-sky-800 text-xs font-medium">Edit</button>
-                            <button onClick={() => {
-                              if (window.confirm('Are you sure you want to delete this relay?')) {
-                                deleteStreamMutation.mutate(stream._id);
-                              }
-                            }} className="text-red-500 hover:text-red-700 text-xs font-medium">Delete</button>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-600 font-medium">{stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') ? stream.allowedParentMohallas.join(', ') : 'All'}</span>
+                          </td>
+                          <td className="px-4 py-3">
+                            <span className="text-sm text-slate-600 font-medium">{stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All') ? stream.allowedChildMohallas.join(', ') : 'All'}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap">
+                            <span className="text-sm text-slate-600 font-medium">{stream.allowedGender || 'All'}</span>
+                          </td>
+                          <td className="px-4 py-3 whitespace-nowrap text-right">
+                            <div className="flex items-center justify-end space-x-3">
+                              {stream.isLive ? (
+                                <button onClick={async () => {
+                                  if (await confirm(`Are you sure you want to take "${stream.title}" offline?`, { confirmText: 'Go Offline' })) {
+                                    toggleLiveMutation.mutate({ id: stream._id, isLive: false });
+                                  }
+                                }} className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded shadow-sm hover:bg-slate-200 hover:text-slate-900 transition-colors">Go Offline</button>
+                              ) : (
+                                <button onClick={async () => {
+                                  if (await confirm(`Are you sure you want to make "${stream.title}" live?`, { confirmText: 'Go Live' })) {
+                                    toggleLiveMutation.mutate({ id: stream._id, isLive: true });
+                                  }
+                                }} className="inline-flex items-center px-3 py-1.5 bg-brand-accent text-white text-xs font-semibold rounded shadow-sm hover:bg-brand-accent-hover transition-colors">Go Live</button>
+                              )}
+                              <button onClick={() => handleEditStream(stream)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit Relay">
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button onClick={async () => {
+                                if (await confirm('Are you sure you want to delete this relay?', { type: 'danger', confirmText: 'Delete Relay' })) {
+                                  deleteStreamMutation.mutate(stream._id);
+                                }
+                              }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete Relay">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       ))}
+                      
+                      {!isLoadingStreams && streams?.length === 0 && (
+                        <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500">No relay history found. Create a stream to get started.</td></tr>
+                      )}
                     </tbody>
                   </table>
+                  </div>
                 </div>
               </div>
             )}
@@ -691,37 +960,38 @@ const AdminDashboard = () => {
             {/* USERS TAB */}
             {activeTab === 'users' && (
               <div className="space-y-8">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Member Directory</h2>
-                    <p className="text-slate-500 text-sm">Manage access and view member activity.</p>
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                  <div className="flex justify-between items-start w-full md:w-auto">
+                    <div>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Member Directory</h2>
+                      <p className="text-slate-500 text-sm">Manage access and view member activity.</p>
+                    </div>
+                    <button
+                      onClick={() => refetchUsers()}
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      title="Refresh Members"
+                    >
+                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingUsers ? 'animate-spin text-brand-accent' : ''}`} />
+                    </button>
                   </div>
-                  <div className="flex items-center space-x-3">
+                  <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                     <button
                       onClick={() => setShowMohallaManager(!showMohallaManager)}
-                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 bg-purple-50 text-purple-700 hover:bg-purple-100 border-purple-200"
+                      className={`btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 transition-colors ${showMohallaManager ? 'bg-slate-100 border-slate-300' : 'bg-white border-slate-300 hover:bg-slate-50'}`}
                     >
-                      <Plus className="w-4 h-4 mr-2" />
+                      <Plus className={`w-4 h-4 mr-2 transition-transform ${showMohallaManager ? 'rotate-45' : ''}`} />
                       Manage Mohallas
                     </button>
                     <button
                       onClick={() => refetchUsers()}
-                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
                       title="Refresh Members"
                     >
                       <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingUsers ? 'animate-spin text-brand-accent' : ''}`} />
                     </button>
                     <motion.button
                       layout
-                      onClick={() => {
-                        if (showUserForm) {
-                          setShowUserForm(false);
-                          setEditingUserId(null);
-                          setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani' });
-                        } else {
-                          setShowUserForm(true);
-                        }
-                      }}
+                      onClick={handleToggleUserForm}
                       className="btn-primary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4"
                     >
                       <AnimatePresence mode="wait" initial={false}>
@@ -748,47 +1018,116 @@ const AdminDashboard = () => {
                       exit={{ opacity: 0, height: 0, y: -20, margin: 0, padding: 0, overflow: 'hidden' }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                      <div className="clean-panel p-6 bg-purple-50/50 border-purple-100 mb-6">
-                        <div className="flex justify-between items-center mb-4">
-                          <h3 className="text-lg font-medium text-purple-900">Manage Mohallas</h3>
-                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600"><X className="w-5 h-5" /></button>
+                      <div className="clean-panel p-6 border-brand-accent/20 mb-6 bg-slate-50/50">
+                        <div className="flex justify-between items-center mb-6">
+                          <h3 className="text-lg font-medium text-brand-dark">Manage Mohallas</h3>
+                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 transition-colors"><X className="w-5 h-5" /></button>
                         </div>
-                        <div className="flex gap-4 mb-6">
-                          <input 
-                            type="text" 
-                            value={newMohallaName} 
-                            onChange={(e) => setNewMohallaName(e.target.value)} 
-                            placeholder="Enter new Mohalla name..." 
-                            className="input-field flex-1 max-w-sm bg-white"
-                          />
-                          <button 
-                            onClick={() => {
-                              if (newMohallaName.trim()) createMohallaMutation.mutate({ name: newMohallaName });
-                            }} 
-                            disabled={createMohallaMutation.isPending || !newMohallaName.trim()}
-                            className="btn-primary bg-purple-600 hover:bg-purple-700 shadow-purple-600/20"
-                          >
-                            {createMohallaMutation.isPending ? 'Adding...' : 'Add Mohalla'}
-                          </button>
-                        </div>
-                        <div className="flex flex-wrap gap-2">
-                          {isLoadingMohallas ? (
-                            <span className="text-sm text-slate-500">Loading...</span>
-                          ) : mohallas?.map((m: any) => (
-                            <div key={m._id} className="flex items-center bg-white border border-purple-200 rounded-full pl-3 pr-1 py-1 shadow-sm">
-                              <span className="text-sm font-medium text-purple-800 mr-2">{m.name}</span>
-                              <button 
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
+                            <div className="w-full sm:w-48 shrink-0">
+                              <CustomDropdown
+                                options={[{ label: 'None (Is Main)', value: '' }, ...(mohallas?.filter((m: any) => m._id !== editingMohallaId).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                                value={newMohallaParent}
+                                onChange={setNewMohallaParent}
+                                placeholder="Parent Mohallah"
+                              />
+                            </div>
+                            <input
+                              type="text"
+                              placeholder="Mohalla Name"
+                              className="input-field w-full sm:flex-1 sm:max-w-xs shrink-0"
+                              value={newMohallaName}
+                              onChange={(e) => setNewMohallaName(e.target.value)}
+                              onKeyDown={(e) => {
+                                if (e.key === 'Enter' && newMohallaName.trim() && !createMohallaMutation.isPending && !updateMohallaMutation.isPending) {
+                                  if (editingMohallaId) {
+                                    updateMohallaMutation.mutate({ id: editingMohallaId, name: newMohallaName, parentMohalla: newMohallaParent });
+                                  } else {
+                                    createMohallaMutation.mutate({ name: newMohallaName, parentMohalla: newMohallaParent });
+                                  }
+                                }
+                              }}
+                            />
+                            <div className="flex items-center justify-end gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                              <button
                                 onClick={() => {
-                                  if (window.confirm(`Delete ${m.name}? This might break existing users assigned to it.`)) {
-                                    deleteMohallaMutation.mutate(m._id);
+                                  if (newMohallaName.trim()) {
+                                    if (editingMohallaId) {
+                                      updateMohallaMutation.mutate({ id: editingMohallaId, name: newMohallaName, parentMohalla: newMohallaParent });
+                                    } else {
+                                      createMohallaMutation.mutate({ name: newMohallaName, parentMohalla: newMohallaParent });
+                                    }
                                   }
                                 }}
-                                className="p-1 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors"
+                                disabled={createMohallaMutation.isPending || updateMohallaMutation.isPending || !newMohallaName.trim()}
+                                className="btn-primary whitespace-nowrap"
                               >
-                                <X className="w-3 h-3" />
+                                {editingMohallaId ? (updateMohallaMutation.isPending ? 'Updating...' : 'Update') : (createMohallaMutation.isPending ? 'Adding...' : 'Add')}
                               </button>
+                              {editingMohallaId && (
+                                <button 
+                                  onClick={() => {
+                                    setEditingMohallaId(null);
+                                    setNewMohallaName('');
+                                    setNewMohallaParent('');
+                                  }} 
+                                  className="text-slate-500 hover:text-slate-700 text-sm font-medium px-3 py-2 text-center whitespace-nowrap"
+                                >
+                                  Cancel
+                                </button>
+                              )}
                             </div>
-                          ))}
+                        </div>
+                        <div className="bg-white rounded-lg border border-slate-200 flex flex-col max-h-[50vh]">
+                          <div className="flex-1 overflow-y-auto overflow-x-auto">
+                            <table className="w-full text-left text-sm text-slate-600 relative">
+                              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky top-0 z-10 shadow-sm">
+                              <tr>
+                                <th className="px-4 py-3">Parent Mohallah</th>
+                                <th className="px-4 py-3">Mohalla Name</th>
+                                <th className="px-4 py-3 text-right">Actions</th>
+                              </tr>
+                            </thead>
+                            <tbody className="divide-y divide-slate-100">
+                              {isLoadingMohallas ? (
+                                <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">Loading...</td></tr>
+                              ) : mohallas?.length === 0 ? (
+                                <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">No mohallas found.</td></tr>
+                              ) : mohallas?.map((m: any) => (
+                                <tr key={m._id} className="hover:bg-slate-50 transition-colors">
+                                  <td className="px-4 py-3 font-medium text-slate-500">{m.parentMohalla || '-'}</td>
+                                  <td className="px-4 py-3 text-slate-800">{m.name} {m.parentMohalla ? '' : <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-2">Main</span>}</td>
+                                  <td className="px-4 py-3">
+                                    <div className="flex justify-end items-center gap-3">
+                                      <button
+                                        onClick={() => {
+                                          setEditingMohallaId(m._id);
+                                          setNewMohallaName(m.name);
+                                          setNewMohallaParent(m.parentMohalla || '');
+                                        }}
+                                        className="text-brand-accent hover:text-brand-accent-hover p-1 transition-colors"
+                                        title="Edit Mohallah"
+                                      >
+                                        <Edit2 className="w-4 h-4" />
+                                      </button>
+                                      <button
+                                        onClick={async () => {
+                                          if (await confirm(`Delete ${m.name}? This might break existing users assigned to it.`, { type: 'danger', confirmText: 'Delete' })) {
+                                            deleteMohallaMutation.mutate(m._id);
+                                          }
+                                        }}
+                                        className="text-red-500 hover:text-red-700 p-1 transition-colors"
+                                        title="Delete Mohallah"
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </button>
+                                    </div>
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                          </div>
                         </div>
                       </div>
                     </motion.div>
@@ -808,11 +1147,11 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">ITS ID</label>
-                            <input type="text" name="itsId" value={userFormData.itsId} onChange={handleUserChange} onBlur={(e) => {
+                            <input type="number" inputMode="numeric" name="itsId" value={userFormData.itsId} onChange={handleUserChange} onBlur={(e) => {
                               if (!/^\d{8}$/.test(e.target.value.trim())) {
                                 setUserFormErrors((prev) => ({ ...prev, itsId: true }));
                               }
-                            }} placeholder="8-digit ITS Number" className={`input-field ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
+                            }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
                             {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
                           </div>
                           <div className="space-y-1">
@@ -835,18 +1174,50 @@ const AdminDashboard = () => {
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Role</label>
-                            <select name="role" value={userFormData.role} onChange={handleUserChange} className="input-field bg-white">
-                              <option value="USER">User</option>
-                              <option value="ADMIN">Admin</option>
-                            </select>
+                            <CustomDropdown
+                              options={[
+                                { label: 'User', value: 'USER' },
+                                { label: 'Admin', value: 'ADMIN' }
+                              ]}
+                              value={userFormData.role}
+                              onChange={(val) => handleUserChange({ target: { name: 'role', value: val } } as any)}
+                            />
+                          </div>
+                          <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Parent Mohallah</label>
+                              <CustomDropdown
+                                options={mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || []}
+                                value={selectedUserParentMohalla || 'Burhani'}
+                                onChange={(val) => {
+                                  setSelectedUserParentMohalla(val);
+                                  handleUserChange({ target: { name: 'mohalla', value: val } } as any);
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Child Mohallah</label>
+                              <CustomDropdown
+                                options={(() => {
+                                  const parent = selectedUserParentMohalla || 'Burhani';
+                                  const childOptions = mohallas?.filter((m: any) => m.parentMohalla === parent || m.name === parent).map((m: any) => ({ label: m.name, value: m.name })) || [];
+                                  return childOptions;
+                                })()}
+                                value={userFormData.mohalla}
+                                onChange={(val) => handleUserChange({ target: { name: 'mohalla', value: val } } as any)}
+                              />
+                            </div>
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mohalla</label>
-                            <select name="mohalla" value={userFormData.mohalla} onChange={handleUserChange} className="input-field bg-white">
-                              {mohallas?.map((m: any) => (
-                                <option key={m._id} value={m.name}>{m.name}</option>
-                              ))}
-                            </select>
+                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Gender</label>
+                            <CustomDropdown
+                              options={[
+                                { label: 'Male', value: 'Male' },
+                                { label: 'Female', value: 'Female' }
+                              ]}
+                              value={userFormData.gender}
+                              onChange={(val) => handleUserChange({ target: { name: 'gender', value: val } } as any)}
+                            />
                           </div>
                           <div className="md:col-span-2 pt-6 border-t border-slate-200 mt-2">
                             <button type="submit" disabled={createUserMutation.isPending} className="btn-primary">
@@ -859,13 +1230,29 @@ const AdminDashboard = () => {
                   )}
                 </AnimatePresence>
 
-                <div className="clean-panel overflow-x-auto">
-                  <table className="w-full text-left text-sm text-slate-600">
-                    <thead className="bg-slate-200 border-b border-slate-300 text-xs uppercase tracking-wider text-slate-600 font-semibold">
+                <div className="mb-4 flex items-center justify-end">
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="number"
+                      inputMode="numeric"
+                      value={searchItsId}
+                      onChange={(e) => setSearchItsId(e.target.value)}
+                      placeholder="Search by ITS ID..."
+                      className="input-field pl-9 py-2 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="clean-panel flex flex-col max-h-[75vh]">
+                  <div className="flex-1 overflow-y-auto overflow-x-auto">
+                    <table className="w-full text-left text-sm text-slate-600 relative">
+                      <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
                       <tr>
                         <th className="px-4 py-4 whitespace-nowrap">ITS ID</th>
                         <th className="px-4 py-4 whitespace-nowrap">Member</th>
                         <th className="px-4 py-4 whitespace-nowrap">Mohallah</th>
+                        <th className="px-4 py-4 whitespace-nowrap">Gender</th>
                         <th className="px-4 py-4 whitespace-nowrap">Email</th>
                         <th className="px-4 py-4 whitespace-nowrap">Mobile NO.</th>
                         <th className="px-4 py-4 whitespace-nowrap">Session Status</th>
@@ -877,7 +1264,9 @@ const AdminDashboard = () => {
                     <tbody className="divide-y divide-slate-100 bg-white">
                       {isLoadingUsers ? (
                         <tr><td colSpan={8} className="px-6 py-4 text-center">Loading members...</td></tr>
-                      ) : users?.map((user: any) => (
+                      ) : processedUsers.length === 0 ? (
+                        <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500">No members found.</td></tr>
+                      ) : processedUsers.map((user: any) => (
                         <tr key={user._id} className="group hover:bg-slate-50 transition-colors">
                           <td className="px-4 py-4 font-mono text-slate-700 font-medium">{user.itsId}</td>
                           <td className="px-4 py-4">
@@ -892,9 +1281,12 @@ const AdminDashboard = () => {
                             </div>
                           </td>
                           <td className="px-4 py-4">
-                            <span className="px-2 py-0.5 rounded text-[10px] font-bold border text-purple-700 bg-purple-50 border-purple-200">
+                            <span className="text-sm font-medium text-slate-700">
                               {user.mohalla || 'Burhani'}
                             </span>
+                          </td>
+                          <td className="px-4 py-4 text-sm font-medium text-slate-700">
+                            {user.gender || 'Male'}
                           </td>
                           <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
                             {user.email || <span className="text-slate-400 italic">N/A</span>}
@@ -933,34 +1325,34 @@ const AdminDashboard = () => {
                             )}
                           </td>
                           <td className="px-4 py-4 text-right space-x-3 whitespace-nowrap border-l border-slate-200">
-                            <button onClick={() => {
+                            <button onClick={async () => {
                               if (user.isActive) {
-                                if (window.confirm(`Do you want to deactivate user ${user.fullName}?`)) {
+                                if (await confirm(`Do you want to deactivate user ${user.fullName}?`, { confirmText: 'Deactivate' })) {
                                   toggleUserStatusMutation.mutate({ id: user._id, isActive: false });
                                 }
                               } else {
                                 toggleUserStatusMutation.mutate({ id: user._id, isActive: true });
                               }
-                            }} className="text-sky-600 hover:text-sky-800 text-xs font-medium">
-                              {user.isActive ? 'Disable' : 'Enable'}
+                            }} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
+                              {user.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
                             </button>
-                            <button onClick={() => handleEditUser(user)} className="text-sky-600 hover:text-sky-800 text-xs font-medium">
-                              Edit
+                            <button onClick={() => handleEditUser(user)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit User">
+                              <Edit2 className="w-4 h-4" />
                             </button>
-                            <button onClick={() => {
-                              if (window.confirm(`Are you sure you want to delete ${user.fullName}?`)) {
+                            <button onClick={async () => {
+                              if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { type: 'danger', confirmText: 'Delete User' })) {
                                 deleteUserMutation.mutate(user._id);
                               }
-                            }} className="text-red-500 hover:text-red-700 text-xs font-medium">
-                              Delete
+                            }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete User">
+                              <Trash2 className="w-4 h-4" />
                             </button>
                             {user.sessionStatus === 'inUse' && (
-                              <button onClick={() => {
-                                if (window.confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`)) {
+                              <button onClick={async () => {
+                                if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { type: 'danger', confirmText: 'Force Logout' })) {
                                   forceLogoutUserMutation.mutate(user._id);
                                 }
-                              }} className="text-orange-500 hover:text-orange-700 text-xs font-medium ml-3 border-l border-slate-200 pl-3">
-                                Logout User
+                              }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 pl-3" title="Force Logout">
+                                <LogOut className="w-4 h-4" />
                               </button>
                             )}
                           </td>
@@ -968,21 +1360,35 @@ const AdminDashboard = () => {
                       ))}
                     </tbody>
                   </table>
+                  </div>
+                  <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-between items-center text-sm shrink-0">
+                    <div className="text-slate-600 font-medium">Total Members: <span className="text-slate-900 font-bold ml-1">{totalMembers}</span></div>
+                    <div className="text-blue-600 font-medium">Sessions In Use: <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full ml-1">{sessionsInUse}</span></div>
+                  </div>
                 </div>
               </div>
             )}
             {/* SUPPORT QUERIES TAB */}
             {activeTab === 'queries' && (
               <div className="space-y-8">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Support Queries</h2>
-                    <p className="text-slate-500 text-sm">Review help requests submitted by users.</p>
-                  </div>
-                  <div className="flex items-center space-x-3">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                  <div className="flex justify-between items-start w-full md:w-auto">
+                    <div>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Support Queries</h2>
+                      <p className="text-slate-500 text-sm">Review and resolve messages from members.</p>
+                    </div>
                     <button
                       onClick={() => refetchQueries()}
-                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      title="Refresh Queries"
+                    >
+                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingQueries ? 'animate-spin text-brand-accent' : ''}`} />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
+                    <button
+                      onClick={() => refetchQueries()}
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
                       title="Refresh Queries"
                     >
                       <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingQueries ? 'animate-spin text-brand-accent' : ''}`} />
@@ -1014,9 +1420,9 @@ const AdminDashboard = () => {
                             <div className="flex justify-between items-start mb-8">
                               <h3 className="text-2xl font-bold text-slate-800">{selectedQuery.name}</h3>
                               <button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  if (window.confirm('Delete this support query?')) {
+                                  if (await confirm('Delete this support query?', { type: 'danger', confirmText: 'Delete' })) {
                                     deleteQueryMutation.mutate(selectedQuery._id);
                                     setSelectedQuery(null);
                                   }
@@ -1028,7 +1434,7 @@ const AdminDashboard = () => {
                                 <span className="text-sm font-medium">Delete</span>
                               </button>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date Submitted</span>
@@ -1061,10 +1467,10 @@ const AdminDashboard = () => {
                           </div>
                         </motion.div>
                       ) : queries?.length > 0 ? (
-                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full">
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                              <thead>
+                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 rounded-lg overflow-hidden">
+                          <div className="flex-1 overflow-y-auto overflow-x-auto">
+                            <table className="w-full text-left border-collapse relative">
+                              <thead className="sticky top-0 z-10 shadow-sm">
                                 <tr className="bg-slate-50 border-b border-slate-200">
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
@@ -1102,9 +1508,9 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                       <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                           e.stopPropagation();
-                                          if (window.confirm('Delete this support query?')) {
+                                          if (await confirm('Delete this support query?', { type: 'danger', confirmText: 'Delete' })) {
                                             deleteQueryMutation.mutate(q._id);
                                           }
                                         }}
@@ -1133,15 +1539,24 @@ const AdminDashboard = () => {
             {/* LOGIN ISSUES TAB */}
             {activeTab === 'login-issues' && (
               <div className="space-y-8">
-                <div className="flex justify-between items-end">
-                  <div>
-                    <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Login Issues</h2>
-                    <p className="text-slate-500 text-sm">Review issues from users unable to login.</p>
-                  </div>
-                  <div className="flex items-center space-x-3">
+                <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
+                  <div className="flex justify-between items-start w-full md:w-auto">
+                    <div>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Login Issues</h2>
+                      <p className="text-slate-500 text-sm">Review members stuck at the log in screen.</p>
+                    </div>
                     <button
                       onClick={() => refetchLoginIssues()}
-                      className="btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      title="Refresh Login Issues"
+                    >
+                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent' : ''}`} />
+                    </button>
+                  </div>
+                  <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
+                    <button
+                      onClick={() => refetchLoginIssues()}
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
                       title="Refresh Login Issues"
                     >
                       <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent' : ''}`} />
@@ -1173,9 +1588,9 @@ const AdminDashboard = () => {
                             <div className="flex justify-between items-start mb-8">
                               <h3 className="text-2xl font-bold text-slate-800">ITS Number: <span className="font-mono text-brand-accent">{selectedLoginIssue.itsId}</span></h3>
                               <button
-                                onClick={(e) => {
+                                onClick={async (e) => {
                                   e.stopPropagation();
-                                  if (window.confirm('Delete this login issue?')) {
+                                  if (await confirm('Delete this login issue?', { type: 'danger', confirmText: 'Delete' })) {
                                     deleteLoginIssueMutation.mutate(selectedLoginIssue._id);
                                     setSelectedLoginIssue(null);
                                   }
@@ -1187,7 +1602,7 @@ const AdminDashboard = () => {
                                 <span className="text-sm font-medium">Delete</span>
                               </button>
                             </div>
-                            
+
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date Submitted</span>
@@ -1204,10 +1619,10 @@ const AdminDashboard = () => {
                           </div>
                         </motion.div>
                       ) : loginIssues?.length > 0 ? (
-                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full">
-                          <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                              <thead>
+                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 rounded-lg overflow-hidden">
+                          <div className="flex-1 overflow-y-auto overflow-x-auto">
+                            <table className="w-full text-left border-collapse relative">
+                              <thead className="sticky top-0 z-10 shadow-sm">
                                 <tr className="bg-slate-50 border-b border-slate-200">
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS Number</th>
@@ -1229,9 +1644,9 @@ const AdminDashboard = () => {
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                       <button
-                                        onClick={(e) => {
+                                        onClick={async (e) => {
                                           e.stopPropagation();
-                                          if (window.confirm('Delete this login issue?')) {
+                                          if (await confirm('Delete this login issue?', { type: 'danger', confirmText: 'Delete' })) {
                                             deleteLoginIssueMutation.mutate(issue._id);
                                           }
                                         }}
@@ -1265,3 +1680,4 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+

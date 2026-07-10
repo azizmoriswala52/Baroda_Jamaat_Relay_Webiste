@@ -2,9 +2,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Menu, Home, Video, Settings, LogOut, User, ShieldAlert, LifeBuoy } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { apiClient } from '../api/apiClient';
+import { PlayerProvider } from '../contexts/PlayerContext';
+import PersistentPlayer from './PersistentPlayer';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -80,6 +83,7 @@ const getEnglishDate = () => {
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
@@ -158,6 +162,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         apiClient('/auth/ping', { method: 'POST' }).catch((err) => {
           if (err.message === 'FORCE_LOGOUT') {
             clearInterval(pingInterval);
+            queryClient.clear();
             sessionStorage.removeItem('token');
             sessionStorage.removeItem('user');
             toast.error('Your session has been terminated by an administrator.', {
@@ -172,13 +177,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }, [user]);
 
+  const confirm = useConfirm();
+
   const handleLogoutWithConfirm = async () => {
-    if (window.confirm("Do you want to logout?")) {
+    if (await confirm("Do you want to logout?")) {
       try {
         await apiClient('/auth/logout', { method: 'POST' });
       } catch (e) {
         // Ignore error
       }
+      queryClient.clear();
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
       navigate('/login');
@@ -188,9 +196,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const isActive = (path: string) => location.pathname === path;
 
   return (
-    <div className="h-screen overflow-hidden bg-brand-bg text-slate-800 flex flex-col font-sans">
-      {/* Top Navbar */}
-      <header className="bg-brand-accent shadow-md flex justify-between items-center px-4 md:px-6 py-5 sm:py-4 z-50 shrink-0 relative overflow-hidden">
+    <PlayerProvider>
+      <div className="h-screen overflow-hidden bg-brand-bg text-slate-800 flex flex-col font-sans">
+        {/* Top Navbar */}
+      <header className="bg-brand-accent shadow-md flex justify-between items-center px-4 md:px-6 py-5 sm:py-4 z-[10001] shrink-0 relative overflow-hidden">
         
         {/* Dawoodi Bohra Fatimid Shurafat (Stepped Crenellations) */}
         <div 
@@ -249,7 +258,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <motion.aside 
           animate={{ width: isSidebarExpanded ? 256 : 80 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="bg-[#f0f2f5] border-r border-slate-200 hidden md:flex flex-col py-4 h-full shrink-0 z-40 overflow-hidden"
+          className="bg-[#f0f2f5] border-r border-slate-200 hidden md:flex flex-col py-4 h-full shrink-0 z-[10000] overflow-hidden"
         >
           <nav className="flex flex-col space-y-1 px-3 mt-2 overflow-hidden">
             <Link 
@@ -351,6 +360,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         {/* Main Content Area */}
         <main className="flex-1 flex flex-col min-w-0 overflow-y-auto relative" id="main-scroll-container">
           <div className="flex-1 w-full max-w-[1600px] mx-auto p-4 sm:p-6 lg:p-8 flex flex-col min-h-min">
+            <PersistentPlayer />
             {children}
           </div>
           
@@ -370,7 +380,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-[64px] bottom-0 z-40 bg-brand-bg flex flex-col md:hidden overflow-y-auto"
+            className="fixed inset-x-0 top-[64px] bottom-0 z-[10000] bg-brand-bg flex flex-col md:hidden overflow-y-auto"
           >
             
             <nav className="flex flex-col space-y-2 p-6 mt-4">
@@ -410,7 +420,8 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           </motion.div>
         )}
       </AnimatePresence>
-    </div>
+      </div>
+    </PlayerProvider>
   );
 };
 

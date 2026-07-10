@@ -8,6 +8,7 @@ export interface IUser extends Document {
   mobile: string;
   jamaatName: string;
   mohalla?: string;
+  gender?: 'Male' | 'Female';
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   lastLogin?: Date;
@@ -20,10 +21,11 @@ const UserSchema: Schema = new Schema({
   itsId: { type: String, required: true, unique: true, index: true },
   password: { type: String, required: true },
   fullName: { type: String, required: true },
-  email: { type: String, required: true },
+  email: { type: String, default: '' },
   mobile: { type: String, required: true },
   jamaatName: { type: String, required: true },
   mohalla: { type: String },
+  gender: { type: String, enum: ['Male', 'Female'] },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },

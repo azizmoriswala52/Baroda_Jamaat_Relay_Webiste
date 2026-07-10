@@ -12,6 +12,7 @@ const DashboardPage = () => {
   const { data: streams, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['streams'],
     queryFn: () => apiClient('/streams'),
+    refetchInterval: 5000,
   });
 
   const userStr = sessionStorage.getItem('user');
@@ -40,7 +41,7 @@ const DashboardPage = () => {
         <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
       </div>
 
-      {isLoading ? (
+      {isLoading || (isFetching && (!streams || streams.length === 0)) ? (
         <div className="flex justify-center py-20">
           <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-accent"></div>
         </div>

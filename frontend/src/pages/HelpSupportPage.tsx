@@ -8,21 +8,14 @@ import { motion } from 'framer-motion';
 
 const HelpSupportPage = () => {
   useDocumentTitle('Help & Support');
+  const userStr = sessionStorage.getItem('user');
+  const user = userStr ? JSON.parse(userStr) : null;
+
   const [formData, setFormData] = useState({
-    itsId: '',
-    name: '',
-    mobile: '',
-    city: '',
-    mohalla: '',
     query: ''
   });
   
   const [formErrors, setFormErrors] = useState({
-    itsId: false,
-    name: false,
-    mobile: false,
-    city: false,
-    mohalla: false,
     query: false
   });
 
@@ -35,7 +28,7 @@ const HelpSupportPage = () => {
     },
     onSuccess: () => {
       toast.success('Your support query has been submitted successfully!');
-      setFormData({ itsId: '', name: '', mobile: '', city: '', mohalla: '', query: '' });
+      setFormData({ query: '' });
     },
     onError: (error: any) => {
       toast.error(error.message || 'Failed to submit query');
@@ -44,23 +37,24 @@ const HelpSupportPage = () => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    setFormErrors({ itsId: false, name: false, mobile: false, city: false, mohalla: false, query: false });
+    setFormErrors({ query: false });
     
-    const newErrors = {
-      itsId: !formData.itsId.trim() || !/^\d{8}$/.test(formData.itsId.trim()),
-      name: !formData.name.trim(),
-      mobile: !formData.mobile.trim(),
-      city: !formData.city.trim(),
-      mohalla: !formData.mohalla.trim(),
-      query: !formData.query.trim()
-    };
-
-    if (Object.values(newErrors).some(Boolean)) {
-      setFormErrors(newErrors);
-      toast.error('All fields are required');
+    if (!formData.query.trim()) {
+      setFormErrors({ query: true });
+      toast.error('Support description is required');
       return;
     }
-    submitQueryMutation.mutate(formData);
+
+    const submitData = {
+      itsId: user?.itsId || 'Unknown',
+      name: user?.fullName || 'Unknown',
+      mobile: user?.mobile || 'Unknown',
+      city: user?.jamaatName || 'Unknown',
+      mohalla: user?.mohalla || 'Burhani',
+      query: formData.query
+    };
+
+    submitQueryMutation.mutate(submitData);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -77,87 +71,24 @@ const HelpSupportPage = () => {
         <p className="text-sm text-slate-500">Submit your queries and we will get back to you shortly</p>
       </div>
 
-      <div className="max-w-4xl">
+      <div className="max-w-2xl">
         <div className="clean-panel p-8 relative">
           <div className="flex items-center space-x-3 mb-6">
-            <div className="w-10 h-10 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent">
-              <HelpCircle className="w-5 h-5" />
-            </div>
+            <HelpCircle className="w-5 h-5 text-brand-accent shrink-0" />
             <h3 className="text-xl font-bold text-slate-800">Contact Support</h3>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div className="space-y-1">
                 <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">ITS ID</label>
                 <input
                   type="text"
-                  name="itsId"
-                  value={formData.itsId}
-                  onChange={handleChange}
-                  onBlur={(e) => {
-                    if (!/^\d{8}$/.test(e.target.value.trim())) {
-                      setFormErrors((prev) => ({ ...prev, itsId: true }));
-                    }
-                  }}
-                  placeholder="8-digit ITS Number"
-                  className={`input-field ${formErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
+                  value={user?.itsId || ''}
+                  disabled
+                  className="input-field bg-slate-100 text-slate-500 cursor-not-allowed border-transparent"
                 />
-                {formErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
               </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
-                <input
-                  type="text"
-                  name="name"
-                  value={formData.name}
-                  onChange={handleChange}
-                  placeholder="Enter your full name"
-                  className={`input-field ${formErrors.name ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
-                />
-                {formErrors.name && <p className="text-red-500 text-xs px-1">Full Name is required</p>}
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
-                <input
-                  type="tel"
-                  name="mobile"
-                  value={formData.mobile}
-                  onChange={handleChange}
-                  placeholder="Enter your mobile number"
-                  className={`input-field ${formErrors.mobile ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
-                />
-                {formErrors.mobile && <p className="text-red-500 text-xs px-1">Mobile Number is required</p>}
-              </div>
-              
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">City / Town</label>
-                <input
-                  type="text"
-                  name="city"
-                  value={formData.city}
-                  onChange={handleChange}
-                  placeholder="Which city or town are you from?"
-                  className={`input-field ${formErrors.city ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
-                />
-                {formErrors.city && <p className="text-red-500 text-xs px-1">City / Town is required</p>}
-              </div>
-
-              <div className="space-y-1">
-                <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mohalla</label>
-                <input
-                  type="text"
-                  name="mohalla"
-                  value={formData.mohalla}
-                  onChange={handleChange}
-                  placeholder="Enter your mohalla name"
-                  className={`input-field ${formErrors.mohalla ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
-                />
-                {formErrors.mohalla && <p className="text-red-500 text-xs px-1">Mohalla is required</p>}
-              </div>
-            </div>
 
             <div className="space-y-1">
               <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">What help or support do you need from us?</label>
@@ -171,12 +102,13 @@ const HelpSupportPage = () => {
               />
               {formErrors.query && <p className="text-red-500 text-xs px-1">Support description is required</p>}
             </div>
+            </div>
 
-            <div className="pt-4 border-t border-slate-100">
+            <div className="pt-4 border-t border-slate-100 mt-2">
               <button
                 type="submit"
                 disabled={submitQueryMutation.isPending}
-                className="w-full btn-primary py-3 flex justify-center items-center text-base"
+                className="btn-primary inline-flex justify-center items-center"
               >
                 {submitQueryMutation.isPending ? (
                   <span className="flex items-center">

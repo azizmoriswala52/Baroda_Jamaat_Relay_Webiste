@@ -12,6 +12,8 @@ import HomePage from './pages/HomePage';
 import HelpSupportPage from './pages/HelpSupportPage';
 import Layout from './components/Layout';
 
+import { ConfirmProvider } from './contexts/ConfirmContext';
+
 const queryClient = new QueryClient();
 
 // Redirects authenticated users AWAY from public pages (like login) to the dashboard
@@ -41,9 +43,55 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Elem
 };
 
 function App() {
+  const [isSyncing, setIsSyncing] = React.useState(!sessionStorage.getItem('token'));
+
+  React.useEffect(() => {
+    if (!sessionStorage.getItem('token')) {
+      localStorage.setItem('getSessionStorage', Date.now().toString());
+      
+      const timeout = setTimeout(() => {
+        setIsSyncing(false);
+      }, 200);
+      
+      return () => clearTimeout(timeout);
+    }
+  }, []);
+
+  React.useEffect(() => {
+    const handleStorage = (event: StorageEvent) => {
+      if (event.key === 'getSessionStorage') {
+        const token = sessionStorage.getItem('token');
+        const user = sessionStorage.getItem('user');
+        if (token && user) {
+          localStorage.setItem('sessionStorageTransfer', JSON.stringify({ token, user }));
+          localStorage.removeItem('sessionStorageTransfer');
+        }
+      } else if (event.key === 'sessionStorageTransfer' && event.newValue) {
+        if (!sessionStorage.getItem('token')) {
+          try {
+            const data = JSON.parse(event.newValue);
+            sessionStorage.setItem('token', data.token);
+            sessionStorage.setItem('user', data.user);
+            setIsSyncing(false);
+          } catch (e) {
+            console.error("Failed to parse session transfer");
+          }
+        }
+      }
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
+  }, []);
+
+  if (isSyncing) {
+    return null;
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
+      <ConfirmProvider>
+        <BrowserRouter>
         <Routes>
           {/* Public Routes */}
           <Route path="/" element={<LandingPage />} />
@@ -87,6 +135,7 @@ function App() {
           }} 
         />
       </BrowserRouter>
+      </ConfirmProvider>
     </QueryClientProvider>
   );
 }

@@ -90,7 +90,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { itsId, password, fullName, email, mobile, jamaatName, role, isActive } = req.body;
+    const { itsId, password, fullName, email, mobile, jamaatName, mohalla, gender, role, isActive } = req.body;
 
     if (!itsId || !fullName || !mobile || !password || !role) {
       res.status(400).json({ message: 'All required fields must be provided' });
@@ -118,6 +118,8 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       email,
       mobile,
       jamaatName: jamaatName || 'Baroda Jamaat',
+      mohalla: mohalla || 'Burhani',
+      gender: gender || 'Male',
       role: role || 'USER',
       isActive: isActive !== undefined ? isActive : true
     });
@@ -135,7 +137,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
 export const updateUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { itsId, fullName, email, mobile, password, jamaatName, role, isActive } = req.body;
+    const { itsId, fullName, email, mobile, password, jamaatName, mohalla, gender, role, isActive } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -148,6 +150,8 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
     if (email) user.email = email;
     if (mobile) user.mobile = mobile;
     if (jamaatName) user.jamaatName = jamaatName;
+    if (mohalla) user.mohalla = mohalla;
+    if (gender) user.gender = gender;
     if (role) user.role = role;
     if (isActive !== undefined) {
       user.isActive = isActive;

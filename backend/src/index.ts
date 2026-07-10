@@ -11,6 +11,7 @@ import announcementRoutes from './routes/announcementRoutes';
 import supportRoutes from './routes/supportRoutes';
 import loginIssueRoutes from './routes/loginIssueRoutes';
 import mohallaRoutes from './routes/mohallaRoutes';
+import Mohalla from './models/Mohalla';
 
 dotenv.config();
 
@@ -35,8 +36,19 @@ app.get('/api/health', (req, res) => {
 });
 
 mongoose.connect(process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/jamaat-relay', { family: 4 })
-  .then(() => {
+  .then(async () => {
     console.log('Connected to MongoDB');
+
+    try {
+      const count = await Mohalla.countDocuments();
+      if (count === 0) {
+        await Mohalla.insertMany([{ name: 'Burhani' }, { name: 'Zainee' }]);
+        console.log('Seeded default Mohallas (Burhani, Zainee)');
+      }
+    } catch (err) {
+      console.error('Failed to seed Mohallas:', err);
+    }
+
     nms.run();
     app.listen(PORT, () => {
       console.log(`Server is running on port ${PORT}`);

@@ -8,9 +8,11 @@ interface VideoPlayerProps {
   fallbackUrl?: string;
   serverName?: string;
   onOffline?: () => void;
+  hideControls?: boolean;
+  defaultMuted?: boolean;
 }
 
-const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, serverName, onOffline }) => {
+const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, serverName, onOffline, hideControls = false, defaultMuted = false }) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const hlsRef = useRef<Hls | null>(null);
@@ -20,7 +22,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
   const [streamFormat, setStreamFormat] = useState<'FLV' | 'HLS' | null>(null);
   const [playbackToken, setPlaybackToken] = useState<string | null>(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isMuted, setIsMuted] = useState(false); // Start unmuted, let browser block autoplay if needed
+  const [isMuted, setIsMuted] = useState(defaultMuted);
   const [volume, setVolume] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [currentTime, setCurrentTime] = useState(0);
@@ -426,12 +428,13 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       )}
 
       {/* Custom Controls Overlay (Glassmorphism) */}
-      <div 
-        className={`absolute bottom-0 left-0 right-0 p-4 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-30 flex flex-col justify-end ${
-          showControls || !isPlaying ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
-      >
-        {/* Progress Bar */}
+      {!hideControls && (
+        <div 
+          className={`absolute bottom-0 left-0 right-0 p-4 pt-16 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-300 z-30 flex flex-col justify-end ${
+            showControls || !isPlaying ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
+        >
+          {/* Progress Bar */}
         <div className="w-full flex items-center space-x-3 mb-4 group/progress cursor-pointer relative z-40">
           <input 
             type="range" 
@@ -498,8 +501,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
               {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
             </button>
           </div>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

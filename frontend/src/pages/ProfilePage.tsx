@@ -2,7 +2,9 @@ import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
 import { User, LogOut, ArrowLeft, Edit2, X } from 'lucide-react';
+import { useConfirm } from '../contexts/ConfirmContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import CustomDropdown from '../components/CustomDropdown';
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
 
@@ -13,14 +15,21 @@ const ProfilePage = () => {
     fullName: '',
     email: '',
     mobile: '',
-    password: ''
+    password: '',
+    mohalla: '',
+    gender: ''
   });
   const [successMsg, setSuccessMsg] = useState('');
   const [isEditing, setIsEditing] = useState(false);
 
-  const { data: user, isLoading, error } = useQuery({
+  const { data: user, isLoading: isUserLoading, error } = useQuery({
     queryKey: ['userProfile'],
     queryFn: () => apiClient('/users/profile'),
+  });
+
+  const { data: mohallas, isLoading: isLoadingMohallas } = useQuery({
+    queryKey: ['mohallas'],
+    queryFn: () => apiClient('/mohallas'),
   });
 
   useEffect(() => {
@@ -29,7 +38,9 @@ const ProfilePage = () => {
         fullName: user.fullName || '',
         email: user.email || '',
         mobile: user.mobile || '',
-        password: '' // Don't populate password
+        password: '', // Don't populate password
+        mohalla: user.mohalla || 'Burhani',
+        gender: user.gender || 'Male'
       });
     }
   }, [user]);
@@ -70,8 +81,10 @@ const ProfilePage = () => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const confirm = useConfirm();
+
   const handleLogoutWithConfirm = async () => {
-    if (window.confirm("Do you want to logout?")) {
+    if (await confirm("Do you want to logout?")) {
       try {
         await apiClient('/auth/logout', { method: 'POST' });
       } catch (e) {
@@ -83,7 +96,7 @@ const ProfilePage = () => {
     }
   };
 
-  if (isLoading) {
+  if (isUserLoading || isLoadingMohallas) {
     return <div className="min-h-screen flex items-center justify-center bg-brand-bg">Loading profile...</div>;
   }
 
@@ -173,6 +186,37 @@ const ProfilePage = () => {
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
                   <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : ''}`} disabled={!isEditing} required />
                 </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Gender</label>
+                  {isEditing ? (
+                    <CustomDropdown
+                      options={[
+                        { label: 'Male', value: 'Male' },
+                        { label: 'Female', value: 'Female' }
+                      ]}
+                      value={formData.gender}
+                      onChange={(val) => setFormData({ ...formData, gender: val })}
+                    />
+                  ) : (
+                    <input type="text" className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed" value={formData.gender || 'Male'} disabled />
+                  )}
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Mohallah</label>
+                  <input 
+                    type="text" 
+                    className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed" 
+                    value={(() => {
+                      const childName = user?.mohalla || 'Burhani';
+                      const parentName = mohallas?.find((m: any) => m.name === childName)?.parentMohalla;
+                      return parentName ? `${childName} Mohallah (${parentName} Mohallah)` : `${childName} Mohallah`;
+                    })()} 
+                    disabled 
+                  />
+                  {isEditing && (
+                    <p className="text-xs text-brand-accent mt-2 font-medium">To change your Mohallah, please contact your Aamil Saheb.</p>
+                  )}
+                </div>
 
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Jamaat Name</label>
@@ -188,7 +232,9 @@ const ProfilePage = () => {
                           fullName: user.fullName || '',
                           email: user.email || '',
                           mobile: user.mobile || '',
-                          password: ''
+                          password: '',
+                          mohalla: user.mohalla || 'Burhani',
+                          gender: user.gender || 'Male'
                         });
                       }
                     }} className="btn-secondary">
