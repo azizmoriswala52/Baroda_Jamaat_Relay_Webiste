@@ -55,7 +55,8 @@ const LoginPage = () => {
     setIsLoading(true);
 
     try {
-      const response = await fetch(`http://${window.location.hostname}:5000/api/auth/login`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -89,7 +90,8 @@ const LoginPage = () => {
 
   const submitIssueMutation = useMutation({
     mutationFn: async (data: any) => {
-      const res = await fetch(`http://${window.location.hostname}:5000/api/login-issues`, {
+      const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+      const res = await fetch(`${API_BASE_URL}/login-issues`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
