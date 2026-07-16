@@ -15,6 +15,7 @@ export interface IUser extends Document {
   lastIpAddress?: string;
   lastDeviceDetails?: string;
   sessionStartTime?: Date;
+  hasRelayAccess: boolean;
 }
 
 const UserSchema: Schema = new Schema({
@@ -31,7 +32,8 @@ const UserSchema: Schema = new Schema({
   lastLogin: { type: Date },
   lastIpAddress: { type: String },
   lastDeviceDetails: { type: String },
-  sessionStartTime: { type: Date }
+  sessionStartTime: { type: Date },
+  hasRelayAccess: { type: Boolean, default: false }
 }, { timestamps: true });
 
 export default mongoose.model<IUser>('User', UserSchema);

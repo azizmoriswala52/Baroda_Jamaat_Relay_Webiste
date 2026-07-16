@@ -9,6 +9,7 @@ import ProfilePage from './pages/ProfilePage';
 import AdminDashboard from './pages/AdminDashboard';
 import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/HomePage';
+import AnnouncementsPage from './pages/AnnouncementsPage';
 import HelpSupportPage from './pages/HelpSupportPage';
 import Layout from './components/Layout';
 
@@ -17,7 +18,7 @@ import { ConfirmProvider } from './contexts/ConfirmContext';
 const queryClient = new QueryClient();
 
 // Redirects authenticated users AWAY from public pages (like login) to the dashboard
-const PublicOnlyRoute = ({ children }: { children: JSX.Element }) => {
+const PublicOnlyRoute = ({ children }: { children: React.ReactNode }) => {
   const token = sessionStorage.getItem('token');
   if (token) {
     return <Navigate to="/home" replace />;
@@ -26,7 +27,7 @@ const PublicOnlyRoute = ({ children }: { children: JSX.Element }) => {
 };
 
 // Protected Route Component to prevent unauthorized access
-const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Element, requireAdmin?: boolean }) => {
+const ProtectedRoute = ({ children, requireAdmin = false, requireRelayAccess = false }: { children: React.ReactNode, requireAdmin?: boolean, requireRelayAccess?: boolean }) => {
   const token = sessionStorage.getItem('token');
   const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
@@ -36,7 +37,11 @@ const ProtectedRoute = ({ children, requireAdmin = false }: { children: JSX.Elem
   }
 
   if (requireAdmin && user?.role !== 'ADMIN') {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/home" replace />;
+  }
+
+  if (requireRelayAccess && user?.role !== 'ADMIN' && !user?.hasRelayAccess) {
+    return <Navigate to="/announcements" replace />;
   }
 
   return children;
@@ -99,8 +104,9 @@ function App() {
           
           {/* Protected Routes inside Global Layout */}
           <Route path="/home" element={<ProtectedRoute><Layout><HomePage /></Layout></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>} />
-          <Route path="/relay" element={<ProtectedRoute><Layout><RelayPage /></Layout></ProtectedRoute>} />
+          <Route path="/announcements" element={<ProtectedRoute><Layout><AnnouncementsPage /></Layout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute requireRelayAccess={true}><Layout><DashboardPage /></Layout></ProtectedRoute>} />
+          <Route path="/relay" element={<ProtectedRoute requireRelayAccess={true}><Layout><RelayPage /></Layout></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Layout><HelpSupportPage /></Layout></ProtectedRoute>} />
           

@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw, LogOut, Search } from 'lucide-react';
+import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw, LogOut, Search, Megaphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -9,6 +9,7 @@ import { apiClient } from '../api/apiClient';
 import CustomDropdown from '../components/CustomDropdown';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { useConfirm } from '../contexts/ConfirmContext';
+import AdminAnnouncementsTab from './AdminAnnouncementsTab';
 
 const AdminDashboard = () => {
   const confirm = useConfirm();
@@ -16,7 +17,6 @@ const AdminDashboard = () => {
   const queryClient = useQueryClient();
 
   const userStr = sessionStorage.getItem('user');
-  const user = userStr ? JSON.parse(userStr) : null;
 
   useDocumentTitle('Admin Control Room');
 
@@ -67,7 +67,7 @@ const AdminDashboard = () => {
   });
 
   const updateStreamMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: Partial<typeof streamFormData> }) => apiClient(`/streams/${id}`, {
+    mutationFn: ({ id, data }: { id: string, data: any }) => apiClient(`/streams/${id}`, {
       method: 'PUT', body: JSON.stringify(data),
     }),
     onSuccess: () => {
@@ -87,7 +87,7 @@ const AdminDashboard = () => {
     onMutate: async ({ id, isLive }) => {
       await queryClient.cancelQueries({ queryKey: ['streams'] });
       const previousStreams = queryClient.getQueryData(['streams']);
-      queryClient.setQueryData(['streams'], (old: any) => 
+      queryClient.setQueryData(['streams'], (old: any) =>
         old?.map((stream: any) => stream._id === id ? { ...stream, isLive } : stream)
       );
       if (!isLive) {
@@ -236,7 +236,22 @@ const AdminDashboard = () => {
     }
 
     if (editingStreamId) {
-      updateStreamMutation.mutate({ id: editingStreamId, data: streamFormData });
+      const diff: any = {};
+      Object.keys(streamFormData).forEach((key) => {
+        if (JSON.stringify((streamFormData as any)[key]) !== JSON.stringify((initialStreamFormData as any)[key])) {
+          diff[key] = (streamFormData as any)[key];
+        }
+      });
+
+      if (Object.keys(diff).length === 0) {
+        toast('No changes were made.');
+        setEditingStreamId(null);
+        setStreamFormData(defaultStreamData);
+        setShowStreamForm(false);
+        return;
+      }
+
+      updateStreamMutation.mutate({ id: editingStreamId, data: diff });
     } else {
       createStreamMutation.mutate({ ...streamFormData, isLive });
     }
@@ -298,6 +313,13 @@ const AdminDashboard = () => {
     queryFn: () => apiClient('/mohallas'),
   });
 
+  const getMohallaString = (userMohalla: string) => {
+    if (!mohallas) return userMohalla;
+    const m = mohallas.find((m: any) => m.name === userMohalla);
+    if (!m) return userMohalla;
+    return m.parentMohalla ? `${m.name}(${m.parentMohalla})` : m.name;
+  };
+
   const createMohallaMutation = useMutation({
     mutationFn: (data: { name: string; parentMohalla: string }) => apiClient('/mohallas', {
       method: 'POST', body: JSON.stringify(data),
@@ -312,12 +334,32 @@ const AdminDashboard = () => {
   });
 
   const updateMohallaMutation = useMutation({
-    mutationFn: (data: { id: string; name: string; parentMohalla: string }) => apiClient(`/mohallas/${data.id}`, {
-      method: 'PUT', body: JSON.stringify({ name: data.name, parentMohalla: data.parentMohalla }),
-    }),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['mohallas'] });
-      toast.success('Mohalla updated successfully!');
+    mutationFn: (data: { id: string; name: string; parentMohalla: string }) => {
+      const mohallasList: any = queryClient.getQueryData(['mohallas']);
+      const original = mohallasList?.find((m: any) => m._id === data.id);
+      const diff: any = {};
+      if (original) {
+        if (original.name !== data.name) diff.name = data.name;
+        if ((original.parentMohalla || 'Central') !== data.parentMohalla) diff.parentMohalla = data.parentMohalla;
+      } else {
+        diff.name = data.name; diff.parentMohalla = data.parentMohalla;
+      }
+
+      if (Object.keys(diff).length === 0) {
+        return Promise.resolve({ noop: true });
+      }
+
+      return apiClient(`/mohallas/${data.id}`, {
+        method: 'PUT', body: JSON.stringify(diff),
+      });
+    },
+    onSuccess: (res: any) => {
+      if (res?.noop) {
+        toast('No changes were made.');
+      } else {
+        queryClient.invalidateQueries({ queryKey: ['mohallas'] });
+        toast.success('Mohalla updated successfully!');
+      }
       setNewMohallaName('');
       setNewMohallaParent('');
       setEditingMohallaId(null);
@@ -380,9 +422,34 @@ const AdminDashboard = () => {
     mutationFn: (id: string) => apiClient(`/users/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
+      setEditingUserId(null);
       toast.success('User deleted!');
     },
     onError: () => toast.error('Failed to delete user.')
+  });
+
+  const toggleRelayAccessMutation = useMutation({
+    mutationFn: ({ id, hasRelayAccess }: { id: string, hasRelayAccess: boolean }) => apiClient(`/users/${id}`, {
+      method: 'PUT', body: JSON.stringify({ hasRelayAccess })
+    }),
+    onMutate: async ({ id, hasRelayAccess }) => {
+      await queryClient.cancelQueries({ queryKey: ['users'] });
+      const previousUsers = queryClient.getQueryData(['users']);
+      queryClient.setQueryData(['users'], (old: any) =>
+        old?.map((u: any) => u._id === id ? { ...u, hasRelayAccess } : u)
+      );
+      return { previousUsers };
+    },
+    onSuccess: (_, { hasRelayAccess }) => {
+      toast.success(hasRelayAccess ? 'Relay access granted' : 'Relay access revoked');
+    },
+    onError: (err, newTodo, context: any) => {
+      if (context?.previousUsers) queryClient.setQueryData(['users'], context.previousUsers);
+      toast.error('Failed to update relay access');
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['users'] });
+    }
   });
 
   const forceLogoutUserMutation = useMutation({
@@ -395,7 +462,7 @@ const AdminDashboard = () => {
   });
 
   const updateUserMutation = useMutation({
-    mutationFn: ({ id, data }: { id: string, data: typeof userFormData }) => apiClient(`/users/${id}`, {
+    mutationFn: ({ id, data }: { id: string, data: any }) => apiClient(`/users/${id}`, {
       method: 'PUT', body: JSON.stringify(data),
     }),
     onSuccess: () => {
@@ -447,7 +514,22 @@ const AdminDashboard = () => {
     }
 
     if (editingUserId) {
-      updateUserMutation.mutate({ id: editingUserId, data: submitData });
+      const diff: any = {};
+      Object.keys(submitData).forEach((key) => {
+        if (JSON.stringify((submitData as any)[key]) !== JSON.stringify((initialUserFormData as any)[key])) {
+          diff[key] = (submitData as any)[key];
+        }
+      });
+      if (!diff.password) delete diff.password;
+
+      if (Object.keys(diff).length === 0) {
+        toast('No changes were made.');
+        setEditingUserId(null);
+        setUserFormData(defaultUserData);
+        setShowUserForm(false);
+        return;
+      }
+      updateUserMutation.mutate({ id: editingUserId, data: diff });
     } else {
       createUserMutation.mutate(submitData);
     }
@@ -505,6 +587,12 @@ const AdminDashboard = () => {
 
   return (
     <>
+      <div className="mb-8 w-full">
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Admin Dashboard</h3>
+        </div>
+        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+      </div>
       <div className="flex flex-col md:flex-row flex-1 items-start relative w-full">
         {/* Mobile Tabs */}
         <div className="w-full md:hidden bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
@@ -521,6 +609,9 @@ const AdminDashboard = () => {
             <button onClick={() => setActiveTab('login-issues')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
               <AlertCircle className="w-4 h-4 mr-2" /> Logins
             </button>
+            <button onClick={() => setActiveTab('announcements')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+              <Megaphone className="w-4 h-4 mr-2" /> Announcements
+            </button>
           </div>
         </div>
 
@@ -535,10 +626,13 @@ const AdminDashboard = () => {
               <Users className="w-4 h-4 mr-3" /> Members
             </button>
             <button onClick={() => setActiveTab('queries')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
-              <LifeBuoy className="w-4 h-4 mr-3" /> Support Queries
+              <LifeBuoy className="w-4 h-4 mr-2.5" /> Support Queries
             </button>
             <button onClick={() => setActiveTab('login-issues')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
-              <AlertCircle className="w-4 h-4 mr-3" /> Login Issues
+              <AlertCircle className="w-4 h-4 mr-2.5" /> Login Issues
+            </button>
+            <button onClick={() => setActiveTab('announcements')} className={`w-full flex items-center px-2 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+              <Megaphone className="w-4 h-4 mr-2.5" /> Announcement Responses
             </button>
           </nav>
         </aside>
@@ -601,7 +695,7 @@ const AdminDashboard = () => {
                       exit={{ opacity: 0, height: 0, y: -20, margin: 0, padding: 0, overflow: 'hidden' }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                      <form onSubmit={handleStreamSubmit} className="clean-panel p-8 relative">
+                      <form onSubmit={handleStreamSubmit} className="clean-panel p-8 relative !overflow-visible">
                         {editingStreamId && (
                           <button
                             type="button"
@@ -634,7 +728,8 @@ const AdminDashboard = () => {
                               <CustomDropdown
                                 options={[
                                   { label: 'Admin Only', value: 'ADMIN' },
-                                  { label: 'All Users', value: 'USERS' }
+                                  { label: 'All Users', value: 'USERS' },
+                                  { label: 'As Approved', value: 'AS_APPROVED' }
                                 ]}
                                 value={streamFormData.visibility}
                                 onChange={(val) => handleStreamChange({ target: { name: 'visibility', value: val } } as any)}
@@ -648,10 +743,10 @@ const AdminDashboard = () => {
                                 values={streamFormData.allowedParentMohallas}
                                 onChange={(vals) => {
                                   const newVals = vals.length === 0 ? ['All'] : vals;
-                                  
-                                  const childOptions = mohallas?.filter((m: any) => 
-                                    newVals.includes('All') || 
-                                    newVals.includes(m.parentMohalla) || 
+
+                                  const childOptions = mohallas?.filter((m: any) =>
+                                    newVals.includes('All') ||
+                                    newVals.includes(m.parentMohalla) ||
                                     newVals.includes(m.name)
                                   ).map((m: any) => ({ label: m.name, value: m.name })) || [];
 
@@ -661,7 +756,7 @@ const AdminDashboard = () => {
                                   } else if (childOptions.length === 1) {
                                     newChildVals = [childOptions[0].value];
                                   }
-                                  
+
                                   setStreamFormData({ ...streamFormData, allowedParentMohallas: newVals, allowedChildMohallas: newChildVals });
                                 }}
                               />
@@ -672,14 +767,14 @@ const AdminDashboard = () => {
                               <MultiSelectDropdown
                                 disabled={streamFormData.allowedParentMohallas.includes('All')}
                                 options={(() => {
-                                  const childOptions = mohallas?.filter((m: any) => 
-                                    streamFormData.allowedParentMohallas.includes('All') || 
-                                    streamFormData.allowedParentMohallas.includes(m.parentMohalla) || 
+                                  const childOptions = mohallas?.filter((m: any) =>
+                                    streamFormData.allowedParentMohallas.includes('All') ||
+                                    streamFormData.allowedParentMohallas.includes(m.parentMohalla) ||
                                     streamFormData.allowedParentMohallas.includes(m.name)
                                   ).map((m: any) => ({ label: m.name, value: m.name })) || [];
-                                  
-                                  return childOptions.length > 1 
-                                    ? [{ label: 'All', value: 'All' }, ...childOptions] 
+
+                                  return childOptions.length > 1
+                                    ? [{ label: 'All', value: 'All' }, ...childOptions]
                                     : childOptions;
                                 })()}
                                 values={streamFormData.allowedChildMohallas}
@@ -843,10 +938,10 @@ const AdminDashboard = () => {
                           </div>
 
                           <div className="md:col-span-2 flex items-center justify-start gap-3 pt-6 border-t border-slate-200 mt-2">
-                            <button 
-                              type="button" 
-                              onClick={(e) => handleStreamSubmit(e, true)} 
-                              disabled={createStreamMutation.isPending || updateStreamMutation.isPending} 
+                            <button
+                              type="button"
+                              onClick={(e) => handleStreamSubmit(e, true)}
+                              disabled={createStreamMutation.isPending || updateStreamMutation.isPending}
                               className="btn-primary"
                             >
                               {editingStreamId
@@ -855,10 +950,10 @@ const AdminDashboard = () => {
                               }
                             </button>
                             {!editingStreamId && (
-                              <button 
-                                type="button" 
-                                onClick={(e) => handleStreamSubmit(e, false)} 
-                                disabled={createStreamMutation.isPending} 
+                              <button
+                                type="button"
+                                onClick={(e) => handleStreamSubmit(e, false)}
+                                disabled={createStreamMutation.isPending}
                                 className="btn-secondary"
                               >
                                 {createStreamMutation.isPending ? 'Creating...' : 'Create Only'}
@@ -872,86 +967,88 @@ const AdminDashboard = () => {
                 </AnimatePresence>
 
                 <div className="clean-panel mt-8 flex flex-col max-h-[70vh]">
-                  <div className="p-4 border-b border-slate-200 shrink-0"><h3 className="text-lg font-medium">Relay History</h3></div>
+                  <div className="p-4 border-b border-slate-200 shrink-0"><h3 className="text-lg font-medium">Relay List</h3></div>
                   <div className="flex-1 overflow-y-auto overflow-x-auto">
                     <table className="w-full text-left text-sm text-slate-600 relative">
                       <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
-                      <tr>
-                        <th className="px-4 py-3">Title</th>
-                        <th className="px-4 py-3">Waaz karnar</th>
-                        <th className="px-4 py-3 whitespace-nowrap">Status</th>
-                        <th className="px-4 py-3 whitespace-nowrap">Visibility</th>
-                        <th className="px-4 py-3 min-w-[120px]">Parent Mohallahs</th>
-                        <th className="px-4 py-3 min-w-[120px]">Child Mohallahs</th>
-                        <th className="px-4 py-3 whitespace-nowrap">Gender Limit</th>
-                        <th className="px-4 py-3 whitespace-nowrap text-right">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {isLoadingStreams ? (
-                        <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
-                      ) : streams?.map((stream: any) => (
-                        <tr key={stream._id} className={`hover:bg-slate-50 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50' : ''}`}>
-                          <td className="px-4 py-3 font-medium text-slate-900">{stream.title}</td>
-                          <td className="px-4 py-3">{stream.speaker}</td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {stream.isLive ? (
-                              <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
-                            ) : (
-                              <span className="text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            {stream.visibility === 'USERS' ? (
-                              <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-semibold">All Users</span>
-                            ) : (
-                              <span className="text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-sm text-slate-600 font-medium">{stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') ? stream.allowedParentMohallas.join(', ') : 'All'}</span>
-                          </td>
-                          <td className="px-4 py-3">
-                            <span className="text-sm text-slate-600 font-medium">{stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All') ? stream.allowedChildMohallas.join(', ') : 'All'}</span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap">
-                            <span className="text-sm text-slate-600 font-medium">{stream.allowedGender || 'All'}</span>
-                          </td>
-                          <td className="px-4 py-3 whitespace-nowrap text-right">
-                            <div className="flex items-center justify-end space-x-3">
-                              {stream.isLive ? (
-                                <button onClick={async () => {
-                                  if (await confirm(`Are you sure you want to take "${stream.title}" offline?`, { confirmText: 'Go Offline' })) {
-                                    toggleLiveMutation.mutate({ id: stream._id, isLive: false });
-                                  }
-                                }} className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded shadow-sm hover:bg-slate-200 hover:text-slate-900 transition-colors">Go Offline</button>
-                              ) : (
-                                <button onClick={async () => {
-                                  if (await confirm(`Are you sure you want to make "${stream.title}" live?`, { confirmText: 'Go Live' })) {
-                                    toggleLiveMutation.mutate({ id: stream._id, isLive: true });
-                                  }
-                                }} className="inline-flex items-center px-3 py-1.5 bg-brand-accent text-white text-xs font-semibold rounded shadow-sm hover:bg-brand-accent-hover transition-colors">Go Live</button>
-                              )}
-                              <button onClick={() => handleEditStream(stream)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit Relay">
-                                <Edit2 className="w-4 h-4" />
-                              </button>
-                              <button onClick={async () => {
-                                if (await confirm('Are you sure you want to delete this relay?', { type: 'danger', confirmText: 'Delete Relay' })) {
-                                  deleteStreamMutation.mutate(stream._id);
-                                }
-                              }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete Relay">
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </div>
-                          </td>
+                        <tr>
+                          <th className="px-4 py-3">Title</th>
+                          <th className="px-4 py-3">Waaz karnar</th>
+                          <th className="px-4 py-3 whitespace-nowrap">Status</th>
+                          <th className="px-4 py-3 whitespace-nowrap">Visibility</th>
+                          <th className="px-4 py-3 min-w-[120px]">Parent Mohallahs</th>
+                          <th className="px-4 py-3 min-w-[120px]">Child Mohallahs</th>
+                          <th className="px-4 py-3 whitespace-nowrap">Gender Limit</th>
+                          <th className="px-4 py-3 whitespace-nowrap text-right">Actions</th>
                         </tr>
-                      ))}
-                      
-                      {!isLoadingStreams && streams?.length === 0 && (
-                        <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500">No relay history found. Create a stream to get started.</td></tr>
-                      )}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {isLoadingStreams ? (
+                          <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
+                        ) : streams?.map((stream: any) => (
+                          <tr key={stream._id} className={`hover:bg-slate-50 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50' : ''}`}>
+                            <td className="px-4 py-3 font-medium text-slate-900">{stream.title}</td>
+                            <td className="px-4 py-3">{stream.speaker}</td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {stream.isLive ? (
+                                <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
+                              ) : (
+                                <span className="text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              {stream.visibility === 'USERS' ? (
+                                <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-semibold">All Users</span>
+                              ) : stream.visibility === 'AS_APPROVED' ? (
+                                <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md text-xs font-semibold">As Approved</span>
+                              ) : (
+                                <span className="text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm text-slate-600 font-medium">{stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') ? stream.allowedParentMohallas.join(', ') : 'All'}</span>
+                            </td>
+                            <td className="px-4 py-3">
+                              <span className="text-sm text-slate-600 font-medium">{stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All') ? stream.allowedChildMohallas.join(', ') : 'All'}</span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap">
+                              <span className="text-sm text-slate-600 font-medium">{stream.allowedGender || 'All'}</span>
+                            </td>
+                            <td className="px-4 py-3 whitespace-nowrap text-right">
+                              <div className="flex items-center justify-end space-x-3">
+                                {stream.isLive ? (
+                                  <button onClick={async () => {
+                                    if (await confirm(`Are you sure you want to take "${stream.title}" offline?`, { confirmText: 'Go Offline' })) {
+                                      toggleLiveMutation.mutate({ id: stream._id, isLive: false });
+                                    }
+                                  }} className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded shadow-sm hover:bg-slate-200 hover:text-slate-900 transition-colors">Go Offline</button>
+                                ) : (
+                                  <button onClick={async () => {
+                                    if (await confirm(`Are you sure you want to make "${stream.title}" live?`, { confirmText: 'Go Live' })) {
+                                      toggleLiveMutation.mutate({ id: stream._id, isLive: true });
+                                    }
+                                  }} className="inline-flex items-center px-3 py-1.5 bg-brand-accent text-white text-xs font-semibold rounded shadow-sm hover:bg-brand-accent-hover transition-colors">Go Live</button>
+                                )}
+                                <button onClick={() => handleEditStream(stream)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit Relay">
+                                  <Edit2 className="w-4 h-4" />
+                                </button>
+                                <button onClick={async () => {
+                                  if (await confirm('Are you sure you want to delete this relay?', { type: 'danger', confirmText: 'Delete Relay' })) {
+                                    deleteStreamMutation.mutate(stream._id);
+                                  }
+                                }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete Relay">
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+
+                        {!isLoadingStreams && streams?.length === 0 && (
+                          <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500">No relay history found. Create a stream to get started.</td></tr>
+                        )}
+                      </tbody>
+                    </table>
                   </div>
                 </div>
               </div>
@@ -1024,22 +1121,34 @@ const AdminDashboard = () => {
                           <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 transition-colors"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
-                            <div className="w-full sm:w-48 shrink-0">
-                              <CustomDropdown
-                                options={[{ label: 'None (Is Main)', value: '' }, ...(mohallas?.filter((m: any) => m._id !== editingMohallaId).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
-                                value={newMohallaParent}
-                                onChange={setNewMohallaParent}
-                                placeholder="Parent Mohallah"
-                              />
-                            </div>
-                            <input
-                              type="text"
-                              placeholder="Mohalla Name"
-                              className="input-field w-full sm:flex-1 sm:max-w-xs shrink-0"
-                              value={newMohallaName}
-                              onChange={(e) => setNewMohallaName(e.target.value)}
-                              onKeyDown={(e) => {
-                                if (e.key === 'Enter' && newMohallaName.trim() && !createMohallaMutation.isPending && !updateMohallaMutation.isPending) {
+                          <div className="w-full sm:w-48 shrink-0">
+                            <CustomDropdown
+                              options={[{ label: 'None (Is Main)', value: '' }, ...(mohallas?.filter((m: any) => m._id !== editingMohallaId).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                              value={newMohallaParent}
+                              onChange={setNewMohallaParent}
+                              placeholder="Parent Mohallah"
+                            />
+                          </div>
+                          <input
+                            type="text"
+                            placeholder="Mohalla Name"
+                            className="input-field w-full sm:flex-1 sm:max-w-xs shrink-0"
+                            value={newMohallaName}
+                            onChange={(e) => setNewMohallaName(e.target.value)}
+                            onKeyDown={(e) => {
+                              if (e.key === 'Enter' && newMohallaName.trim() && !createMohallaMutation.isPending && !updateMohallaMutation.isPending) {
+                                if (editingMohallaId) {
+                                  updateMohallaMutation.mutate({ id: editingMohallaId, name: newMohallaName, parentMohalla: newMohallaParent });
+                                } else {
+                                  createMohallaMutation.mutate({ name: newMohallaName, parentMohalla: newMohallaParent });
+                                }
+                              }
+                            }}
+                          />
+                          <div className="flex items-center justify-end gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                            <button
+                              onClick={() => {
+                                if (newMohallaName.trim()) {
                                   if (editingMohallaId) {
                                     updateMohallaMutation.mutate({ id: editingMohallaId, name: newMohallaName, parentMohalla: newMohallaParent });
                                   } else {
@@ -1047,86 +1156,74 @@ const AdminDashboard = () => {
                                   }
                                 }
                               }}
-                            />
-                            <div className="flex items-center justify-end gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                              disabled={createMohallaMutation.isPending || updateMohallaMutation.isPending || !newMohallaName.trim()}
+                              className="btn-primary whitespace-nowrap"
+                            >
+                              {editingMohallaId ? (updateMohallaMutation.isPending ? 'Updating...' : 'Update') : (createMohallaMutation.isPending ? 'Adding...' : 'Add')}
+                            </button>
+                            {editingMohallaId && (
                               <button
                                 onClick={() => {
-                                  if (newMohallaName.trim()) {
-                                    if (editingMohallaId) {
-                                      updateMohallaMutation.mutate({ id: editingMohallaId, name: newMohallaName, parentMohalla: newMohallaParent });
-                                    } else {
-                                      createMohallaMutation.mutate({ name: newMohallaName, parentMohalla: newMohallaParent });
-                                    }
-                                  }
+                                  setEditingMohallaId(null);
+                                  setNewMohallaName('');
+                                  setNewMohallaParent('');
                                 }}
-                                disabled={createMohallaMutation.isPending || updateMohallaMutation.isPending || !newMohallaName.trim()}
-                                className="btn-primary whitespace-nowrap"
+                                className="text-slate-500 hover:text-slate-700 text-sm font-medium px-3 py-2 text-center whitespace-nowrap"
                               >
-                                {editingMohallaId ? (updateMohallaMutation.isPending ? 'Updating...' : 'Update') : (createMohallaMutation.isPending ? 'Adding...' : 'Add')}
+                                Cancel
                               </button>
-                              {editingMohallaId && (
-                                <button 
-                                  onClick={() => {
-                                    setEditingMohallaId(null);
-                                    setNewMohallaName('');
-                                    setNewMohallaParent('');
-                                  }} 
-                                  className="text-slate-500 hover:text-slate-700 text-sm font-medium px-3 py-2 text-center whitespace-nowrap"
-                                >
-                                  Cancel
-                                </button>
-                              )}
-                            </div>
+                            )}
+                          </div>
                         </div>
                         <div className="bg-white rounded-lg border border-slate-200 flex flex-col max-h-[50vh]">
                           <div className="flex-1 overflow-y-auto overflow-x-auto">
                             <table className="w-full text-left text-sm text-slate-600 relative">
                               <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky top-0 z-10 shadow-sm">
-                              <tr>
-                                <th className="px-4 py-3">Parent Mohallah</th>
-                                <th className="px-4 py-3">Mohalla Name</th>
-                                <th className="px-4 py-3 text-right">Actions</th>
-                              </tr>
-                            </thead>
-                            <tbody className="divide-y divide-slate-100">
-                              {isLoadingMohallas ? (
-                                <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">Loading...</td></tr>
-                              ) : mohallas?.length === 0 ? (
-                                <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">No mohallas found.</td></tr>
-                              ) : mohallas?.map((m: any) => (
-                                <tr key={m._id} className="hover:bg-slate-50 transition-colors">
-                                  <td className="px-4 py-3 font-medium text-slate-500">{m.parentMohalla || '-'}</td>
-                                  <td className="px-4 py-3 text-slate-800">{m.name} {m.parentMohalla ? '' : <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-2">Main</span>}</td>
-                                  <td className="px-4 py-3">
-                                    <div className="flex justify-end items-center gap-3">
-                                      <button
-                                        onClick={() => {
-                                          setEditingMohallaId(m._id);
-                                          setNewMohallaName(m.name);
-                                          setNewMohallaParent(m.parentMohalla || '');
-                                        }}
-                                        className="text-brand-accent hover:text-brand-accent-hover p-1 transition-colors"
-                                        title="Edit Mohallah"
-                                      >
-                                        <Edit2 className="w-4 h-4" />
-                                      </button>
-                                      <button
-                                        onClick={async () => {
-                                          if (await confirm(`Delete ${m.name}? This might break existing users assigned to it.`, { type: 'danger', confirmText: 'Delete' })) {
-                                            deleteMohallaMutation.mutate(m._id);
-                                          }
-                                        }}
-                                        className="text-red-500 hover:text-red-700 p-1 transition-colors"
-                                        title="Delete Mohallah"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </div>
-                                  </td>
+                                <tr>
+                                  <th className="px-4 py-3">Parent Mohallah</th>
+                                  <th className="px-4 py-3">Mohalla Name</th>
+                                  <th className="px-4 py-3 text-right">Actions</th>
                                 </tr>
-                              ))}
-                            </tbody>
-                          </table>
+                              </thead>
+                              <tbody className="divide-y divide-slate-100">
+                                {isLoadingMohallas ? (
+                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">Loading...</td></tr>
+                                ) : mohallas?.length === 0 ? (
+                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">No mohallas found.</td></tr>
+                                ) : mohallas?.map((m: any) => (
+                                  <tr key={m._id} className="hover:bg-slate-50 transition-colors">
+                                    <td className="px-4 py-3 font-medium text-slate-500">{m.parentMohalla || '-'}</td>
+                                    <td className="px-4 py-3 text-slate-800">{m.name} {m.parentMohalla ? '' : <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-2">Main</span>}</td>
+                                    <td className="px-4 py-3">
+                                      <div className="flex justify-end items-center gap-3">
+                                        <button
+                                          onClick={() => {
+                                            setEditingMohallaId(m._id);
+                                            setNewMohallaName(m.name);
+                                            setNewMohallaParent(m.parentMohalla || '');
+                                          }}
+                                          className="text-brand-accent hover:text-brand-accent-hover p-1 transition-colors"
+                                          title="Edit Mohallah"
+                                        >
+                                          <Edit2 className="w-4 h-4" />
+                                        </button>
+                                        <button
+                                          onClick={async () => {
+                                            if (await confirm(`Delete ${m.name}? This might break existing users assigned to it.`, { type: 'danger', confirmText: 'Delete' })) {
+                                              deleteMohallaMutation.mutate(m._id);
+                                            }
+                                          }}
+                                          className="text-red-500 hover:text-red-700 p-1 transition-colors"
+                                          title="Delete Mohallah"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
                           </div>
                         </div>
                       </div>
@@ -1152,7 +1249,7 @@ const AdminDashboard = () => {
                                 setUserFormErrors((prev) => ({ ...prev, itsId: true }));
                               }
                             }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
-                            {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
+                            {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
@@ -1248,118 +1345,124 @@ const AdminDashboard = () => {
                   <div className="flex-1 overflow-y-auto overflow-x-auto">
                     <table className="w-full text-left text-sm text-slate-600 relative">
                       <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
-                      <tr>
-                        <th className="px-4 py-4 whitespace-nowrap">ITS ID</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Member</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Mohallah</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Gender</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Email</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Mobile NO.</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Session Status</th>
-                        <th className="px-4 py-4 whitespace-nowrap">IP & Device</th>
-                        <th className="px-4 py-4 whitespace-nowrap">Logged In</th>
-                        <th className="px-4 py-4 text-right whitespace-nowrap border-l border-slate-300">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {isLoadingUsers ? (
-                        <tr><td colSpan={8} className="px-6 py-4 text-center">Loading members...</td></tr>
-                      ) : processedUsers.length === 0 ? (
-                        <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500">No members found.</td></tr>
-                      ) : processedUsers.map((user: any) => (
-                        <tr key={user._id} className="group hover:bg-slate-50 transition-colors">
-                          <td className="px-4 py-4 font-mono text-slate-700 font-medium">{user.itsId}</td>
-                          <td className="px-4 py-4">
-                            <div className="text-slate-900 font-semibold">{user.fullName}</div>
-                            <div className="flex items-center space-x-2 mt-1.5">
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.role === 'ADMIN' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-slate-500 bg-slate-100 border-slate-200'}`}>
-                                {user.role}
-                              </span>
-                              <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
-                                {user.isActive ? 'ACTIVE' : 'DISABLED'}
-                              </span>
-                            </div>
-                          </td>
-                          <td className="px-4 py-4">
-                            <span className="text-sm font-medium text-slate-700">
-                              {user.mohalla || 'Burhani'}
-                            </span>
-                          </td>
-                          <td className="px-4 py-4 text-sm font-medium text-slate-700">
-                            {user.gender || 'Male'}
-                          </td>
-                          <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
-                            {user.email || <span className="text-slate-400 italic">N/A</span>}
-                          </td>
-                          <td className="px-4 py-4 text-sm font-mono text-slate-700 whitespace-nowrap">
-                            {user.mobile || <span className="text-slate-400 italic font-sans">N/A</span>}
-                          </td>
-                          <td className="px-4 py-4">
-                            {user.sessionStatus === 'inUse' ? (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
-                                <span className="w-2 h-2 rounded-full bg-blue-500 mr-1.5 animate-pulse"></span>
-                                In Use
-                              </span>
-                            ) : (
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-200">
-                                Idle
-                              </span>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 max-w-[200px]">
-                            <div className="text-xs font-mono text-slate-800 mb-1">{user.lastIpAddress || 'N/A'}</div>
-                            <div className="text-[10px] text-slate-500 leading-tight truncate" title={user.lastDeviceDetails || 'N/A'}>
-                              {user.lastDeviceDetails || 'N/A'}
-                            </div>
-                          </td>
-                          <td className="px-4 py-4 whitespace-nowrap">
-                            {user.lastLogin ? (
-                              <>
-                                <div className="text-xs text-slate-800">{new Date(user.lastLogin).toLocaleDateString()} {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
-                                {user.sessionStatus === 'inUse' && user.sessionDuration !== null && (
-                                  <div className="text-xs text-blue-600 font-medium mt-0.5">({user.sessionDuration} mins)</div>
-                                )}
-                              </>
-                            ) : (
-                              <span className="text-xs text-slate-400">Never</span>
-                            )}
-                          </td>
-                          <td className="px-4 py-4 text-right space-x-3 whitespace-nowrap border-l border-slate-200">
-                            <button onClick={async () => {
-                              if (user.isActive) {
-                                if (await confirm(`Do you want to deactivate user ${user.fullName}?`, { confirmText: 'Deactivate' })) {
-                                  toggleUserStatusMutation.mutate({ id: user._id, isActive: false });
-                                }
-                              } else {
-                                toggleUserStatusMutation.mutate({ id: user._id, isActive: true });
-                              }
-                            }} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
-                              {user.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
-                            </button>
-                            <button onClick={() => handleEditUser(user)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit User">
-                              <Edit2 className="w-4 h-4" />
-                            </button>
-                            <button onClick={async () => {
-                              if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { type: 'danger', confirmText: 'Delete User' })) {
-                                deleteUserMutation.mutate(user._id);
-                              }
-                            }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete User">
-                              <Trash2 className="w-4 h-4" />
-                            </button>
-                            {user.sessionStatus === 'inUse' && (
-                              <button onClick={async () => {
-                                if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { type: 'danger', confirmText: 'Force Logout' })) {
-                                  forceLogoutUserMutation.mutate(user._id);
-                                }
-                              }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 pl-3" title="Force Logout">
-                                <LogOut className="w-4 h-4" />
-                              </button>
-                            )}
-                          </td>
+                        <tr>
+                          <th className="px-4 py-4 whitespace-nowrap">ITS ID</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Member</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Mohallah</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Gender</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Email</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Mobile NO.</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Session Status</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Relay Access</th>
+                          <th className="px-4 py-4 whitespace-nowrap">IP & Device</th>
+                          <th className="px-4 py-4 whitespace-nowrap">Logged In</th>
+                          <th className="px-4 py-4 text-right whitespace-nowrap border-l border-slate-300">Actions</th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
+                      </thead>
+                      <tbody className="divide-y divide-slate-100 bg-white">
+                        {isLoadingUsers ? (
+                          <tr><td colSpan={8} className="px-6 py-4 text-center">Loading members...</td></tr>
+                        ) : processedUsers.length === 0 ? (
+                          <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500">No members found.</td></tr>
+                        ) : processedUsers.map((user: any) => (
+                          <tr key={user._id} className="group hover:bg-slate-50 transition-colors">
+                            <td className="px-4 py-4 font-mono text-slate-700 font-medium">{user.itsId}</td>
+                            <td className="px-4 py-4">
+                              <div className="text-slate-900 font-semibold">{user.fullName}</div>
+                              <div className="flex items-center space-x-2 mt-1.5">
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.role === 'ADMIN' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-slate-500 bg-slate-100 border-slate-200'}`}>
+                                  {user.role}
+                                </span>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                                  {user.isActive ? 'ACTIVE' : 'DISABLED'}
+                                </span>
+                              </div>
+                            </td>
+                            <td className="px-4 py-4">
+                              <span className="text-sm font-medium text-slate-700">
+                                {getMohallaString(user.mohalla || 'Burhani')}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-sm font-medium text-slate-700">
+                              {user.gender || 'Male'}
+                            </td>
+                            <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
+                              {user.email || <span className="text-slate-400 italic">N/A</span>}
+                            </td>
+                            <td className="px-4 py-4 text-sm font-mono text-slate-700 whitespace-nowrap">
+                              {user.mobile || <span className="text-slate-400 italic font-sans">N/A</span>}
+                            </td>
+                            <td className="px-4 py-4">
+                              {user.sessionStatus === 'inUse' ? (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                  <span className="w-2 h-2 rounded-full bg-blue-500 mr-1.5 animate-pulse"></span>
+                                  In Use
+                                </span>
+                              ) : (
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-200">
+                                  Idle
+                                </span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4">
+                              <button onClick={() => toggleRelayAccessMutation.mutate({ id: user._id, hasRelayAccess: !user.hasRelayAccess })} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.hasRelayAccess ? 'Revoke Relay Access' : 'Grant Relay Access'}>
+                                {user.hasRelayAccess ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+                              </button>
+                            </td>
+                            <td className="px-4 py-4 max-w-[200px]">
+                              <div className="text-xs font-mono text-slate-800 mb-1">{user.lastIpAddress || 'N/A'}</div>
+                              <div className="text-[10px] text-slate-500 leading-tight truncate" title={user.lastDeviceDetails || 'N/A'}>
+                                {user.lastDeviceDetails || 'N/A'}
+                              </div>
+                            </td>
+                            <td className="px-4 py-4 whitespace-nowrap">
+                              {user.lastLogin ? (
+                                <>
+                                  <div className="text-xs text-slate-800">{new Date(user.lastLogin).toLocaleDateString()} {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                  {user.sessionStatus === 'inUse' && user.sessionDuration !== null && (
+                                    <div className="text-xs text-blue-600 font-medium mt-0.5">({user.sessionDuration} mins)</div>
+                                  )}
+                                </>
+                              ) : (
+                                <span className="text-xs text-slate-400">Never</span>
+                              )}
+                            </td>
+                            <td className="px-4 py-4 text-right space-x-3 whitespace-nowrap border-l border-slate-200">
+                              <button onClick={async () => {
+                                if (user.isActive) {
+                                  if (await confirm(`Do you want to deactivate user ${user.fullName}?`, { confirmText: 'Deactivate' })) {
+                                    toggleUserStatusMutation.mutate({ id: user._id, isActive: false });
+                                  }
+                                } else {
+                                  toggleUserStatusMutation.mutate({ id: user._id, isActive: true });
+                                }
+                              }} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
+                                {user.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+                              </button>
+                              <button onClick={() => handleEditUser(user)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit User">
+                                <Edit2 className="w-4 h-4" />
+                              </button>
+                              <button onClick={async () => {
+                                if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { type: 'danger', confirmText: 'Delete User' })) {
+                                  deleteUserMutation.mutate(user._id);
+                                }
+                              }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete User">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                              {user.sessionStatus === 'inUse' && (
+                                <button onClick={async () => {
+                                  if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { type: 'danger', confirmText: 'Force Logout' })) {
+                                    forceLogoutUserMutation.mutate(user._id);
+                                  }
+                                }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 pl-3" title="Force Logout">
+                                  <LogOut className="w-4 h-4" />
+                                </button>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
                   </div>
                   <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-between items-center text-sm shrink-0">
                     <div className="text-slate-600 font-medium">Total Members: <span className="text-slate-900 font-bold ml-1">{totalMembers}</span></div>
@@ -1454,7 +1557,7 @@ const AdminDashboard = () => {
                               </div>
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mohalla</span>
-                                <span className="text-sm font-medium text-slate-800">{selectedQuery.mohalla}</span>
+                                <span className="text-sm font-medium text-slate-800">{getMohallaString(selectedQuery.mohalla)}</span>
                               </div>
                             </div>
 
@@ -1501,7 +1604,7 @@ const AdminDashboard = () => {
                                       {q.city}
                                     </td>
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
-                                      {q.mohalla}
+                                      {getMohallaString(q.mohalla)}
                                     </td>
                                     <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={q.query}>
                                       {q.query}
@@ -1669,6 +1772,12 @@ const AdminDashboard = () => {
                     </AnimatePresence>
                   </div>
                 </div>
+              </div>
+            )}
+
+            {activeTab === 'announcements' && (
+              <div className="space-y-8">
+                <AdminAnnouncementsTab />
               </div>
             )}
 

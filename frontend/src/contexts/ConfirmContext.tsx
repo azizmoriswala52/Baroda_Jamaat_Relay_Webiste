@@ -1,4 +1,5 @@
-import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
+import React, { createContext, useState, useContext, useEffect } from 'react';
+import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AlertCircle, X } from 'lucide-react';
 
@@ -85,23 +86,22 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children })
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 10 }}
               transition={{ duration: 0.15, ease: 'easeOut' }}
-              className="relative bg-gradient-to-br from-white to-slate-50 border border-slate-200 rounded-2xl shadow-[0_15px_40px_rgba(15,60,110,0.15)] w-full max-w-md overflow-hidden"
+              className="relative clean-panel w-full max-w-md overflow-hidden"
             >
               <div className="p-8 relative">
-                <div className="flex items-start mb-6">
-                  <div className={`flex-shrink-0 mt-0.5
-                    ${modalType === 'danger' ? 'text-red-500' : 'text-brand-accent'}`}
-                  >
-                    <AlertCircle className="w-7 h-7" strokeWidth={2.5} aria-hidden="true" />
+                <div className="flex items-center space-x-3 mb-4">
+                  <div className={`flex-shrink-0 ${modalType === 'danger' ? 'text-red-500' : 'text-brand-accent'}`}>
+                    <AlertCircle className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
                   </div>
-                  <div className="ml-4 text-left">
-                    <h3 className="text-xl font-bold text-slate-900 tracking-tight" id="modal-title">
-                      {modalType === 'danger' ? 'Warning' : modalType === 'warning' ? 'Confirm Action' : 'Notice'}
-                    </h3>
-                    <p className="mt-3 text-base font-medium text-slate-700 leading-relaxed">
-                      {message}
-                    </p>
-                  </div>
+                  <h3 className="text-xl font-bold text-slate-900 tracking-tight" id="modal-title">
+                    {modalType === 'danger' ? 'Warning' : modalType === 'warning' ? 'Confirm Action' : 'Notice'}
+                  </h3>
+                </div>
+                
+                <div className="ml-9 text-left">
+                  <p className="text-base font-medium text-slate-700 leading-relaxed">
+                    {message}
+                  </p>
                 </div>
                 
                 <div className="flex justify-end gap-3 mt-8">

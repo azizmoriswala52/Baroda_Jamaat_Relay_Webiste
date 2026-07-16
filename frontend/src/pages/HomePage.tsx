@@ -9,7 +9,14 @@ const HomePage = () => {
 
   return (
     <div className="flex flex-col space-y-8">
-      {/* Hero Section */}
+      <div className="mb-8">
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Home</h3>
+        </div>
+        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+      </div>
+
+      {/* Welcome Banner */}
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

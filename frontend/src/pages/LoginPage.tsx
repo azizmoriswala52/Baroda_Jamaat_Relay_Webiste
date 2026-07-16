@@ -69,7 +69,7 @@ const LoginPage = () => {
         sessionStorage.setItem('token', data.token);
         sessionStorage.setItem('user', JSON.stringify(data.user));
         toast.success('Login successful!');
-        navigate('/dashboard');
+        navigate('/home');
       } else {
         const errMsg = data.message || 'Invalid credentials';
         setError(errMsg);
@@ -190,7 +190,7 @@ const LoginPage = () => {
                           }
                         }}
                       />
-                      {fieldErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
+                      {fieldErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                     </div>
 
                     <div className="space-y-1">
@@ -289,7 +289,7 @@ const LoginPage = () => {
                         placeholder="Enter your 8-digit ITS Number"
                         className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />
-                      {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exactly 8 digits</p>}
+                      {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                     </div>
 
                     <div className="space-y-1">
@@ -302,7 +302,7 @@ const LoginPage = () => {
                         rows={3}
                         className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />
-                      {issueFormErrors.issueDescription && <p className="text-red-500 text-xs px-1">Please describe your issue</p>}
+                      {issueFormErrors.issueDescription && <p className="text-red-500 text-xs px-1">Issue Description is required</p>}
                     </div>
 
                     <div className="pt-4">

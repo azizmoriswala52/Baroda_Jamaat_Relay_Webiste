@@ -5,8 +5,10 @@ import dotenv from 'dotenv';
 import nms from './mediaServer';
 
 import authRoutes from './routes/authRoutes';
+import { authMiddleware } from './middlewares/authMiddleware';
 import streamRoutes from './routes/streamRoutes';
 import userRoutes from './routes/userRoutes';
+import siteAnnouncementRoutes from './routes/siteAnnouncementRoutes';
 import announcementRoutes from './routes/announcementRoutes';
 import supportRoutes from './routes/supportRoutes';
 import loginIssueRoutes from './routes/loginIssueRoutes';
@@ -27,6 +29,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/streams', streamRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/announcements', announcementRoutes);
+app.use('/api/site-announcements', authMiddleware, siteAnnouncementRoutes);
 app.use('/api/support', supportRoutes);
 app.use('/api/login-issues', loginIssueRoutes);
 app.use('/api/mohallas', mohallaRoutes);

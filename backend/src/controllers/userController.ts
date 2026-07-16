@@ -57,6 +57,37 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
   }
 };
 
+export const verifyPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    if (!(req as any).user) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+
+    const { oldPassword } = req.body;
+    if (!oldPassword) {
+      res.status(400).json({ message: 'Old password is required' });
+      return;
+    }
+
+    const user = await User.findById((req as any).user.userId);
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+
+    const isMatch = await bcrypt.compare(oldPassword, user.password as string);
+    if (isMatch) {
+      res.json({ success: true, message: 'Password verified' });
+    } else {
+      res.status(400).json({ success: false, message: 'Incorrect old password' });
+    }
+  } catch (error) {
+    console.error('Verify Password Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 // Admin Endpoints
 
 export const getAllUsers = async (req: Request, res: Response): Promise<void> => {
@@ -90,7 +121,7 @@ export const getAllUsers = async (req: Request, res: Response): Promise<void> =>
 
 export const createUser = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { itsId, password, fullName, email, mobile, jamaatName, mohalla, gender, role, isActive } = req.body;
+    const { itsId, password, fullName, email, mobile, jamaatName, mohalla, gender, role, isActive, hasRelayAccess } = req.body;
 
     if (!itsId || !fullName || !mobile || !password || !role) {
       res.status(400).json({ message: 'All required fields must be provided' });
@@ -121,7 +152,8 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       mohalla: mohalla || 'Burhani',
       gender: gender || 'Male',
       role: role || 'USER',
-      isActive: isActive !== undefined ? isActive : true
+      isActive: isActive !== undefined ? isActive : true,
+      hasRelayAccess: hasRelayAccess !== undefined ? hasRelayAccess : false
     });
 
     await newUser.save();
@@ -137,7 +169,7 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
 export const updateUserById = async (req: Request, res: Response): Promise<void> => {
   try {
     const { id } = req.params;
-    const { itsId, fullName, email, mobile, password, jamaatName, mohalla, gender, role, isActive } = req.body;
+    const { itsId, fullName, email, mobile, password, jamaatName, mohalla, gender, role, isActive, hasRelayAccess } = req.body;
 
     const user = await User.findById(id);
     if (!user) {
@@ -161,6 +193,10 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         blacklistedSessions.add(user.itsId);
         user.sessionStartTime = undefined;
       }
+    }
+
+    if (hasRelayAccess !== undefined) {
+      user.hasRelayAccess = hasRelayAccess;
     }
 
     if (password && password.trim().length > 0) {

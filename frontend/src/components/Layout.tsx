@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Home, Video, Settings, LogOut, User, ShieldAlert, LifeBuoy } from 'lucide-react';
+import { Menu, Home, Video, Settings, LogOut, User, ShieldAlert, LifeBuoy, Megaphone } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
@@ -103,6 +103,33 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const { data: freshUser } = useQuery({
+    queryKey: ['authMe'],
+    queryFn: () => apiClient('/auth/me'),
+    refetchInterval: 15000, // Check every 15s
+    retry: false
+  });
+
+  useEffect(() => {
+    if (freshUser && user) {
+      if (freshUser.hasRelayAccess !== user.hasRelayAccess) {
+        sessionStorage.setItem('user', JSON.stringify({
+          ...user,
+          hasRelayAccess: freshUser.hasRelayAccess
+        }));
+        
+        // Force redirect if access is revoked and they are on a protected page
+        if (!freshUser.hasRelayAccess && user.role !== 'ADMIN' && (location.pathname === '/relay' || location.pathname === '/dashboard')) {
+          toast.error('Your relay access has been revoked.', { icon: '🚫', duration: 5000 });
+          navigate('/announcements', { replace: true });
+        }
+      }
+    }
+  }, [freshUser, user, location.pathname, navigate]);
+
+  const hasAccess = user?.role === 'ADMIN' || (freshUser ? freshUser.hasRelayAccess : user?.hasRelayAccess);
+
+
   const { data: supportQueries } = useQuery({
     queryKey: ['adminSupportQueries'],
     queryFn: () => apiClient('/support'),
@@ -199,7 +226,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <PlayerProvider>
       <div className="h-screen overflow-hidden bg-brand-bg text-slate-800 flex flex-col font-sans">
         {/* Top Navbar */}
-      <header className="bg-brand-accent shadow-md flex justify-between items-center px-4 md:px-6 py-5 sm:py-4 z-[10001] shrink-0 relative overflow-hidden">
+      <header className="bg-brand-accent shadow-md flex justify-between items-center px-4 md:px-6 py-5 sm:py-4 z-[1000] shrink-0 relative overflow-hidden">
         
         {/* Dawoodi Bohra Fatimid Shurafat (Stepped Crenellations) */}
         <div 
@@ -258,7 +285,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
         <motion.aside 
           animate={{ width: isSidebarExpanded ? 256 : 80 }}
           transition={{ duration: 0.3, ease: "easeInOut" }}
-          className="bg-[#f0f2f5] border-r border-slate-200 hidden md:flex flex-col py-4 h-full shrink-0 z-[10000] overflow-hidden"
+          className="bg-[#f0f2f5] border-r border-slate-200 hidden md:flex flex-col py-4 h-full shrink-0 z-[999] overflow-hidden"
         >
           <nav className="flex flex-col space-y-1 px-3 mt-2 overflow-hidden">
             <Link 
@@ -277,19 +304,36 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             </Link>
             
             <Link 
-              to="/dashboard" 
-              title="Relay Dashboard"
-              className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'} whitespace-nowrap`}
+              to="/announcements" 
+              title="Announcements"
+              className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/announcements') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'} whitespace-nowrap`}
             >
-              <Video className="w-5 h-5 shrink-0" />
+              <Megaphone className="w-5 h-5 shrink-0" />
               <motion.span 
                 animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
                 className="overflow-hidden"
               >
-                Relay Dashboard
+                Announcements
               </motion.span>
             </Link>
+
+            {hasAccess && (
+              <Link 
+                to="/dashboard" 
+                title="Relay Dashboard"
+                className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600 hover:bg-slate-200/50 hover:text-slate-900'} whitespace-nowrap`}
+              >
+                <Video className="w-5 h-5 shrink-0" />
+                <motion.span 
+                  animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
+                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                  className="overflow-hidden"
+                >
+                  Relay Dashboard
+                </motion.span>
+              </Link>
+            )}
 
             {user?.role === 'ADMIN' && (
               <Link 
@@ -380,16 +424,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.2 }}
-            className="fixed inset-x-0 top-[64px] bottom-0 z-[10000] bg-brand-bg flex flex-col md:hidden overflow-y-auto"
+            className="fixed inset-x-0 top-[64px] bottom-0 z-[999] bg-brand-bg flex flex-col md:hidden overflow-y-auto"
           >
             
             <nav className="flex flex-col space-y-2 p-6 mt-4">
               <Link to="/home" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/home') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600'}`}>
                 <Home className="w-6 h-6 mr-4" /> Home
               </Link>
-              <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600'}`}>
-                <Video className="w-6 h-6 mr-4" /> Relay Dashboard
+              <Link to="/announcements" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/announcements') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600'}`}>
+                <Megaphone className="w-6 h-6 mr-4" /> Announcements
               </Link>
+              {hasAccess && (
+                <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600'}`}>
+                  <Video className="w-6 h-6 mr-4" /> Relay Dashboard
+                </Link>
+              )}
               {user?.role === 'ADMIN' && (
                 <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/admin') ? 'bg-[#e2e8f0] text-brand-accent' : 'text-slate-600'}`}>
                   <ShieldAlert className="w-6 h-6 mr-4" /> Admin Dashboard

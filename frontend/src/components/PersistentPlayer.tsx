@@ -9,14 +9,14 @@ import VideoPlayer from './VideoPlayer';
 const PersistentPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isCurrentlyLive, activeStream, selectedServer, isPlayerVisible, setIsPlayerVisible, playerRect, isLoadingStream } = usePlayer();
+  const { isCurrentlyLive, activeStream, selectedServer, isPlayerVisible, setIsPlayerVisible, playerRect, isLoadingStream, hasAgreedToRules } = usePlayer();
   const isRelayPage = location.pathname === '/relay';
   const playerRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
 
   const [showControls, setShowControls] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
-  const controlsTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const controlsTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Calculate drag bounds to keep the mini-player on screen
   const [dragBounds, setDragBounds] = useState({ left: 0, right: 0, top: 0, bottom: 0 });
@@ -116,7 +116,7 @@ const PersistentPlayer = () => {
   const isActive = isCurrentlyLive && selectedServer;
   
   // We want to hide it completely (and unmount to stop playback) if it shouldn't be visible
-  const isVisible = isActive && (isPlayerVisible || isRelayPage);
+  const isVisible = isActive && (isPlayerVisible || isRelayPage) && hasAgreedToRules;
   
   if (!isVisible) {
     return null;
@@ -129,9 +129,10 @@ const PersistentPlayer = () => {
   const renderVideo = () => {
     if (!isActive) return null;
     
+    const ReactPlayerAny = ReactPlayer as any;
     if (activeStream.streamType === 'YOUTUBE') {
       return (
-        <ReactPlayer
+        <ReactPlayerAny
           url={
             selectedServer.url.includes('<iframe')
               ? (selectedServer.url.match(/src="([^"]+)"/) || [])[1] || selectedServer.url
@@ -146,7 +147,7 @@ const PersistentPlayer = () => {
           config={{
             youtube: {
               playerVars: { autoplay: 1 }
-            }
+            } as any
           }}
         />
       );
@@ -180,7 +181,7 @@ const PersistentPlayer = () => {
         height: isRelayPage ? playerRect.height : 180,
         bottom: isRelayPage ? undefined : 24,
         right: isRelayPage ? undefined : 24,
-        zIndex: isRelayPage ? 30 : 9999,
+        zIndex: isRelayPage ? 30 : 900,
         transition: 'width 0.3s, height 0.3s, top 0.3s, left 0.3s, opacity 0.2s',
       }}
       className={`bg-black overflow-hidden shadow-2xl ${isRelayPage ? 'rounded-2xl ring-1 ring-white/5' : 'rounded-xl border border-slate-700/50 cursor-move group'}`}

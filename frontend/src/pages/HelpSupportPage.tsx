@@ -67,8 +67,10 @@ const HelpSupportPage = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="pb-10">
       <div className="mb-8">
-        <h2 className="text-2xl font-bold text-slate-800">Help & Support</h2>
-        <p className="text-sm text-slate-500">Submit your queries and we will get back to you shortly</p>
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Help & Support</h3>
+        </div>
+        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
       </div>
 
       <div className="max-w-2xl">
@@ -100,7 +102,7 @@ const HelpSupportPage = () => {
                 rows={4}
                 className={`input-field resize-y ${formErrors.query ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
               />
-              {formErrors.query && <p className="text-red-500 text-xs px-1">Support description is required</p>}
+              {formErrors.query && <p className="text-red-500 text-xs px-1">Query is required</p>}
             </div>
             </div>
 

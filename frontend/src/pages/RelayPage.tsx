@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, FileText, ChevronRight, Share2, MessageSquare, Plus, Trash2, Calendar, Menu, Home, Video, LogOut, User, Bell, Maximize, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { AlertCircle, PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, FileText, ChevronRight, Share2, MessageSquare, Plus, Trash2, Calendar, Menu, Home, Video, LogOut, User, Bell, Maximize, Volume2, VolumeX, Pause, Play } from 'lucide-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -58,8 +58,29 @@ const RelayPage = () => {
     servers,
     selectedServer,
     setSelectedServer,
-    setPlayerRect
+    setPlayerRect,
+    hasAgreedToRules,
+    setHasAgreedToRules
   } = usePlayer();
+
+  const [showAgreementModal, setShowAgreementModal] = useState(false);
+
+  useEffect(() => {
+    if (isCurrentlyLive && !hasAgreedToRules) {
+      setShowAgreementModal(true);
+    } else {
+      setShowAgreementModal(false);
+    }
+  }, [isCurrentlyLive, hasAgreedToRules]);
+
+  const handleAgree = () => {
+    setHasAgreedToRules(true);
+    setShowAgreementModal(false);
+  };
+
+  const handleDisagree = () => {
+    navigate('/dashboard');
+  };
 
   const placeholderRef = useRef<HTMLDivElement>(null);
 
@@ -175,12 +196,10 @@ const RelayPage = () => {
 
   return (
     <>
-      <div className="relative z-10 flex justify-between items-center mb-6">
-        <div>
-          <h2 className="text-2xl font-bold text-slate-800">Relay Room</h2>
-          <p className="text-sm text-slate-500">Live streaming and session management</p>
-        </div>
-        {isCurrentlyLive && (
+      <div className="mb-8 w-full">
+        <div className="flex justify-between items-center">
+          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Relay Room</h3>
+          {isCurrentlyLive && (
           <div className="flex items-center space-x-3">
             <button 
               onClick={() => refetchStream()}
@@ -194,6 +213,8 @@ const RelayPage = () => {
             </span>
           </div>
         )}
+        </div>
+        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
       </div>
 
       <div className="relative z-10 flex flex-col lg:flex-row gap-6 w-full flex-1 min-w-0">
@@ -362,6 +383,54 @@ const RelayPage = () => {
           </div>
         </aside>
       </div>
+
+      <AnimatePresence>
+        {showAgreementModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-slate-900/60 backdrop-blur-sm"
+              onClick={handleDisagree}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-lg clean-panel bg-white shadow-2xl overflow-hidden border border-slate-200"
+            >
+              <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-center items-center">
+                <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Important Instructions</h3>
+              </div>
+              <div className="p-8 flex flex-col items-center text-center">
+                <div className="w-16 h-16 bg-brand-accent/10 rounded-full flex items-center justify-center mb-6">
+                  <AlertCircle className="w-8 h-8 text-brand-accent" />
+                </div>
+                <h3 className="text-xl font-bold text-slate-800 mb-4">Before you join...</h3>
+                <p className="text-slate-600 leading-relaxed font-medium">
+                  Please do not attempt to record this relay using any device. Taking clips, photos, or engaging in any kind of mischief is strictly prohibited. 
+                  Any violation will result in immediate termination of your access to the relay.
+                </p>
+              </div>
+              <div className="p-6 bg-slate-50 flex flex-col sm:flex-row gap-4 justify-end border-t border-slate-200">
+                <button
+                  onClick={handleDisagree}
+                  className="px-6 py-2.5 rounded-lg font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 transition-colors w-full sm:w-auto shadow-sm"
+                >
+                  I Decline
+                </button>
+                <button
+                  onClick={handleAgree}
+                  className="btn-primary px-8 py-2.5 w-full sm:w-auto"
+                >
+                  I Agree
+                </button>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </>
   );
 };

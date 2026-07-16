@@ -191,7 +191,7 @@ const RelayPage = () => {
                       onStart={() => console.log('ReactPlayer started playing')}
                       onPlay={() => console.log('ReactPlayer onPlay event')}
                       onPause={() => console.log('ReactPlayer onPause event')}
-                      onError={(e) => console.error('ReactPlayer error:', e)}
+                      onError={(e: any) => console.error('ReactPlayer error:', e)}
                       onProgress={(state: any) => handleProgress(state)}
                       controls={false}
                       config={{

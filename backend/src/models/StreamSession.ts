@@ -13,7 +13,7 @@ export interface IStreamSession extends Document {
   allowedParentMohallas: string[];
   allowedChildMohallas: string[];
   allowedGender: 'Male' | 'Female' | 'All';
-  visibility: 'ADMIN' | 'USERS';
+  visibility: 'ADMIN' | 'USERS' | 'AS_APPROVED';
 }
 
 const StreamSessionSchema: Schema = new Schema({
@@ -32,7 +32,7 @@ const StreamSessionSchema: Schema = new Schema({
   allowedParentMohallas: { type: [String], default: [] },
   allowedChildMohallas: { type: [String], default: [] },
   allowedGender: { type: String, enum: ['Male', 'Female', 'All'], default: 'All' },
-  visibility: { type: String, enum: ['ADMIN', 'USERS'], default: 'ADMIN' }
+  visibility: { type: String, enum: ['ADMIN', 'USERS', 'AS_APPROVED'], default: 'ADMIN' }
 }, { timestamps: true });
 
 export default mongoose.model<IStreamSession>('StreamSession', StreamSessionSchema);

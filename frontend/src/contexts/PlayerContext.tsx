@@ -16,6 +16,8 @@ interface PlayerContextType {
   setIsPlayerVisible: (visible: boolean) => void;
   playerRect: { top: number; left: number; width: number; height: number };
   setPlayerRect: (rect: { top: number; left: number; width: number; height: number }) => void;
+  hasAgreedToRules: boolean;
+  setHasAgreedToRules: (agreed: boolean) => void;
 }
 
 const PlayerContext = createContext<PlayerContextType | undefined>(undefined);
@@ -24,6 +26,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [selectedServer, setSelectedServer] = useState<{ name: string; url: string } | null>(null);
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [playerRect, setPlayerRect] = useState({ top: 0, left: 0, width: 0, height: 0 });
+  const [hasAgreedToRulesState, setHasAgreedToRulesState] = useState(false);
 
   const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError, refetch: refetchStream, isFetching: isFetchingStream } = useQuery({
     queryKey: ['activeStream'],
@@ -46,6 +49,22 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 
   // Auto-select first server if none selected
   useEffect(() => {
+    if (activeStream?._id) {
+      const agreed = localStorage.getItem(`agreed_relay_${activeStream._id}`) === 'true';
+      if (agreed && !hasAgreedToRulesState) {
+        setHasAgreedToRulesState(true);
+      }
+    }
+  }, [activeStream?._id]);
+
+  const setHasAgreedToRules = (agreed: boolean) => {
+    setHasAgreedToRulesState(agreed);
+    if (agreed && activeStream?._id) {
+      localStorage.setItem(`agreed_relay_${activeStream._id}`, 'true');
+    }
+  };
+
+  useEffect(() => {
     if (servers.length > 0 && !selectedServer) {
       setSelectedServer(servers[0]);
     } else if (servers.length === 0 && selectedServer) {
@@ -61,6 +80,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   useEffect(() => {
     if (!isCurrentlyLive || isStreamError) {
       setIsPlayerVisible(false);
+      setHasAgreedToRulesState(false); // Reset agreement when stream goes offline
     }
   }, [isCurrentlyLive, isStreamError]);
 
@@ -80,6 +100,8 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         setIsPlayerVisible,
         playerRect,
         setPlayerRect,
+        hasAgreedToRules: hasAgreedToRulesState,
+        setHasAgreedToRules,
       }}
     >
       {children}

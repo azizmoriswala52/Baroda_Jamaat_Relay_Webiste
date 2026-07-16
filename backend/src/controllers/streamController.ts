@@ -50,7 +50,8 @@ export const getAllStreams = async (req: Request, res: Response): Promise<void> 
       const userParentMohalla = userMohallaDoc?.parentMohalla;
       
       streams = streams.filter(stream => {
-        if (stream.visibility !== 'USERS') return false;
+        if (stream.visibility === 'ADMIN') return false;
+        if (stream.visibility === 'AS_APPROVED' && !freshUser?.hasRelayAccess) return false;
         
         const hasParentRestriction = stream.allowedParentMohallas && stream.allowedParentMohallas.length > 0 && !stream.allowedParentMohallas.includes('All');
         const hasChildRestriction = stream.allowedChildMohallas && stream.allowedChildMohallas.length > 0 && !stream.allowedChildMohallas.includes('All');
@@ -100,15 +101,19 @@ export const getActiveStream = async (req: Request, res: Response): Promise<void
     const reqUser = (req as any).user;
     
     if (!reqUser || reqUser.role !== 'ADMIN') {
-      if (activeStream.visibility !== 'USERS') {
+      if (activeStream.visibility === 'ADMIN') {
         res.status(403).json({ message: 'This relay is currently visible only to Admins.' });
         return;
       }
 
-      // Fetch fresh user to ensure we have the latest mohalla and gender (in case JWT is old)
       const freshUser = await User.findById(reqUser.userId);
       const userMohalla = freshUser?.mohalla || 'Burhani';
       const userGender = freshUser?.gender || 'Male';
+
+      if (activeStream.visibility === 'AS_APPROVED' && !freshUser?.hasRelayAccess) {
+        res.status(403).json({ message: 'You must have an approved request to view this relay.' });
+        return;
+      }
       
       const hasParentRestriction = activeStream.allowedParentMohallas && activeStream.allowedParentMohallas.length > 0 && !activeStream.allowedParentMohallas.includes('All');
       const hasChildRestriction = activeStream.allowedChildMohallas && activeStream.allowedChildMohallas.length > 0 && !activeStream.allowedChildMohallas.includes('All');

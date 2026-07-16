@@ -88,7 +88,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         fullName: user.fullName,
         role: user.role,
         jamaatName: user.jamaatName,
-        mohalla: user.mohalla
+        mohalla: user.mohalla,
+        hasRelayAccess: user.hasRelayAccess
       }
     });
   } catch (error) {
@@ -155,4 +156,23 @@ export const logout = (req: Request, res: Response): void => {
     activeSessions.delete(user.itsId);
   }
   res.status(204).send();
+};
+
+export const getMe = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const userId = (req as any).user?.userId;
+    if (!userId) {
+      res.status(401).json({ message: 'Unauthorized' });
+      return;
+    }
+    const user = await User.findById(userId).select('-password');
+    if (!user) {
+      res.status(404).json({ message: 'User not found' });
+      return;
+    }
+    res.json(user);
+  } catch (error) {
+    console.error('getMe Error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
 };
