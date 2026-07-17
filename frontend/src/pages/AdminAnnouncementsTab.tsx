@@ -453,7 +453,7 @@ const AdminAnnouncementsTab = () => {
       const rows = responses.map((r: any) => [
         r.userId.itsId,
         r.userId.fullName,
-        `'${r.userId.mobile}`,
+        `${r.userId.mobile}`,
         r.userId.jamaatName,
         getMohallaString(r.userId.mohalla || 'Burhani'),
         r.response,
@@ -494,8 +494,8 @@ const AdminAnnouncementsTab = () => {
           </button>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
-          <button 
-            onClick={() => refetch()} 
+          <button
+            onClick={() => refetch()}
             disabled={isFetching}
             className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 disabled:opacity-50"
             title="Refresh Announcements"
@@ -574,32 +574,32 @@ const AdminAnnouncementsTab = () => {
                   {errors.content && <p className="text-red-500 text-xs px-1 mt-1">Content is required</p>}
                 </div>
 
+                <div className="space-y-1 max-w-sm">
+                  <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Record Response As</label>
+                  <CustomDropdown
+                    options={[
+                      { label: 'None (Info Only)', value: 'NONE' },
+                      { label: 'Approval Request', value: 'APPROVAL' },
+                      { label: 'RSVP Confirmation', value: 'RSVP' }
+                    ]}
+                    value={formData.responseType}
+                    onChange={(val) => setFormData({ ...formData, responseType: val })}
+                  />
+                </div>
+
+                {formData.responseType !== 'NONE' && (
                   <div className="space-y-1 max-w-sm">
-                    <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Record Response As</label>
-                    <CustomDropdown
-                      options={[
-                        { label: 'None (Info Only)', value: 'NONE' },
-                        { label: 'Approval Request', value: 'APPROVAL' },
-                        { label: 'RSVP Confirmation', value: 'RSVP' }
-                      ]}
-                      value={formData.responseType}
-                      onChange={(val) => setFormData({ ...formData, responseType: val })}
+                    <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Response Deadline (Optional)</label>
+                    <input
+                      type="datetime-local"
+                      min={new Date().toISOString().slice(0, 16)}
+                      value={formData.deadline}
+                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
+                      className="input-field"
                     />
+                    <p className="text-xs text-slate-400 mt-1">If set, responses will not be accepted after this time.</p>
                   </div>
-                  
-                  {formData.responseType !== 'NONE' && (
-                    <div className="space-y-1 max-w-sm">
-                      <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Response Deadline (Optional)</label>
-                      <input
-                        type="datetime-local"
-                        min={new Date().toISOString().slice(0, 16)}
-                        value={formData.deadline}
-                        onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                        className="input-field"
-                      />
-                      <p className="text-xs text-slate-400 mt-1">If set, responses will not be accepted after this time.</p>
-                    </div>
-                  )}
+                )}
                 <div className="space-y-4 max-w-2xl mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
