@@ -1227,7 +1227,7 @@ const AdminDashboard = () => {
                                         </button>
                                         <button
                                           onClick={async () => {
-                                            if (await confirm(`Delete ${m.name}? This might break existing users assigned to it.`, { type: 'danger', confirmText: 'Delete' })) {
+                                            if (await confirm(`Delete ${m.name}? This might break existing users assigned to it.`, { confirmText: 'Delete' })) {
                                               deleteMohallaMutation.mutate(m._id);
                                             }
                                           }}
@@ -1461,7 +1461,7 @@ const AdminDashboard = () => {
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button onClick={async () => {
-                                if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { type: 'danger', confirmText: 'Delete User' })) {
+                                if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { confirmText: 'Delete User' })) {
                                   deleteUserMutation.mutate(user._id);
                                 }
                               }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete User">
@@ -1469,7 +1469,7 @@ const AdminDashboard = () => {
                               </button>
                               {user.sessionStatus === 'inUse' && (
                                 <button onClick={async () => {
-                                  if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { type: 'danger', confirmText: 'Force Logout' })) {
+                                  if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { confirmText: 'Force Logout' })) {
                                     forceLogoutUserMutation.mutate(user._id);
                                   }
                                 }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 pl-3" title="Force Logout">
@@ -1543,7 +1543,7 @@ const AdminDashboard = () => {
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  if (await confirm('Delete this support query?', { type: 'danger', confirmText: 'Delete' })) {
+                                  if (await confirm('Delete this support query?', { confirmText: 'Delete' })) {
                                     deleteQueryMutation.mutate(selectedQuery._id);
                                     setSelectedQuery(null);
                                   }
@@ -1631,7 +1631,7 @@ const AdminDashboard = () => {
                                       <button
                                         onClick={async (e) => {
                                           e.stopPropagation();
-                                          if (await confirm('Delete this support query?', { type: 'danger', confirmText: 'Delete' })) {
+                                          if (await confirm('Delete this support query?', { confirmText: 'Delete' })) {
                                             deleteQueryMutation.mutate(q._id);
                                           }
                                         }}
@@ -1711,7 +1711,7 @@ const AdminDashboard = () => {
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
-                                  if (await confirm('Delete this login issue?', { type: 'danger', confirmText: 'Delete' })) {
+                                  if (await confirm('Delete this login issue?', { confirmText: 'Delete' })) {
                                     deleteLoginIssueMutation.mutate(selectedLoginIssue._id);
                                     setSelectedLoginIssue(null);
                                   }
@@ -1767,7 +1767,7 @@ const AdminDashboard = () => {
                                       <button
                                         onClick={async (e) => {
                                           e.stopPropagation();
-                                          if (await confirm('Delete this login issue?', { type: 'danger', confirmText: 'Delete' })) {
+                                          if (await confirm('Delete this login issue?', { confirmText: 'Delete' })) {
                                             deleteLoginIssueMutation.mutate(issue._id);
                                           }
                                         }}
