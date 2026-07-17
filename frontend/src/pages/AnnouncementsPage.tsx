@@ -352,7 +352,7 @@ const AnnouncementsPage = () => {
                                   <h4 className="text-sm font-bold text-slate-500">
                                     {announcement.responseType === 'APPROVAL' ? 'Approval Required' : 'RSVP Required'}
                                   </h4>
-                                  <p className="text-xs text-slate-400 mt-1">This announcement is no longer accepting responses.</p>
+                                  <p className="text-xs text-slate-400 mt-1">This form is no longer accepting responses.</p>
                                 </div>
                                 <span className="px-4 py-2 bg-slate-100 text-slate-500 font-semibold rounded-lg text-sm border border-slate-200 flex items-center">
                                   <XCircle className="w-4 h-4 mr-2" /> Closed
