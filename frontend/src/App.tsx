@@ -40,9 +40,8 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireRelayAccess = f
     return <Navigate to="/home" replace />;
   }
 
-  if (requireRelayAccess && user?.role !== 'ADMIN' && !user?.hasRelayAccess) {
-    return <Navigate to="/announcements" replace />;
-  }
+  // requireRelayAccess is no longer used here; access is handled dynamically by the API
+
 
   return children;
 };
@@ -105,8 +104,8 @@ function App() {
           {/* Protected Routes inside Global Layout */}
           <Route path="/home" element={<ProtectedRoute><Layout><HomePage /></Layout></ProtectedRoute>} />
           <Route path="/announcements" element={<ProtectedRoute><Layout><AnnouncementsPage /></Layout></ProtectedRoute>} />
-          <Route path="/dashboard" element={<ProtectedRoute requireRelayAccess={true}><Layout><DashboardPage /></Layout></ProtectedRoute>} />
-          <Route path="/relay" element={<ProtectedRoute requireRelayAccess={true}><Layout><RelayPage /></Layout></ProtectedRoute>} />
+          <Route path="/dashboard" element={<ProtectedRoute><Layout><DashboardPage /></Layout></ProtectedRoute>} />
+          <Route path="/relay" element={<ProtectedRoute><Layout><RelayPage /></Layout></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Layout><HelpSupportPage /></Layout></ProtectedRoute>} />
           

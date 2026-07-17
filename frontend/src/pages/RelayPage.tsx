@@ -60,7 +60,8 @@ const RelayPage = () => {
     setSelectedServer,
     setPlayerRect,
     hasAgreedToRules,
-    setHasAgreedToRules
+    setHasAgreedToRules,
+    streamErrorMsg
   } = usePlayer();
 
   const [showAgreementModal, setShowAgreementModal] = useState(false);
@@ -241,8 +242,27 @@ const RelayPage = () => {
             </div>
           )}
 
-          {/* Placeholder for the Persistent Player */}
-          <div ref={placeholderRef} className="w-full aspect-video rounded-2xl bg-transparent" />
+          {/* Error Message or Placeholder for the Persistent Player */}
+          {streamErrorMsg ? (
+            <div className="w-full aspect-video rounded-2xl bg-white border border-slate-200 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+                <AlertCircle className="w-10 h-10 text-red-500" />
+              </div>
+              <h3 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h3>
+              <p className="text-slate-600 font-medium">{streamErrorMsg}</p>
+              <p className="text-sm text-slate-400 mt-4">Please contact the administrator if you believe this is a mistake.</p>
+            </div>
+          ) : (
+            <div ref={placeholderRef} className="w-full aspect-video rounded-2xl bg-transparent relative">
+              {!isCurrentlyLive && !isFetchingStream && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300">
+                  <Video className="w-12 h-12 text-slate-300 mb-4" />
+                  <h3 className="text-lg font-bold text-slate-500 mb-1">Relay Offline</h3>
+                  <p className="text-sm text-slate-400">Waiting for stream to begin...</p>
+                </div>
+              )}
+            </div>
+          )}
 
           {/* Stream Info Card */}
           <div className="clean-panel overflow-hidden">

@@ -117,17 +117,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           ...user,
           hasRelayAccess: freshUser.hasRelayAccess
         }));
-        
-        // Force redirect if access is revoked and they are on a protected page
-        if (!freshUser.hasRelayAccess && user.role !== 'ADMIN' && (location.pathname === '/relay' || location.pathname === '/dashboard')) {
-          toast.error('Your relay access has been revoked.', { icon: '🚫', duration: 5000 });
-          navigate('/announcements', { replace: true });
-        }
+        // Removed force redirect logic. Access is now handled dynamically by the API.
       }
     }
   }, [freshUser, user, location.pathname, navigate]);
 
-  const hasAccess = user?.role === 'ADMIN' || (freshUser ? freshUser.hasRelayAccess : user?.hasRelayAccess);
+  const hasAccess = true; // ALWAYS true, let the dashboard / API handle permissions
 
 
   const { data: supportQueries } = useQuery({

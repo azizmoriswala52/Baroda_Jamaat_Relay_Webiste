@@ -6,6 +6,7 @@ interface PlayerContextType {
   activeStream: any;
   isLoadingStream: boolean;
   isStreamError: boolean;
+  streamErrorMsg: string | null;
   isFetchingStream: boolean;
   refetchStream: () => void;
   isCurrentlyLive: boolean;
@@ -27,13 +28,16 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
   const [isPlayerVisible, setIsPlayerVisible] = useState(false);
   const [playerRect, setPlayerRect] = useState({ top: 0, left: 0, width: 0, height: 0 });
   const [hasAgreedToRulesState, setHasAgreedToRulesState] = useState(false);
+  const [streamErrorMsg, setStreamErrorMsg] = useState<string | null>(null);
 
   const { data: activeStream, isLoading: isLoadingStream, isError: isStreamError, refetch: refetchStream, isFetching: isFetchingStream } = useQuery({
     queryKey: ['activeStream'],
     queryFn: async () => {
       try {
+        setStreamErrorMsg(null);
         return await apiClient('/streams/active');
-      } catch (err) {
+      } catch (err: any) {
+        setStreamErrorMsg(err.message || 'Error fetching stream');
         return null;
       }
     },
@@ -90,6 +94,7 @@ export const PlayerProvider: React.FC<{ children: React.ReactNode }> = ({ childr
         activeStream,
         isLoadingStream,
         isStreamError,
+        streamErrorMsg,
         isFetchingStream,
         refetchStream,
         isCurrentlyLive,

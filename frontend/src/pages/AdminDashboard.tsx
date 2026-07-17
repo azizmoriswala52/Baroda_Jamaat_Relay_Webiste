@@ -37,6 +37,22 @@ const AdminDashboard = () => {
     refetchInterval: 5000,
   });
 
+  const { data: siteAnnouncements } = useQuery({
+    queryKey: ['siteAnnouncements'],
+    queryFn: () => apiClient('/site-announcements'),
+    refetchInterval: 10000,
+  });
+
+  const hasApprovalAnnouncement = siteAnnouncements?.some((a: any) => a.isActive && a.responseType === 'APPROVAL');
+
+  React.useEffect(() => {
+    if (hasApprovalAnnouncement && streamFormData.visibility !== 'AS_APPROVED') {
+      setStreamFormData(prev => ({ ...prev, visibility: 'AS_APPROVED' }));
+    } else if (!hasApprovalAnnouncement && streamFormData.visibility === 'AS_APPROVED') {
+      setStreamFormData(prev => ({ ...prev, visibility: 'ADMIN' }));
+    }
+  }, [hasApprovalAnnouncement, streamFormData.visibility]);
+
   const createStreamMutation = useMutation({
     mutationFn: (data: typeof streamFormData & { isLive?: boolean }) => apiClient('/streams', {
       method: 'POST', body: JSON.stringify({ ...data, isLive: data.isLive ?? true }),
@@ -726,11 +742,13 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Visibility</label>
                               <CustomDropdown
-                                options={[
-                                  { label: 'Admin Only', value: 'ADMIN' },
-                                  { label: 'All Users', value: 'USERS' },
-                                  { label: 'As Approved', value: 'AS_APPROVED' }
-                                ]}
+                                options={hasApprovalAnnouncement 
+                                  ? [{ label: 'As Approved', value: 'AS_APPROVED' }]
+                                  : [
+                                      { label: 'Admin Only', value: 'ADMIN' },
+                                      { label: 'All Users', value: 'USERS' }
+                                    ]
+                                }
                                 value={streamFormData.visibility}
                                 onChange={(val) => handleStreamChange({ target: { name: 'visibility', value: val } } as any)}
                               />
@@ -1033,7 +1051,7 @@ const AdminDashboard = () => {
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button onClick={async () => {
-                                  if (await confirm('Are you sure you want to delete this relay?', { type: 'danger', confirmText: 'Delete Relay' })) {
+                                  if (await confirm('Are you sure you want to delete this relay?', { confirmText: 'Delete Relay' })) {
                                     deleteStreamMutation.mutate(stream._id);
                                   }
                                 }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete Relay">
