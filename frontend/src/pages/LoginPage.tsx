@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
@@ -88,6 +88,8 @@ const LoginPage = () => {
     }
   };
 
+  const [issueServerError, setIssueServerError] = useState('');
+
   const submitIssueMutation = useMutation({
     mutationFn: async (data: any) => {
       const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
@@ -96,16 +98,24 @@ const LoginPage = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data)
       });
-      if (!res.ok) throw new Error('Failed to submit issue');
+      if (!res.ok) {
+        const errData = await res.json().catch(() => null);
+        throw new Error(errData?.message || 'Failed to submit issue');
+      }
       return res.json();
     },
     onSuccess: () => {
       toast.success('Your login issue has been submitted successfully!');
       setIssueFormData({ itsId: '', issueDescription: '' });
       setShowIssueForm(false);
+      setIssueServerError('');
     },
     onError: (error: any) => {
-      toast.error(error.message || 'Failed to submit issue');
+      if (error.message === 'Your ITS ID is not registered' || error.message.includes('not registered')) {
+        setIssueServerError('Your ITS ID is not registered');
+      } else {
+        toast.error(error.message || 'Failed to submit issue');
+      }
     }
   });
 
@@ -134,12 +144,45 @@ const LoginPage = () => {
     let value = e.target.value;
     if (e.target.name === 'itsId') {
       value = value.replace(/\D/g, '').slice(0, 8);
-      if (issueFormErrors.itsId) setIssueFormErrors({ ...issueFormErrors, itsId: false });
     } else {
       if (issueFormErrors.issueDescription) setIssueFormErrors({ ...issueFormErrors, issueDescription: false });
     }
     setIssueFormData({ ...issueFormData, [e.target.name]: value });
   };
+
+  useEffect(() => {
+    if (!showIssueForm) return;
+
+    const verifyId = async () => {
+      const itsId = issueFormData.itsId.trim();
+      if (itsId.length > 0 && itsId.length < 8) {
+        setIssueFormErrors(prev => ({ ...prev, itsId: true }));
+        setIssueServerError('');
+      } else if (itsId.length === 8) {
+        setIssueFormErrors(prev => ({ ...prev, itsId: false }));
+        try {
+          const API_BASE_URL = import.meta.env.VITE_API_URL || `http://${window.location.hostname}:5000/api`;
+          const res = await fetch(`${API_BASE_URL}/login-issues/verify-its/${itsId}`);
+          if (!res.ok) {
+            setIssueServerError('This ITS ID is not registered in Baroda Jamaat.');
+          } else {
+            setIssueServerError('');
+          }
+        } catch (error) {
+          // Ignore network errors for real-time check
+        }
+      } else {
+        setIssueFormErrors(prev => ({ ...prev, itsId: false }));
+        setIssueServerError('');
+      }
+    };
+
+    const timer = setTimeout(() => {
+      verifyId();
+    }, 400); // Debounce to allow user to type
+
+    return () => clearTimeout(timer);
+  }, [issueFormData.itsId, showIssueForm]);
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-brand-bg overflow-hidden">
@@ -289,9 +332,10 @@ const LoginPage = () => {
                           }
                         }}
                         placeholder="Enter your 8-digit ITS Number"
-                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
+                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId || issueServerError ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
                       />
                       {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
+                      {issueServerError && <p className="text-red-500 text-xs px-1 font-semibold">{issueServerError}</p>}
                     </div>
 
                     <div className="space-y-1">

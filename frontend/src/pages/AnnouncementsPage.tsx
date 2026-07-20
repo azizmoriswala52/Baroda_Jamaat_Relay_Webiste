@@ -75,7 +75,7 @@ const AnnouncementsPage = () => {
           <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Announcements</h3>
           <button
             onClick={() => refetch()}
-            className="p-2 hover:bg-slate-200 rounded-lg transition-colors flex items-center text-sm font-medium text-slate-600"
+            className="p-2 transition-colors flex items-center text-sm font-medium text-slate-600 hover:text-brand-accent bg-transparent border-none cursor-pointer"
             title="Refresh Announcements"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin text-brand-accent' : ''}`} />

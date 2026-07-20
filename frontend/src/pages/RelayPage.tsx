@@ -204,10 +204,10 @@ const RelayPage = () => {
           <div className="flex items-center space-x-3">
             <button 
               onClick={() => refetchStream()}
-              className="p-2 hover:bg-slate-200 rounded-lg transition-colors"
+              className="p-2 transition-colors bg-transparent border-none cursor-pointer group"
               title="Refresh Stream"
             >
-              <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStream ? 'animate-spin text-brand-accent' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-slate-600 group-hover:text-brand-accent transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent' : ''}`} />
             </button>
             <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
               <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
