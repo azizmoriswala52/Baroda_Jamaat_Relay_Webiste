@@ -112,12 +112,13 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
   useEffect(() => {
     if (freshUser && user) {
-      if (freshUser.hasRelayAccess !== user.hasRelayAccess) {
+      const needsUpdate = freshUser.hasRelayAccess !== user.hasRelayAccess || freshUser.mobile !== user.mobile;
+      if (needsUpdate) {
         sessionStorage.setItem('user', JSON.stringify({
           ...user,
-          hasRelayAccess: freshUser.hasRelayAccess
+          hasRelayAccess: freshUser.hasRelayAccess,
+          mobile: freshUser.mobile
         }));
-        // Removed force redirect logic. Access is now handled dynamically by the API.
       }
     }
   }, [freshUser, user, location.pathname, navigate]);

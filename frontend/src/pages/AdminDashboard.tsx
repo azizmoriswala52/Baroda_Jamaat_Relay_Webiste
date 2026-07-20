@@ -742,12 +742,12 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Visibility</label>
                               <CustomDropdown
-                                options={hasApprovalAnnouncement 
+                                options={hasApprovalAnnouncement
                                   ? [{ label: 'As Approved', value: 'AS_APPROVED' }]
                                   : [
-                                      { label: 'Admin Only', value: 'ADMIN' },
-                                      { label: 'All Users', value: 'USERS' }
-                                    ]
+                                    { label: 'Admin Only', value: 'ADMIN' },
+                                    { label: 'All Users', value: 'USERS' }
+                                  ]
                                 }
                                 value={streamFormData.visibility}
                                 onChange={(val) => handleStreamChange({ target: { name: 'visibility', value: val } } as any)}
@@ -1484,7 +1484,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-between items-center text-sm shrink-0">
                     <div className="text-slate-600 font-medium">Total Members: <span className="text-slate-900 font-bold ml-1">{totalMembers}</span></div>
-                    <div className="text-blue-600 font-medium">Sessions In Use: <span className="bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full ml-1">{sessionsInUse}</span></div>
+                    <div className="text-blue-600 font-medium">{sessionsInUse === 1 ? "Session" : "Sessions"} In Use: {sessionsInUse} </div>
                   </div>
                 </div>
               </div>
@@ -1558,8 +1558,8 @@ const AdminDashboard = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date Submitted</span>
-                                <span className="text-sm font-medium text-slate-800">{new Date(selectedQuery.createdAt).toLocaleDateString()}</span>
+                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
+                                <span className="text-sm font-medium text-slate-800">{new Date(selectedQuery.createdAt).toLocaleString()}</span>
                               </div>
                               <div>
                                 <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">ITS ID</span>
@@ -1593,13 +1593,11 @@ const AdminDashboard = () => {
                             <table className="w-full text-left border-collapse relative">
                               <thead className="sticky top-0 z-10 shadow-sm">
                                 <tr className="bg-slate-50 border-b border-slate-200">
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mobile</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">City/Town</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mohalla</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Query</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mohalla</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                               </thead>
@@ -1607,7 +1605,7 @@ const AdminDashboard = () => {
                                 {queries.map((q: any) => (
                                   <tr key={q._id} onClick={() => setSelectedQuery(q)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
-                                      {new Date(q.createdAt).toLocaleDateString()}
+                                      {new Date(q.createdAt).toLocaleString()}
                                     </td>
                                     <td className="py-4 px-6 whitespace-nowrap text-sm font-mono text-brand-accent font-medium">
                                       {q.itsId}
@@ -1615,17 +1613,11 @@ const AdminDashboard = () => {
                                     <td className="py-4 px-6 whitespace-nowrap">
                                       <div className="text-sm font-semibold text-slate-800">{q.name}</div>
                                     </td>
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-600 font-medium">
-                                      {q.mobile}
-                                    </td>
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
-                                      {q.city}
+                                    <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={q.query}>
+                                      {q.query}
                                     </td>
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
                                       {getMohallaString(q.mohalla)}
-                                    </td>
-                                    <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={q.query}>
-                                      {q.query}
                                     </td>
                                     <td className="py-4 px-6 text-right">
                                       <button
@@ -1724,11 +1716,30 @@ const AdminDashboard = () => {
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date Submitted</span>
-                                <span className="text-sm font-medium text-slate-800">{new Date(selectedLoginIssue.createdAt).toLocaleDateString()}</span>
+                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
+                                <span className="text-sm font-medium text-slate-800">{new Date(selectedLoginIssue.createdAt).toLocaleString()}</span>
                               </div>
+                              {(() => {
+                                const issueUser = users?.find((u: any) => u.itsId === selectedLoginIssue.itsId);
+                                return (
+                                  <>
+                                    <div>
+                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Name</span>
+                                      <span className="text-sm font-medium text-slate-800">{issueUser ? issueUser.fullName : 'Unknown'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mobile</span>
+                                      <span className="text-sm font-medium text-slate-800">{issueUser ? issueUser.mobile : 'Unknown'}</span>
+                                    </div>
+                                    <div>
+                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mohalla</span>
+                                      <span className="text-sm font-medium text-slate-800">{issueUser ? getMohallaString(issueUser.mohalla) : 'Unknown'}</span>
+                                    </div>
+                                  </>
+                                );
+                              })()}
                             </div>
 
                             <div>
@@ -1745,39 +1756,50 @@ const AdminDashboard = () => {
                             <table className="w-full text-left border-collapse relative">
                               <thead className="sticky top-0 z-10 shadow-sm">
                                 <tr className="bg-slate-50 border-b border-slate-200">
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS Number</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Issue Description</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Query</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mohalla</th>
                                   <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100 bg-white">
-                                {loginIssues.map((issue: any) => (
-                                  <tr key={issue._id} onClick={() => setSelectedLoginIssue(issue)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
-                                      {new Date(issue.createdAt).toLocaleDateString()}
-                                    </td>
-                                    <td className="py-4 px-6 whitespace-nowrap">
-                                      <div className="text-sm font-semibold text-slate-800 font-mono">{issue.itsId}</div>
-                                    </td>
-                                    <td className="py-4 px-6 text-sm text-slate-600 max-w-sm truncate" title={issue.issueDescription}>
-                                      {issue.issueDescription}
-                                    </td>
-                                    <td className="py-4 px-6 text-right">
-                                      <button
-                                        onClick={async (e) => {
-                                          e.stopPropagation();
-                                          if (await confirm('Delete this login issue?', { confirmText: 'Delete' })) {
-                                            deleteLoginIssueMutation.mutate(issue._id);
-                                          }
-                                        }}
-                                        className="text-slate-400 hover:text-red-500 transition-colors"
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </button>
-                                    </td>
-                                  </tr>
-                                ))}
+                                {loginIssues.map((issue: any) => {
+                                  const issueUser = users?.find((u: any) => u.itsId === issue.itsId);
+                                  return (
+                                    <tr key={issue._id} onClick={() => setSelectedLoginIssue(issue)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
+                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                        {new Date(issue.createdAt).toLocaleString()}
+                                      </td>
+                                      <td className="py-4 px-6 whitespace-nowrap">
+                                        <div className="text-sm font-semibold text-slate-800 font-mono">{issue.itsId}</div>
+                                      </td>
+                                      <td className="py-4 px-6 whitespace-nowrap">
+                                        <div className="text-sm font-semibold text-slate-800">{issueUser ? issueUser.fullName : 'Unknown'}</div>
+                                      </td>
+                                      <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={issue.issueDescription}>
+                                        {issue.issueDescription}
+                                      </td>
+                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                        {issueUser ? getMohallaString(issueUser.mohalla) : 'Unknown'}
+                                      </td>
+                                      <td className="py-4 px-6 text-right">
+                                        <button
+                                          onClick={async (e) => {
+                                            e.stopPropagation();
+                                            if (await confirm('Delete this login issue?', { confirmText: 'Delete' })) {
+                                              deleteLoginIssueMutation.mutate(issue._id);
+                                            }
+                                          }}
+                                          className="text-slate-400 hover:text-red-500 transition-colors"
+                                        >
+                                          <Trash2 className="w-4 h-4" />
+                                        </button>
+                                      </td>
+                                    </tr>
+                                  );
+                                })}
                               </tbody>
                             </table>
                           </div>
