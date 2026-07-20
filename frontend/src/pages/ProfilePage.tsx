@@ -277,7 +277,7 @@ const ProfilePage = () => {
                 </div>
               </div>
               {!isEditing && activeTab === 'general' && (
-                <button onClick={() => setIsEditing(true)} className="btn-secondary flex items-center justify-center w-full sm:w-auto shrink-0">
+                <button onClick={() => setIsEditing(true)} className="btn-primary flex items-center justify-center w-full sm:w-auto shrink-0">
                   <Edit2 className="w-4 h-4 mr-2" />
                   Edit Profile
                 </button>
