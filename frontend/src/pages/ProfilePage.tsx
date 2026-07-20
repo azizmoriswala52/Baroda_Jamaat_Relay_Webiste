@@ -105,7 +105,7 @@ const ProfilePage = () => {
       const errors: any = {};
       if (!formData.fullName.trim()) errors.fullName = true;
       if (!formData.mobile.trim()) errors.mobile = true;
-      
+
       if (Object.keys(errors).length > 0) {
         setFormErrors(errors);
         return;
@@ -167,7 +167,6 @@ const ProfilePage = () => {
       <div className="min-h-screen flex items-center justify-center bg-brand-bg">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-accent mb-4"></div>
-          <p className="text-slate-500 font-medium">Loading profile...</p>
         </div>
       </div>
     );
@@ -489,12 +488,12 @@ const ProfilePage = () => {
                             onChange={(e) => { setConfirmPassword(e.target.value); setPwdError(''); }}
                             onBlur={() => setConfirmTouched(true)}
                             className={`input-field pr-10 ${confirmTouched && confirmPassword
-                                ? confirmPassword === newPassword
-                                  ? 'border-green-500 bg-green-50 focus:border-green-500 focus:ring-green-500'
-                                  : 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 animate-gentle-shake'
-                                : pwdError
-                                  ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 animate-gentle-shake'
-                                  : ''
+                              ? confirmPassword === newPassword
+                                ? 'border-green-500 bg-green-50 focus:border-green-500 focus:ring-green-500'
+                                : 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 animate-gentle-shake'
+                              : pwdError
+                                ? 'border-red-500 bg-red-50 focus:border-red-500 focus:ring-red-500 animate-gentle-shake'
+                                : ''
                               }`}
                           />
                           <button
