@@ -111,8 +111,8 @@ const LoginPage = () => {
       setIssueServerError('');
     },
     onError: (error: any) => {
-      if (error.message === 'Your ITS ID is not registered' || error.message.includes('not registered')) {
-        setIssueServerError('Your ITS ID is not registered');
+      if (error.message === 'This ITS ID is not registered in Baroda Jamaat.' || error.message.includes('not registered')) {
+        setIssueServerError('This ITS ID is not registered in Baroda Jamaat.');
       } else {
         toast.error(error.message || 'Failed to submit issue');
       }
