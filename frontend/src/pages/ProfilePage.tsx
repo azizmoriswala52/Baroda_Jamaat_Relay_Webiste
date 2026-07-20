@@ -163,7 +163,14 @@ const ProfilePage = () => {
   };
 
   if (isUserLoading || isLoadingMohallas) {
-    return <div className="min-h-screen flex items-center justify-center bg-brand-bg">Loading profile...</div>;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+        <div className="flex flex-col items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-accent mb-4"></div>
+          <p className="text-slate-500 font-medium">Loading profile...</p>
+        </div>
+      </div>
+    );
   }
 
   if (error) {

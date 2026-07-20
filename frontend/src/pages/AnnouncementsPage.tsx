@@ -85,7 +85,7 @@ const AnnouncementsPage = () => {
         <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
       </div>
 
-      <div className="space-y-6 max-w-4xl mx-auto">
+      <div className={`space-y-6 max-w-4xl ${(!announcements || announcements.length === 0) ? 'mx-auto' : ''}`}>
         {isLoading || (isFetching && (!announcements || announcements.length === 0)) ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-brand-accent"></div>
