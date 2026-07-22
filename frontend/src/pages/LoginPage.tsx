@@ -133,7 +133,7 @@ const LoginPage = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('All fields are required', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
+        toast.error('All fields are required', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
       }
       return;
     }
@@ -185,20 +185,20 @@ const LoginPage = () => {
   }, [issueFormData.itsId, showIssueForm]);
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative bg-brand-bg overflow-hidden">
+    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative app-bg overflow-hidden">
       {/* Decorative Fatimid Geometric Pattern Overlay */}
-      <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--color-brand-accent) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
+      <div className="absolute inset-0 z-0 opacity-5 pointer-events-none" style={{ backgroundImage: 'radial-gradient(var(--color-brand-accent dark:text-blue-300) 1px, transparent 1px)', backgroundSize: '24px 24px' }}></div>
 
       <div className="relative z-10 w-full flex flex-col items-center">
         {/* Top Logo Section */}
         <div className="mb-8 flex flex-col items-center">
           {/* Calligraphy Logo */}
           <div className="w-64 h-16 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat mb-2 opacity-80" style={{ filter: 'brightness(0) sepia(1) hue-rotate(180deg) saturate(3) brightness(0.4)' }}></div>
-          <p className="text-brand-accent text-xs font-bold tracking-[0.2em] uppercase">Baroda Jamaat</p>
+          <p className="text-brand-accent dark:text-blue-300 text-xs font-bold tracking-[0.2em] uppercase">Baroda Jamaat</p>
         </div>
 
         {/* Main Login Card - Adjusted dimensions */}
-        <div className={`w-full ${showIssueForm ? 'max-w-[500px]' : 'max-w-[400px]'} clean-panel bg-white shadow-2xl rounded-2xl overflow-hidden border border-slate-200 transition-all duration-300`}>
+        <div className={`w-full ${showIssueForm ? 'max-w-[500px]' : 'max-w-[400px]'} clean-panel bg-white dark:bg-slate-800 shadow-2xl rounded-2xl overflow-hidden border border-slate-200 dark:border-slate-700 transition-all duration-300`}>
           <div className="px-10 py-16 relative">
             <AnimatePresence mode="wait">
               {!showIssueForm ? (
@@ -209,7 +209,7 @@ const LoginPage = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h2 className="text-3xl text-center text-slate-800 mb-10 font-light tracking-wide">Sign In</h2>
+                  <h2 className="text-3xl text-center text-slate-800 dark:text-slate-100 mb-10 font-light tracking-wide">Sign In</h2>
                   <form className="space-y-5" onSubmit={handleLogin} noValidate>
                     {error && (
                       <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center border border-red-100 font-medium">
@@ -221,7 +221,7 @@ const LoginPage = () => {
                       <input
                         type="number"
                         inputMode="numeric"
-                        className={`input-field focus:bg-white focus:border-brand-accent text-slate-800 ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-200 border-transparent'} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                        className={`input-field ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                         placeholder="ITS ID"
                         value={itsId}
                         onChange={(e) => {
@@ -242,7 +242,7 @@ const LoginPage = () => {
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
-                          className={`input-field pr-10 focus:bg-white focus:border-brand-accent text-slate-800 ${fieldErrors.password ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-200 border-transparent'}`}
+                          className={`input-field pr-10 ${fieldErrors.password ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => {
@@ -252,7 +252,7 @@ const LoginPage = () => {
                         />
                         <button
                           type="button"
-                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-accent"
+                          className="absolute inset-y-0 right-0 pr-3 flex items-center text-slate-400 hover:text-brand-accent dark:text-blue-300"
                           onClick={() => setShowPassword(!showPassword)}
                         >
                           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -277,7 +277,7 @@ const LoginPage = () => {
                         className="btn-primary w-24 flex items-center justify-center text-sm py-2.5"
                       >
                         {isLoading ? (
-                          <span className="w-5 h-5 border-2 border-brand-accent/30 border-t-brand-accent rounded-full animate-spin"></span>
+                          <span className="w-5 h-5 border-2 border-brand-accent/30 border-t-brand-accent dark:text-blue-300 rounded-full animate-spin"></span>
                         ) : (
                           "Login"
                         )}
@@ -286,7 +286,7 @@ const LoginPage = () => {
                       <button
                         type="button"
                         onClick={() => setShowIssueForm(true)}
-                        className="text-sm text-brand-accent hover:text-brand-accent-hover transition-colors bg-transparent border-none p-0 cursor-pointer"
+                        className="text-sm text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors bg-transparent border-none p-0 cursor-pointer"
                       >
                         Issue with login?
                       </button>
@@ -304,22 +304,22 @@ const LoginPage = () => {
                   <button
                     type="button"
                     onClick={() => setShowIssueForm(false)}
-                    className="inline-flex items-center text-sm font-medium text-slate-500 hover:text-brand-accent transition-colors mb-6 bg-transparent border-none p-0 cursor-pointer"
+                    className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-brand-accent dark:text-blue-300 transition-colors mb-6 bg-transparent border-none p-0 cursor-pointer"
                   >
                     <ArrowLeft className="w-4 h-4 mr-1" /> Back to Login
                   </button>
 
                   <div className="flex items-center space-x-3 mb-8">
-                    <HelpCircle className="w-5 h-5 text-brand-accent shrink-0" />
+                    <HelpCircle className="w-5 h-5 text-brand-accent dark:text-blue-300 shrink-0" />
                     <div>
-                      <h2 className="text-2xl font-bold text-slate-800 leading-none mb-1">Login Issue</h2>
-                      <p className="text-sm text-slate-500">Submit your details to get help.</p>
+                      <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-none mb-1">Login Issue</h2>
+                      <p className="text-sm text-slate-500 dark:text-slate-400">Submit your details to get help.</p>
                     </div>
                   </div>
 
                   <form onSubmit={handleIssueSubmit} className="space-y-5">
                     <div className="space-y-1">
-                      <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">ITS ID</label>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">ITS ID</label>
                       <input
                         type="number"
                         inputMode="numeric"
@@ -332,21 +332,21 @@ const LoginPage = () => {
                           }
                         }}
                         placeholder="Enter your 8-digit ITS Number"
-                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId || issueServerError ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
+                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId || issueServerError ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
                       />
                       {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                       {issueServerError && <p className="text-red-500 text-xs px-1 font-semibold">{issueServerError}</p>}
                     </div>
 
                     <div className="space-y-1">
-                      <label className="block text-xs font-semibold text-slate-500 mb-1 uppercase tracking-wide">Describe your issue</label>
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wide">Describe your issue</label>
                       <textarea
                         name="issueDescription"
                         value={issueFormData.issueDescription}
                         onChange={handleIssueChange}
                         placeholder="I am unable to login because..."
                         rows={3}
-                        className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 animate-gentle-shake' : 'bg-slate-50 focus:bg-white focus:border-brand-accent'}`}
+                        className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
                       />
                       {issueFormErrors.issueDescription && <p className="text-red-500 text-xs px-1">Issue Description is required</p>}
                     </div>
@@ -394,7 +394,7 @@ const LoginPage = () => {
 
         {/* Copyright Footer */}
         <div className="mt-8 text-center z-10">
-          <p className="text-[11px] text-slate-500 font-semibold tracking-wide">2026 Copyright © Burhani Mohalla - Baroda</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-semibold tracking-wide">2026 Copyright © Burhani Mohalla - Baroda</p>
         </div>
       </div>
     </div>

@@ -11,9 +11,9 @@ const HomePage = () => {
     <div className="flex flex-col space-y-8">
       <div className="mb-8">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Home</h3>
+          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Home</h3>
         </div>
-        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+        <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
 
       {/* Welcome Banner */}
@@ -44,13 +44,13 @@ const HomePage = () => {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.1 }}
-          className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100"
+          className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
         >
-          <h2 className="text-2xl font-semibold text-brand-accent mb-4">About Our Jamaat</h2>
-          <p className="text-slate-600 leading-relaxed mb-4">
+          <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">About Our Jamaat</h2>
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
             Burhani Mohalla, Baroda is a vibrant and deeply rooted community. This portal has been designed to ensure that every member, regardless of where they are, can actively participate in our spiritual and cultural gatherings.
           </p>
-          <p className="text-slate-600 leading-relaxed">
+          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
             We provide high-quality live relays and an archive of essential sessions. To access these broadcasts, please navigate to the <strong>Dashboard</strong> using the menu on your left.
           </p>
         </motion.div>
@@ -59,21 +59,21 @@ const HomePage = () => {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.2 }}
-          className="bg-white p-8 rounded-2xl shadow-sm border border-slate-100"
+          className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
         >
-          <h2 className="text-2xl font-semibold text-brand-accent mb-4">Live Portal Features</h2>
+          <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">Live Portal Features</h2>
           <ul className="space-y-4">
             <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent font-bold text-sm mt-0.5 mr-3 shrink-0">1</div>
-              <p className="text-slate-600"><strong>Real-time Streaming:</strong> Watch live relay broadcasts with multi-server support for uninterrupted viewing.</p>
+              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">1</div>
+              <p className="text-slate-600 dark:text-slate-300"><strong>Real-time Streaming:</strong> Watch live relay broadcasts with multi-server support for uninterrupted viewing.</p>
             </li>
             <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent font-bold text-sm mt-0.5 mr-3 shrink-0">2</div>
-              <p className="text-slate-600"><strong>Announcements:</strong> Receive instant updates and schedules directly within the streaming room.</p>
+              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">2</div>
+              <p className="text-slate-600 dark:text-slate-300"><strong>Announcements:</strong> Receive instant updates and schedules directly within the streaming room.</p>
             </li>
             <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 flex items-center justify-center text-brand-accent font-bold text-sm mt-0.5 mr-3 shrink-0">3</div>
-              <p className="text-slate-600"><strong>Secure Access:</strong> Authenticated access ensures that our community content remains private and secure.</p>
+              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">3</div>
+              <p className="text-slate-600 dark:text-slate-300"><strong>Secure Access:</strong> Authenticated access ensures that our community content remains private and secure.</p>
             </li>
           </ul>
         </motion.div>

@@ -129,13 +129,13 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
         type="button"
         disabled={disabled}
         onClick={() => !disabled && setIsOpen(!isOpen)}
-        className={`w-full flex items-center justify-between input-field bg-white text-left focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent transition-all duration-200 ${disabled ? 'cursor-not-allowed bg-slate-50' : ''}`}
+        className={`w-full flex items-center justify-between input-field bg-white dark:bg-slate-800 text-left focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent transition-all duration-200 ${disabled ? 'cursor-not-allowed bg-slate-50 dark:bg-slate-900/50' : ''}`}
       >
-        <span className={values.length > 0 ? 'text-slate-900 truncate pr-2' : 'text-slate-400 truncate pr-2'}>
+        <span className={values.length > 0 ? 'text-slate-900 dark:text-slate-50 truncate pr-2' : 'text-slate-400 truncate pr-2'}>
           {displayValue}
         </span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
-          <ChevronDown className="w-4 h-4 text-slate-500" />
+          <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400" />
         </motion.div>
       </button>
 
@@ -147,7 +147,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
             exit={{ opacity: 0, y: -10, scaleY: 0.95 }}
             transition={{ duration: 0.15, ease: 'easeOut' }}
             style={{ transformOrigin: 'top' }}
-            className="absolute z-50 w-full mt-1 bg-white border border-slate-200 rounded-lg shadow-lg overflow-hidden py-1"
+            className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg overflow-hidden py-1"
           >
             <div className="max-h-60 overflow-y-auto custom-scrollbar" ref={listboxRef}>
               {options.map((option, index) => {
@@ -162,14 +162,14 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
                     onMouseEnter={() => setHighlightedIndex(index)}
                     className={`w-full flex items-center px-4 py-2.5 text-sm transition-colors duration-150 ${
                       highlightedIndex === index
-                        ? 'bg-slate-100 text-slate-900'
-                        : 'text-slate-700'
+                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50'
+                        : 'text-slate-700 dark:text-slate-200'
                     }`}
                   >
                     <div className={`w-4 h-4 rounded border flex items-center justify-center mr-3 flex-shrink-0 transition-colors ${
                       isSelected 
                         ? 'bg-brand-accent border-brand-accent text-white' 
-                        : 'border-slate-300 bg-white'
+                        : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
                     }`}>
                       {isSelected && <Check className="w-3 h-3" />}
                     </div>

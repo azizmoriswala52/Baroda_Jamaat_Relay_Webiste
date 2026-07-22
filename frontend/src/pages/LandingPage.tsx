@@ -18,14 +18,14 @@ const LandingPage = () => {
       >
         <div className="mb-12 flex flex-col items-center">
           <div className="w-48 h-12 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat mb-4 opacity-80" style={{ filter: 'invert(1) brightness(0.2)' }}></div>
-          <h2 className="text-sm font-semibold tracking-[0.15em] text-brand-accent uppercase">Baroda Jamaat</h2>
+          <h2 className="text-sm font-semibold tracking-[0.15em] text-brand-accent dark:text-blue-300 uppercase">Baroda Jamaat</h2>
         </div>
         
-        <h1 className="text-4xl md:text-6xl font-light tracking-tight leading-tight mb-6 text-slate-800">
+        <h1 className="text-4xl md:text-6xl font-light tracking-tight leading-tight mb-6 text-slate-800 dark:text-slate-100">
           Live Streaming & Recording
         </h1>
         
-        <p className="text-lg text-slate-500 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
+        <p className="text-lg text-slate-500 dark:text-slate-400 mb-10 max-w-2xl mx-auto font-light leading-relaxed">
           Access the official relay portal for live spiritual sessions and recordings.
         </p>
 

@@ -90,16 +90,16 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children })
             >
               <div className="p-8 relative">
                 <div className="flex items-center space-x-3 mb-4">
-                  <div className={`flex-shrink-0 ${modalType === 'danger' ? 'text-red-500' : 'text-brand-accent'}`}>
+                  <div className={`flex-shrink-0 ${modalType === 'danger' ? 'text-red-500' : 'text-brand-accent dark:text-blue-300'}`}>
                     <AlertCircle className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
                   </div>
-                  <h3 className="text-xl font-bold text-slate-900 tracking-tight" id="modal-title">
+                  <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 tracking-tight" id="modal-title">
                     {modalType === 'danger' ? 'Warning' : modalType === 'warning' ? 'Confirm Action' : 'Notice'}
                   </h3>
                 </div>
                 
                 <div className="ml-9 text-left">
-                  <p className="text-base font-medium text-slate-700 leading-relaxed">
+                  <p className="text-base font-medium text-slate-700 dark:text-slate-200 leading-relaxed">
                     {message}
                   </p>
                 </div>

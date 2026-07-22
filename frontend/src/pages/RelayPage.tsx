@@ -44,6 +44,7 @@ const RelayPage = () => {
       }
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
+      localStorage.setItem('logout', Date.now().toString());
       navigate('/login');
     }
   };
@@ -199,7 +200,7 @@ const RelayPage = () => {
     <>
       <div className="mb-8 w-full">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Relay Room</h3>
+          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Relay Room</h3>
           {isCurrentlyLive && (
           <div className="flex items-center space-x-3">
             <button 
@@ -207,15 +208,15 @@ const RelayPage = () => {
               className="p-2 transition-colors bg-transparent border-none cursor-pointer group"
               title="Refresh Stream"
             >
-              <RefreshCw className={`w-4 h-4 text-slate-600 group-hover:text-brand-accent transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent' : ''}`} />
+              <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-brand-accent dark:text-blue-300 transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
             </button>
             <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
+              <span className="w-2 h-2 rounded-full bg-white dark:bg-slate-800 animate-pulse mr-2"></span> LIVE NOW
             </span>
           </div>
         )}
         </div>
-        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+        <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
 
       <div className="relative z-10 flex flex-col lg:flex-row gap-6 w-full flex-1 min-w-0">
@@ -225,7 +226,7 @@ const RelayPage = () => {
           {/* Server Selection Area - Inline Buttons */}
           {isCurrentlyLive && servers.length > 1 && (
             <div className="flex flex-wrap gap-3 items-center">
-              <span className="text-sm font-semibold text-slate-500 uppercase tracking-wider mr-2">Select Server:</span>
+              <span className="text-sm font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mr-2">Select Server:</span>
               {servers.map((server: any, idx: number) => (
                 <button
                   key={idx}
@@ -244,20 +245,20 @@ const RelayPage = () => {
 
           {/* Error Message or Placeholder for the Persistent Player */}
           {streamErrorMsg ? (
-            <div className="w-full aspect-video rounded-2xl bg-white border border-slate-200 flex flex-col items-center justify-center p-8 text-center">
-              <div className="w-20 h-20 rounded-full bg-red-50 flex items-center justify-center mb-4">
+            <div className="w-full aspect-video rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center p-8 text-center">
+              <div className="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mb-4">
                 <AlertCircle className="w-10 h-10 text-red-500" />
               </div>
-              <h3 className="text-xl font-bold text-slate-800 mb-2">Access Denied</h3>
-              <p className="text-slate-600 font-medium">{streamErrorMsg}</p>
-              <p className="text-sm text-slate-400 mt-4">Please contact the administrator if you believe this is a mistake.</p>
+              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Access Denied</h3>
+              <p className="text-slate-600 dark:text-slate-300 font-medium">{streamErrorMsg}</p>
+              <p className="text-sm text-slate-400 dark:text-slate-500 mt-4">Please contact the administrator if you believe this is a mistake.</p>
             </div>
           ) : (
             <div ref={placeholderRef} className="w-full aspect-video rounded-2xl bg-transparent relative">
               {!isCurrentlyLive && !isFetchingStream && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 rounded-2xl border-2 border-dashed border-slate-300">
+                <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600">
                   <Video className="w-12 h-12 text-slate-300 mb-4" />
-                  <h3 className="text-lg font-bold text-slate-500 mb-1">Relay Offline</h3>
+                  <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 mb-1">Relay Offline</h3>
                   <p className="text-sm text-slate-400">Waiting for stream to begin...</p>
                 </div>
               )}
@@ -266,21 +267,21 @@ const RelayPage = () => {
 
           {/* Stream Info Card */}
           <div className="clean-panel overflow-hidden">
-            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-start">
+            <div className="bg-slate-200 dark:bg-slate-700 dark:bg-slate-800 px-6 py-4 border-b border-slate-300 dark:border-slate-600 dark:border-slate-700 flex justify-between items-start">
               <div>
-                <h2 className="text-xl font-semibold tracking-tight mb-1 text-slate-800">{activeStream?.title || 'Relay Offline'}</h2>
-                <p className="text-brand-accent text-xs font-bold uppercase tracking-widest">{activeStream?.speaker || 'Waiting for connection...'}</p>
+                <h2 className="text-xl font-semibold tracking-tight mb-1 text-slate-800 dark:text-slate-100">{activeStream?.title || 'Relay Offline'}</h2>
+                <p className="text-brand-accent dark:text-blue-300 text-xs font-bold uppercase tracking-widest">{activeStream?.speaker || 'Waiting for connection...'}</p>
               </div>
               {selectedServer && servers.length > 1 && (
-                <div className="bg-white text-brand-accent border border-slate-200 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center shadow-sm">
+                <div className="bg-white dark:bg-slate-800 dark:bg-slate-700 text-brand-accent dark:text-blue-300 border border-slate-200 dark:border-slate-700 dark:border-slate-600 px-3 py-1.5 rounded-full text-xs font-semibold flex items-center shadow-sm">
                   Connected to {selectedServer.name}
                 </div>
               )}
             </div>
             
             {activeStream?.description && (
-              <div className="p-6 bg-white">
-                <p className="text-slate-600 leading-relaxed text-sm">
+              <div className="p-6 bg-white dark:bg-slate-800 dark:bg-slate-900/50">
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
                   {activeStream.description}
                 </p>
               </div>
@@ -292,16 +293,16 @@ const RelayPage = () => {
         <aside className="w-full lg:w-[450px] flex flex-col gap-6 shrink-0">
           {/* Today's Schedule Card */}
           <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
-            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-slate-500" />
+            <div className="bg-slate-200 dark:bg-slate-700 dark:bg-slate-800 px-6 py-4 border-b border-slate-300 dark:border-slate-600 dark:border-slate-700 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 dark:text-slate-300 flex items-center">
+                <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
                 Schedule
               </h3>
             </div>
             
             {/* Admin Add Schedule Inline Form */}
             {isAdmin && (
-              <form onSubmit={handleAddSchedule} className="p-4 border-b border-slate-100 bg-sky-50/30 flex flex-col gap-2">
+              <form onSubmit={handleAddSchedule} className="p-4 border-b border-slate-100 bg-sky-50 dark:bg-slate-800/30 flex flex-col gap-2">
                 <div className="flex gap-2">
                   <input 
                     type="text" 
@@ -311,7 +312,7 @@ const RelayPage = () => {
                       setScheduleContent(e.target.value);
                       if (scheduleError) setScheduleError(false);
                     }}
-                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${scheduleError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200'}`}
+                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${scheduleError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200 dark:border-slate-700'}`}
                   />
                   <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
                     <Plus className="w-4 h-4" />
@@ -326,12 +327,12 @@ const RelayPage = () => {
                 <p className="text-sm text-slate-400">Loading schedule...</p>
               ) : schedules.length > 0 ? (
                 schedules.map((item: any) => (
-                  <div key={item._id} className="flex items-center justify-between py-3 px-4 rounded bg-slate-50 border-l-2 border-slate-300 hover:border-brand-accent transition-colors group">
+                  <div key={item._id} className="flex items-center justify-between py-3 px-4 rounded bg-slate-50 dark:bg-slate-900/50 border-l-2 border-slate-300 dark:border-slate-600 hover:border-brand-accent dark:hover:border-blue-400 transition-colors group">
                     <div className="flex items-baseline overflow-hidden">
-                      <div className="text-xs font-mono w-auto shrink-0 pr-4 text-brand-accent font-semibold">
+                      <div className="text-xs font-mono w-auto shrink-0 pr-4 text-brand-accent dark:text-blue-300 font-semibold">
                         {item.time}
                       </div>
-                      <div className="text-sm text-slate-700 truncate">
+                      <div className="text-sm text-slate-700 dark:text-slate-200 dark:text-slate-300 truncate">
                         {item.content}
                       </div>
                     </div>
@@ -350,9 +351,9 @@ const RelayPage = () => {
 
           {/* Announcements Card */}
           <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
-            <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
-              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 flex items-center">
-                <Bell className="w-4 h-4 mr-2 text-slate-500" />
+            <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-between items-center">
+              <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 flex items-center">
+                <Bell className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
                 Live Updates
               </h3>
             </div>
@@ -369,7 +370,7 @@ const RelayPage = () => {
                       setUpdateContent(e.target.value);
                       if (updateError) setUpdateError(false);
                     }}
-                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${updateError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200'}`}
+                    className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${updateError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200 dark:border-slate-700'}`}
                   />
                   <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
                     <Plus className="w-4 h-4" />
@@ -386,8 +387,8 @@ const RelayPage = () => {
                 updates.map((ann: any) => (
                   <div key={ann._id} className="group border-b border-slate-100 pb-4 last:border-0 last:pb-0 flex justify-between items-start">
                     <div>
-                      <div className="text-[10px] uppercase tracking-wider text-brand-accent mb-1 font-semibold">{ann.time}</div>
-                      <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors pr-2">{ann.content}</p>
+                      <div className="text-[10px] uppercase tracking-wider text-brand-accent dark:text-blue-300 mb-1 font-semibold">{ann.time}</div>
+                      <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed group-hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white dark:text-slate-50 transition-colors pr-2">{ann.content}</p>
                     </div>
                     {isAdmin && (
                       <button onClick={() => deleteAnnMutation.mutate(ann._id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 pt-1">
@@ -418,25 +419,25 @@ const RelayPage = () => {
               initial={{ opacity: 0, scale: 0.95, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              className="relative w-full max-w-lg clean-panel bg-white shadow-2xl overflow-hidden border border-slate-200"
+              className="relative w-full max-w-lg clean-panel bg-white dark:bg-slate-800 shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-700"
             >
-              <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-center items-center">
-                <h3 className="text-sm font-semibold text-slate-700 uppercase tracking-wider">Important Instructions</h3>
+              <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-center items-center">
+                <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider">Important Instructions</h3>
               </div>
               <div className="p-8 flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-brand-accent/10 rounded-full flex items-center justify-center mb-6">
-                  <AlertCircle className="w-8 h-8 text-brand-accent" />
+                  <AlertCircle className="w-8 h-8 text-brand-accent dark:text-blue-300" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-800 mb-4">Before you join...</h3>
-                <p className="text-slate-600 leading-relaxed font-medium">
+                <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Before you join...</h3>
+                <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
                   Please do not attempt to record this relay using any device. Taking clips, photos, or engaging in any kind of mischief is strictly prohibited. 
                   Any violation will result in immediate termination of your access to the relay.
                 </p>
               </div>
-              <div className="p-6 bg-slate-50 flex flex-col sm:flex-row gap-4 justify-end border-t border-slate-200">
+              <div className="p-6 bg-slate-50 dark:bg-slate-900/50 flex flex-col sm:flex-row gap-4 justify-end border-t border-slate-200 dark:border-slate-700">
                 <button
                   onClick={handleDisagree}
-                  className="px-6 py-2.5 rounded-lg font-medium text-slate-600 bg-white border border-slate-300 hover:bg-slate-50 transition-colors w-full sm:w-auto shadow-sm"
+                  className="px-6 py-2.5 rounded-lg font-medium text-slate-600 dark:text-slate-300 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 transition-colors w-full sm:w-auto shadow-sm"
                 >
                   I Decline
                 </button>

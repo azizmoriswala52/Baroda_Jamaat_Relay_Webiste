@@ -158,13 +158,14 @@ const ProfilePage = () => {
       }
       sessionStorage.removeItem('token');
       sessionStorage.removeItem('user');
+      localStorage.setItem('logout', Date.now().toString());
       navigate('/login');
     }
   };
 
   if (isUserLoading || isLoadingMohallas) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-brand-bg">
+      <div className="min-h-screen flex items-center justify-center app-bg">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-brand-accent mb-4"></div>
         </div>
@@ -173,7 +174,7 @@ const ProfilePage = () => {
   }
 
   if (error) {
-    return <div className="min-h-screen flex items-center justify-center bg-brand-bg text-red-500">Error loading profile. Please login again.</div>;
+    return <div className="min-h-screen flex items-center justify-center app-bg text-red-500">Error loading profile. Please login again.</div>;
   }
 
   const displayName = user?.role === 'ADMIN' ? `${user.fullName} (Admin)` : user?.fullName;
@@ -182,18 +183,18 @@ const ProfilePage = () => {
     <>
       <div className="mb-8 w-full">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">My Profile</h3>
+          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">My Profile</h3>
         </div>
-        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+        <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
 
       <div className="flex flex-col md:flex-row flex-1 items-start relative w-full">
         {/* Mobile Tabs */}
-        <div className="w-full md:hidden bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
+        <div className="w-full md:hidden bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 border-b border-slate-200 dark:border-slate-700 dark:border-slate-800 sticky top-0 z-20">
           <div className="flex overflow-x-auto hide-scrollbar p-3 space-x-2">
             <button
               onClick={() => setActiveTab('general')}
-              className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+              className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <User className="w-4 h-4 mr-2" /> General
             </button>
             <button
@@ -207,12 +208,12 @@ const ProfilePage = () => {
                 setPwdError('');
                 setIsEditing(false);
               }}
-              className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+              className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Shield className="w-4 h-4 mr-2" /> Security
             </button>
             <button
               onClick={handleLogoutWithConfirm}
-              className="shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors text-red-600 hover:bg-red-50"
+              className="shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
               <LogOut className="w-4 h-4 mr-2" /> Logout
             </button>
@@ -220,12 +221,12 @@ const ProfilePage = () => {
         </div>
 
         {/* Desktop Sidebar Navigation */}
-        <aside className="w-64 border-r border-slate-200 bg-slate-50 p-6 hidden md:block sticky top-0 self-start max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <aside className="w-64 border-r border-slate-200 dark:border-slate-700 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-6 hidden md:block sticky top-0 self-start max-h-[calc(100vh-10rem)] overflow-y-auto">
           <nav className="space-y-2">
-            {/* <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Profile</div> */}
+            {/* <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-3">Profile</div> */}
             <button
               onClick={() => setActiveTab('general')}
-              className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+              className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <User className="w-4 h-4 mr-3" /> General
             </button>
             <button
@@ -239,7 +240,7 @@ const ProfilePage = () => {
                 setPwdError('');
                 setIsEditing(false);
               }}
-              className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+              className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Shield className="w-4 h-4 mr-3" /> Security
             </button>
           </nav>
@@ -266,14 +267,14 @@ const ProfilePage = () => {
             )}
 
             {/* Profile Overview */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200 gap-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200 dark:border-slate-700 gap-6">
               <div className="flex items-center space-x-4 sm:space-x-6">
-                <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-full bg-white border border-slate-200 flex items-center justify-center shadow-sm">
-                  <User className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400" />
+                <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-600 flex items-center justify-center shadow-sm">
+                  <User className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 dark:text-slate-500" />
                 </div>
                 <div>
-                  <h2 className="text-lg sm:text-xl font-semibold mb-1 text-slate-800 break-words">{user?.fullName}</h2>
-                  <p className="text-slate-500 text-sm">ITS: {user?.itsId}</p>
+                  <h2 className="text-lg sm:text-xl font-semibold mb-1 text-slate-800 dark:text-slate-100 break-words">{user?.fullName}</h2>
+                  <p className="text-slate-500 dark:text-slate-400 text-sm">ITS: {user?.itsId}</p>
                 </div>
               </div>
               {!isEditing && activeTab === 'general' && (
@@ -288,21 +289,21 @@ const ProfilePage = () => {
             {activeTab === 'general' ? (
               <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6 max-w-3xl">
                 <div className="md:col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
-                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : formErrors.fullName ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} disabled={!isEditing} />
-                  {formErrors.fullName && <p className="text-red-500 text-xs px-1 mt-1">Full Name is required</p>}
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Full Name</label>
+                  <input type="text" name="fullName" value={formData.fullName} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed' : formErrors.fullName ? 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/20 animate-gentle-shake' : ''}`} disabled={!isEditing} />
+                  {formErrors.fullName && <p className="text-red-500 dark:text-red-400 text-xs px-1 mt-1">Full Name is required</p>}
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Email Address</label>
-                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : ''}`} disabled={!isEditing} />
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Email Address</label>
+                  <input type="email" name="email" value={formData.email} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed' : ''}`} disabled={!isEditing} />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
-                  <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 text-slate-500 border-slate-200 cursor-not-allowed' : formErrors.mobile ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} disabled={!isEditing} />
-                  {formErrors.mobile && <p className="text-red-500 text-xs px-1 mt-1">Mobile Number is required</p>}
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Mobile Number</label>
+                  <input type="text" name="mobile" value={formData.mobile} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed' : formErrors.mobile ? 'border-red-500 dark:border-red-500 bg-red-50 dark:bg-red-900/20 animate-gentle-shake' : ''}`} disabled={!isEditing} />
+                  {formErrors.mobile && <p className="text-red-500 dark:text-red-400 text-xs px-1 mt-1">Mobile Number is required</p>}
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Gender</label>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Gender</label>
                   {isEditing ? (
                     <CustomDropdown
                       options={[
@@ -313,14 +314,14 @@ const ProfilePage = () => {
                       onChange={(val) => setFormData({ ...formData, gender: val })}
                     />
                   ) : (
-                    <input type="text" className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed" value={formData.gender || 'Male'} disabled />
+                    <input type="text" className="input-field bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed" value={formData.gender || 'Male'} disabled />
                   )}
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Mohallah</label>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Mohallah</label>
                   <input
                     type="text"
-                    className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed"
+                    className="input-field bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed"
                     value={(() => {
                       const childName = user?.mohalla || 'Burhani';
                       const parentName = mohallas?.find((m: any) => m.name === childName)?.parentMohalla;
@@ -329,17 +330,17 @@ const ProfilePage = () => {
                     disabled
                   />
                   {isEditing && (
-                    <p className="text-xs text-brand-accent mt-2 font-medium">To change your Mohallah, please contact your Aamil Saheb.</p>
+                    <p className="text-xs text-brand-accent dark:text-blue-300 mt-2 font-medium">To change your Mohallah, please contact your Aamil Saheb.</p>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Jamaat Name</label>
-                  <input type="text" className="input-field bg-slate-50 border-slate-200 text-slate-500 cursor-not-allowed" value={user?.jamaatName || ''} disabled />
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Jamaat Name</label>
+                  <input type="text" className="input-field bg-slate-50 dark:bg-slate-900/50 border-slate-200 dark:border-slate-700 text-slate-500 dark:text-slate-400 cursor-not-allowed" value={user?.jamaatName || ''} disabled />
                 </div>
 
                 {isEditing && (
-                  <div className="md:col-span-2 pt-6 border-t border-slate-200 flex justify-end space-x-4">
+                  <div className="md:col-span-2 pt-6 border-t border-slate-200 dark:border-slate-700 flex justify-end space-x-4">
                     <button type="button" onClick={() => {
                       setIsEditing(false);
                       if (user) {
@@ -365,12 +366,12 @@ const ProfilePage = () => {
               <div className="space-y-8 max-w-xl">
                 {pwdStep === 0 ? (
                   <div className="flex items-center space-x-4 mb-6">
-                    <div className="text-brand-accent shrink-0">
+                    <div className="text-brand-accent dark:text-blue-300 shrink-0">
                       <Lock className="w-6 h-6" />
                     </div>
                     <div className="flex-1">
-                      <h3 className="text-lg font-bold text-slate-800">Account Security</h3>
-                      <p className="text-slate-500 text-sm">Ensure your account is using a long, random password to stay secure.</p>
+                      <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Account Security</h3>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Ensure your account is using a long, random password to stay secure.</p>
                     </div>
                     <button
                       onClick={() => setPwdStep(1)}
@@ -392,17 +393,17 @@ const ProfilePage = () => {
                       verifyPasswordMutation.mutate(oldPassword);
                     }} className="space-y-6">
                     <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
-                      <div className="text-brand-accent shrink-0">
+                      <div className="text-brand-accent dark:text-blue-300 shrink-0">
                         <Lock className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-800">Update Password</h3>
-                        <p className="text-slate-500 text-sm">Step 1 of 2: Enter your current password</p>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Update Password</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Step 1 of 2: Enter your current password</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       <div className="md:col-span-2 max-w-md">
-                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Current Password</label>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Current Password</label>
                         <div className="relative">
                           <input
                             type={showOldPassword ? "text" : "password"}
@@ -413,7 +414,7 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             onClick={() => setShowOldPassword(!showOldPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
                             {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
@@ -452,17 +453,17 @@ const ProfilePage = () => {
                       updateProfileMutation.mutate({ password: newPassword } as any);
                     }} className="space-y-6">
                     <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
-                      <div className="text-brand-accent shrink-0">
+                      <div className="text-brand-accent dark:text-blue-300 shrink-0">
                         <Lock className="w-6 h-6" />
                       </div>
                       <div>
-                        <h3 className="text-lg font-bold text-slate-800">Update Password</h3>
-                        <p className="text-slate-500 text-sm">Step 2 of 2: Choose a new password</p>
+                        <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Update Password</h3>
+                        <p className="text-slate-500 dark:text-slate-400 text-sm">Step 2 of 2: Choose a new password</p>
                       </div>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">New Password</label>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">New Password</label>
                         <div className="relative">
                           <input
                             type={showNewPassword ? "text" : "password"}
@@ -473,14 +474,14 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             onClick={() => setShowNewPassword(!showNewPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
                             {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>
                         </div>
                       </div>
                       <div>
-                        <label className="block text-xs font-medium text-slate-500 mb-2 uppercase tracking-wide">Confirm New Password</label>
+                        <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Confirm New Password</label>
                         <div className="relative">
                           <input
                             type={showConfirmPassword ? "text" : "password"}
@@ -499,7 +500,7 @@ const ProfilePage = () => {
                           <button
                             type="button"
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 focus:outline-none"
+                            className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
                             {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                           </button>

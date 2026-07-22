@@ -247,7 +247,7 @@ const AdminDashboard = () => {
 
     if (hasErrors) {
       setStreamFormErrors(newErrors);
-      toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
+      toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
       return;
     }
 
@@ -520,7 +520,7 @@ const AdminDashboard = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent" /> });
+        toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
       }
       return;
     }
@@ -605,49 +605,49 @@ const AdminDashboard = () => {
     <>
       <div className="mb-8 w-full">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-brand-accent tracking-wide">Admin Dashboard</h3>
+          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Admin Dashboard</h3>
         </div>
-        <div className="h-0.5 w-full bg-slate-200 mt-2"></div>
+        <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
       <div className="flex flex-col md:flex-row flex-1 items-start relative w-full">
         {/* Mobile Tabs */}
-        <div className="w-full md:hidden bg-slate-50 border-b border-slate-200 sticky top-0 z-20">
+        <div className="w-full md:hidden bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20">
           <div className="flex overflow-x-auto hide-scrollbar p-3 space-x-2">
-            <button onClick={() => setActiveTab('stream')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('stream')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Radio className="w-4 h-4 mr-2" /> Stream
             </button>
-            <button onClick={() => setActiveTab('users')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('users')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Users className="w-4 h-4 mr-2" /> Members
             </button>
-            <button onClick={() => setActiveTab('queries')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('queries')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <LifeBuoy className="w-4 h-4 mr-2" /> Support
             </button>
-            <button onClick={() => setActiveTab('login-issues')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('login-issues')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <AlertCircle className="w-4 h-4 mr-2" /> Logins
             </button>
-            <button onClick={() => setActiveTab('announcements')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-100 text-brand-accent shadow-sm' : 'text-slate-600 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('announcements')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Megaphone className="w-4 h-4 mr-2" /> Announcements
             </button>
           </div>
         </div>
 
         {/* Desktop Sidebar */}
-        <aside className="w-64 border-r border-slate-200 bg-slate-50 p-6 hidden md:block sticky top-0 self-start max-h-[calc(100vh-10rem)] overflow-y-auto">
+        <aside className="w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-6 hidden md:block sticky top-0 self-start max-h-[calc(100vh-10rem)] overflow-y-auto">
           <nav className="space-y-2">
-            <div className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-4 px-3">Management</div>
-            <button onClick={() => setActiveTab('stream')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+            <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-3">Management</div>
+            <button onClick={() => setActiveTab('stream')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Radio className="w-4 h-4 mr-3" /> Live Stream
             </button>
-            <button onClick={() => setActiveTab('users')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('users')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Users className="w-4 h-4 mr-3" /> Members
             </button>
-            <button onClick={() => setActiveTab('queries')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('queries')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <LifeBuoy className="w-4 h-4 mr-2.5" /> Support Queries
             </button>
-            <button onClick={() => setActiveTab('login-issues')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('login-issues')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <AlertCircle className="w-4 h-4 mr-2.5" /> Login Issues
             </button>
-            <button onClick={() => setActiveTab('announcements')} className={`w-full flex items-center px-2 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 text-brand-accent border border-sky-100 shadow-sm' : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100'}`}>
+            <button onClick={() => setActiveTab('announcements')} className={`w-full flex items-center px-2 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Megaphone className="w-4 h-4 mr-2.5" /> Announcement Responses
             </button>
           </nav>
@@ -662,24 +662,24 @@ const AdminDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                   <div className="flex justify-between items-start w-full md:w-auto">
                     <div>
-                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Live Stream Controls</h2>
-                      <p className="text-slate-500 text-sm">Create new relays and manage the active video feed.</p>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent dark:text-blue-300">Live Stream Controls</h2>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Create new relays and manage the active video feed.</p>
                     </div>
                     <button
                       onClick={() => refetchStreams()}
-                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Streams"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStreams ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                     <button
                       onClick={() => refetchStreams()}
-                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Streams"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingStreams ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                     <motion.button
                       layout
@@ -716,7 +716,7 @@ const AdminDashboard = () => {
                           <button
                             type="button"
                             onClick={handleToggleStreamForm}
-                            className="absolute top-8 right-8 text-xs font-medium text-slate-500 hover:text-slate-800"
+                            className="absolute top-8 right-8 text-xs font-medium text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100"
                           >
                             Cancel Edit
                           </button>
@@ -724,23 +724,23 @@ const AdminDashboard = () => {
                         <h3 className="text-lg font-medium mb-4">{editingStreamId ? 'Edit Relay' : 'Create New Relay'}</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Stream Title</label>
-                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="Enter a Stream Title" />
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Stream Title</label>
+                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} placeholder="Enter a Stream Title" />
                             {streamFormErrors.title && <p className="text-red-500 text-xs px-1">Stream Title is required</p>}
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Waaz karnar</label>
-                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} placeholder="Enter the name of Waaz Karnar" />
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Waaz karnar</label>
+                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} placeholder="Enter the name of Waaz Karnar" />
                             {streamFormErrors.speaker && <p className="text-red-500 text-xs px-1">Waaz karnar is required</p>}
                           </div>
                           <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Description (Optional)</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Description (Optional)</label>
                             <input type="text" name="description" value={streamFormData.description} onChange={handleStreamChange} className="input-field" placeholder="Description of the event" />
                           </div>
 
                           <div className="md:col-span-2 grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Visibility</label>
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Visibility</label>
                               <CustomDropdown
                                 options={hasApprovalAnnouncement
                                   ? [{ label: 'As Approved', value: 'AS_APPROVED' }]
@@ -755,7 +755,7 @@ const AdminDashboard = () => {
                               <p className="text-xs text-slate-400 mt-1">Controls who can see this relay in their dashboard.</p>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Parent Mohallas</label>
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Allowed Parent Mohallas</label>
                               <MultiSelectDropdown
                                 options={[{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
                                 values={streamFormData.allowedParentMohallas}
@@ -781,7 +781,7 @@ const AdminDashboard = () => {
                               <p className="text-xs text-slate-400 mt-1">Grants access to everyone under this parent.</p>
                             </div>
                             <div>
-                              <label className={`block text-xs font-semibold mb-2 uppercase tracking-wide ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-400' : 'text-slate-500'}`}>Allowed Child Mohallas</label>
+                              <label className={`block text-xs font-semibold mb-2 uppercase tracking-wide ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-400' : 'text-slate-500 dark:text-slate-400'}`}>Allowed Child Mohallas</label>
                               <MultiSelectDropdown
                                 disabled={streamFormData.allowedParentMohallas.includes('All')}
                                 options={(() => {
@@ -804,7 +804,7 @@ const AdminDashboard = () => {
                               <p className={`text-xs mt-1 ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-300' : 'text-slate-400'}`}>Grants access only to specific Mohallahs (including Mains).</p>
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Allowed Gender</label>
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Allowed Gender</label>
                               <CustomDropdown
                                 options={[
                                   { label: 'All', value: 'All' },
@@ -819,12 +819,12 @@ const AdminDashboard = () => {
                           </div>
 
                           <div className="md:col-span-3">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Stream Type Architecture</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Stream Type Architecture</label>
                             <div className="relative">
                               <button
                                 type="button"
                                 onClick={() => setShowStreamTypeDropdown(!showStreamTypeDropdown)}
-                                className="w-full input-field flex justify-between items-center bg-white cursor-pointer hover:border-brand-accent transition-colors"
+                                className="w-full input-field flex justify-between items-center bg-white dark:bg-slate-800 cursor-pointer hover:border-brand-accent transition-colors"
                               >
                                 <div className="flex items-center">
                                   {streamFormData.streamType === 'YOUTUBE' ? (
@@ -845,19 +845,19 @@ const AdminDashboard = () => {
                                     animate={{ opacity: 1, y: 0, scale: 1 }}
                                     exit={{ opacity: 0, y: -10, scale: 0.95 }}
                                     transition={{ duration: 0.15 }}
-                                    className="absolute z-50 w-full mt-2 bg-white rounded-xl shadow-xl border border-slate-200 overflow-hidden"
+                                    className="absolute z-50 w-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden"
                                   >
                                     <div
                                       onClick={() => {
                                         setStreamFormData({ ...streamFormData, streamType: 'HLS' });
                                         setShowStreamTypeDropdown(false);
                                       }}
-                                      className={`p-4 cursor-pointer transition-colors border-b border-slate-100 flex items-start ${streamFormData.streamType === 'HLS' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+                                      className={`p-4 cursor-pointer transition-colors border-b border-slate-100 flex items-start ${streamFormData.streamType === 'HLS' ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                                     >
                                       <Server className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'HLS' ? 'text-sky-500' : 'text-slate-400'}`} />
                                       <div>
-                                        <div className={`font-semibold ${streamFormData.streamType === 'HLS' ? 'text-slate-900' : 'text-slate-700'}`}>Secure Proxy (HLS / RTMP)</div>
-                                        <div className="text-xs text-slate-500 mt-1">Premium custom player. Hides origin URLs from users using tokens.</div>
+                                        <div className={`font-semibold ${streamFormData.streamType === 'HLS' ? 'text-slate-900 dark:text-slate-50' : 'text-slate-700 dark:text-slate-200'}`}>Secure Proxy (HLS / RTMP)</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Premium custom player. Hides origin URLs from users using tokens.</div>
                                       </div>
                                     </div>
                                     <div
@@ -865,12 +865,12 @@ const AdminDashboard = () => {
                                         setStreamFormData({ ...streamFormData, streamType: 'YOUTUBE' });
                                         setShowStreamTypeDropdown(false);
                                       }}
-                                      className={`p-4 cursor-pointer transition-colors flex items-start ${streamFormData.streamType === 'YOUTUBE' ? 'bg-slate-50' : 'hover:bg-slate-50'}`}
+                                      className={`p-4 cursor-pointer transition-colors flex items-start ${streamFormData.streamType === 'YOUTUBE' ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                                     >
                                       <LinkIcon className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'YOUTUBE' ? 'text-red-500' : 'text-slate-400'}`} />
                                       <div>
-                                        <div className={`font-semibold ${streamFormData.streamType === 'YOUTUBE' ? 'text-slate-900' : 'text-slate-700'}`}>YouTube / External Link</div>
-                                        <div className="text-xs text-slate-500 mt-1">Standard embedded player. Best for public youtube links or Google Drive.</div>
+                                        <div className={`font-semibold ${streamFormData.streamType === 'YOUTUBE' ? 'text-slate-900 dark:text-slate-50' : 'text-slate-700 dark:text-slate-200'}`}>YouTube / External Link</div>
+                                        <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Standard embedded player. Best for public youtube links or Google Drive.</div>
                                       </div>
                                     </div>
                                   </motion.div>
@@ -880,7 +880,7 @@ const AdminDashboard = () => {
                           </div>
 
                           <div className="md:col-span-2">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Thumbnail (Optional)</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Thumbnail (Optional)</label>
                             <div className="flex gap-4 items-center">
                               <input
                                 type="text"
@@ -888,7 +888,7 @@ const AdminDashboard = () => {
                                 value={streamFormData.thumbnail.startsWith('data:image') ? '(Local File Uploaded)' : streamFormData.thumbnail}
                                 onChange={handleStreamChange}
                                 disabled={streamFormData.thumbnail.startsWith('data:image')}
-                                className={`input-field flex-1 ${streamFormData.thumbnail.startsWith('data:image') ? 'text-slate-400 bg-slate-50 cursor-not-allowed' : ''}`}
+                                className={`input-field flex-1 ${streamFormData.thumbnail.startsWith('data:image') ? 'text-slate-400 bg-slate-50 dark:bg-slate-900/50 cursor-not-allowed' : ''}`}
                                 placeholder="Paste image URL here..."
                               />
                               <span className="text-xs font-bold text-slate-400 uppercase">OR</span>
@@ -899,15 +899,15 @@ const AdminDashboard = () => {
                                   onChange={handleThumbnailUpload}
                                   className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
                                 />
-                                <button type="button" className="btn-secondary whitespace-nowrap text-xs py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition-colors font-semibold">
+                                <button type="button" className="btn-secondary whitespace-nowrap text-xs py-2.5 px-4 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-200 rounded-lg border border-slate-300 dark:border-slate-600 transition-colors font-semibold">
                                   Upload File
                                 </button>
                               </div>
                             </div>
                             {streamFormData.thumbnail && (
-                              <div className="mt-3 relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200 bg-slate-50">
+                              <div className="mt-3 relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <img src={streamFormData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                                <button type="button" onClick={() => setStreamFormData({ ...streamFormData, thumbnail: '' })} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-500 transition-colors">
+                                <button type="button" onClick={() => setStreamFormData({ ...streamFormData, thumbnail: '' })} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-50 dark:!bg-red-950/300 transition-colors">
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
@@ -916,21 +916,21 @@ const AdminDashboard = () => {
 
                           <div className="md:col-span-2 pt-4 border-t border-slate-100">
                             <div className="flex justify-between items-center mb-4">
-                              <label className="block text-xs font-semibold text-slate-500 uppercase tracking-wide">Server Connections</label>
-                              <button type="button" onClick={addServer} className="text-xs font-medium text-brand-accent hover:text-brand-accent-hover flex items-center bg-sky-50 px-3 py-1.5 rounded-full border border-sky-100">
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Server Connections</label>
+                              <button type="button" onClick={addServer} className="text-xs font-medium text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover flex items-center bg-sky-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-sky-100 dark:border-slate-700">
                                 <Plus className="w-3 h-3 mr-1" /> Add Server
                               </button>
                             </div>
 
                             <div className="space-y-3">
                               {streamFormData.servers.map((server, idx) => (
-                                <div key={idx} className="flex gap-3 items-center bg-slate-50/50 p-3 rounded-lg border border-slate-200">
+                                <div key={idx} className="flex gap-3 items-center bg-slate-50 dark:bg-slate-900/50 p-3 rounded-lg border border-slate-200 dark:border-slate-700">
                                   <div className="w-1/3">
                                     <input
                                       type="text"
                                       value={server.name}
                                       onChange={(e) => handleServerChange(idx, 'name', e.target.value)}
-                                      className={`input-field py-2 ${streamFormErrors.servers?.[idx]?.name ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
+                                      className={`input-field py-2 ${streamFormErrors.servers?.[idx]?.name ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
                                       placeholder="e.g. Server A"
                                     />
                                     {streamFormErrors.servers?.[idx]?.name && <p className="text-red-500 text-xs px-1 mt-1">Server name is required</p>}
@@ -940,7 +940,7 @@ const AdminDashboard = () => {
                                       type="text"
                                       value={server.url}
                                       onChange={(e) => handleServerChange(idx, 'url', e.target.value)}
-                                      className={`input-field py-2 font-mono text-xs ${streamFormErrors.servers?.[idx]?.url ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`}
+                                      className={`input-field py-2 font-mono text-xs ${streamFormErrors.servers?.[idx]?.url ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
                                       placeholder="Live Link URL..."
                                     />
                                     {streamFormErrors.servers?.[idx]?.url && <p className="text-red-500 text-xs px-1 mt-1">URL is required</p>}
@@ -955,7 +955,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
 
-                          <div className="md:col-span-2 flex items-center justify-start gap-3 pt-6 border-t border-slate-200 mt-2">
+                          <div className="md:col-span-2 flex items-center justify-start gap-3 pt-6 border-t border-slate-200 dark:border-slate-700 mt-2">
                             <button
                               type="button"
                               onClick={(e) => handleStreamSubmit(e, true)}
@@ -985,10 +985,10 @@ const AdminDashboard = () => {
                 </AnimatePresence>
 
                 <div className="clean-panel mt-8 flex flex-col max-h-[70vh]">
-                  <div className="p-4 border-b border-slate-200 shrink-0"><h3 className="text-lg font-medium">Relay List</h3></div>
+                  <div className="p-4 border-b border-slate-200 dark:border-slate-700 shrink-0"><h3 className="text-lg font-medium">Relay List</h3></div>
                   <div className="flex-1 overflow-y-auto overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600 relative">
-                      <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
+                    <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 relative">
+                      <thead className="bg-slate-200 dark:bg-slate-700 text-xs uppercase tracking-wider text-slate-600 dark:text-slate-300 dark:text-slate-200 font-semibold sticky top-0 z-10 shadow-sm">
                         <tr>
                           <th className="px-4 py-3">Title</th>
                           <th className="px-4 py-3">Waaz karnar</th>
@@ -1000,18 +1000,18 @@ const AdminDashboard = () => {
                           <th className="px-4 py-3 whitespace-nowrap text-right">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         {isLoadingStreams ? (
                           <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
                         ) : streams?.map((stream: any) => (
-                          <tr key={stream._id} className={`hover:bg-slate-50 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50' : ''}`}>
-                            <td className="px-4 py-3 font-medium text-slate-900">{stream.title}</td>
+                          <tr key={stream._id} className={`hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50 dark:bg-slate-800' : ''}`}>
+                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{stream.title}</td>
                             <td className="px-4 py-3">{stream.speaker}</td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {stream.isLive ? (
-                                <span className="text-red-700 bg-red-50 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
+                                <span className="text-red-700 bg-red-50 dark:!bg-red-950/30 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
                               ) : (
-                                <span className="text-slate-500 bg-slate-100 border border-slate-200 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
+                                <span className="text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
                               )}
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
@@ -1020,17 +1020,17 @@ const AdminDashboard = () => {
                               ) : stream.visibility === 'AS_APPROVED' ? (
                                 <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md text-xs font-semibold">As Approved</span>
                               ) : (
-                                <span className="text-brand-accent bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
+                                <span className="text-brand-accent dark:text-blue-300 bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
                               )}
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-sm text-slate-600 font-medium">{stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') ? stream.allowedParentMohallas.join(', ') : 'All'}</span>
+                              <span className="text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">{stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') ? stream.allowedParentMohallas.join(', ') : 'All'}</span>
                             </td>
                             <td className="px-4 py-3">
-                              <span className="text-sm text-slate-600 font-medium">{stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All') ? stream.allowedChildMohallas.join(', ') : 'All'}</span>
+                              <span className="text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">{stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All') ? stream.allowedChildMohallas.join(', ') : 'All'}</span>
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap">
-                              <span className="text-sm text-slate-600 font-medium">{stream.allowedGender || 'All'}</span>
+                              <span className="text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">{stream.allowedGender || 'All'}</span>
                             </td>
                             <td className="px-4 py-3 whitespace-nowrap text-right">
                               <div className="flex items-center justify-end space-x-3">
@@ -1039,7 +1039,7 @@ const AdminDashboard = () => {
                                     if (await confirm(`Are you sure you want to take "${stream.title}" offline?`, { confirmText: 'Go Offline' })) {
                                       toggleLiveMutation.mutate({ id: stream._id, isLive: false });
                                     }
-                                  }} className="inline-flex items-center px-3 py-1.5 bg-slate-100 text-slate-700 border border-slate-200 text-xs font-semibold rounded shadow-sm hover:bg-slate-200 hover:text-slate-900 transition-colors">Go Offline</button>
+                                  }} className="inline-flex items-center px-3 py-1.5 bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-200 border border-slate-200 dark:border-slate-700 text-xs font-semibold rounded shadow-sm hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white dark:text-slate-50 transition-colors">Go Offline</button>
                                 ) : (
                                   <button onClick={async () => {
                                     if (await confirm(`Are you sure you want to make "${stream.title}" live?`, { confirmText: 'Go Live' })) {
@@ -1047,7 +1047,7 @@ const AdminDashboard = () => {
                                     }
                                   }} className="inline-flex items-center px-3 py-1.5 bg-brand-accent text-white text-xs font-semibold rounded shadow-sm hover:bg-brand-accent-hover transition-colors">Go Live</button>
                                 )}
-                                <button onClick={() => handleEditStream(stream)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit Relay">
+                                <button onClick={() => handleEditStream(stream)} className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors inline-flex align-middle" title="Edit Relay">
                                   <Edit2 className="w-4 h-4" />
                                 </button>
                                 <button onClick={async () => {
@@ -1063,7 +1063,7 @@ const AdminDashboard = () => {
                         ))}
 
                         {!isLoadingStreams && streams?.length === 0 && (
-                          <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500">No relay history found. Create a stream to get started.</td></tr>
+                          <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500 dark:text-slate-400">No relay history found. Create a stream to get started.</td></tr>
                         )}
                       </tbody>
                     </table>
@@ -1078,31 +1078,31 @@ const AdminDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                   <div className="flex justify-between items-start w-full md:w-auto">
                     <div>
-                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Member Directory</h2>
-                      <p className="text-slate-500 text-sm">Manage access and view member activity.</p>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent dark:text-blue-300">Member Directory</h2>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Manage access and view member activity.</p>
                     </div>
                     <button
                       onClick={() => refetchUsers()}
-                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Members"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingUsers ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                     <button
                       onClick={() => setShowMohallaManager(!showMohallaManager)}
-                      className={`btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 transition-colors ${showMohallaManager ? 'bg-slate-100 border-slate-300' : 'bg-white border-slate-300 hover:bg-slate-50'}`}
+                      className={`btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 transition-colors ${showMohallaManager ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                     >
                       <Plus className={`w-4 h-4 mr-2 transition-transform ${showMohallaManager ? 'rotate-45' : ''}`} />
                       Manage Mohallas
                     </button>
                     <button
                       onClick={() => refetchUsers()}
-                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Members"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingUsers ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                     <motion.button
                       layout
@@ -1133,10 +1133,10 @@ const AdminDashboard = () => {
                       exit={{ opacity: 0, height: 0, y: -20, margin: 0, padding: 0, overflow: 'hidden' }}
                       transition={{ duration: 0.3, ease: 'easeInOut' }}
                     >
-                      <div className="clean-panel p-6 border-brand-accent/20 mb-6 bg-slate-50/50">
+                      <div className="clean-panel p-6 border-brand-accent/20 mb-6 bg-slate-50 dark:bg-slate-900/50">
                         <div className="flex justify-between items-center mb-6">
                           <h3 className="text-lg font-medium text-brand-dark">Manage Mohallas</h3>
-                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 transition-colors"><X className="w-5 h-5" /></button>
+                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:text-slate-200 transition-colors"><X className="w-5 h-5" /></button>
                         </div>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
                           <div className="w-full sm:w-48 shrink-0">
@@ -1186,32 +1186,32 @@ const AdminDashboard = () => {
                                   setNewMohallaName('');
                                   setNewMohallaParent('');
                                 }}
-                                className="text-slate-500 hover:text-slate-700 text-sm font-medium px-3 py-2 text-center whitespace-nowrap"
+                                className="text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:text-slate-200 text-sm font-medium px-3 py-2 text-center whitespace-nowrap"
                               >
                                 Cancel
                               </button>
                             )}
                           </div>
                         </div>
-                        <div className="bg-white rounded-lg border border-slate-200 flex flex-col max-h-[50vh]">
+                        <div className="bg-white dark:bg-slate-800 rounded-lg border border-slate-200 dark:border-slate-700 flex flex-col max-h-[50vh]">
                           <div className="flex-1 overflow-y-auto overflow-x-auto">
-                            <table className="w-full text-left text-sm text-slate-600 relative">
-                              <thead className="bg-slate-50 text-xs uppercase tracking-wider text-slate-500 font-semibold sticky top-0 z-10 shadow-sm">
+                            <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 relative">
+                              <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase tracking-wider text-slate-500 dark:text-slate-400 font-semibold sticky top-0 z-10 shadow-sm">
                                 <tr>
                                   <th className="px-4 py-3">Parent Mohallah</th>
                                   <th className="px-4 py-3">Mohalla Name</th>
                                   <th className="px-4 py-3 text-right">Actions</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-100">
+                              <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
                                 {isLoadingMohallas ? (
-                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">Loading...</td></tr>
+                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500 dark:text-slate-400">Loading...</td></tr>
                                 ) : mohallas?.length === 0 ? (
-                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500">No mohallas found.</td></tr>
+                                  <tr><td colSpan={3} className="px-4 py-3 text-center text-slate-500 dark:text-slate-400">No mohallas found.</td></tr>
                                 ) : mohallas?.map((m: any) => (
-                                  <tr key={m._id} className="hover:bg-slate-50 transition-colors">
-                                    <td className="px-4 py-3 font-medium text-slate-500">{m.parentMohalla || '-'}</td>
-                                    <td className="px-4 py-3 text-slate-800">{m.name} {m.parentMohalla ? '' : <span className="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded ml-2">Main</span>}</td>
+                                  <tr key={m._id} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors">
+                                    <td className="px-4 py-3 font-medium text-slate-500 dark:text-slate-400">{m.parentMohalla || '-'}</td>
+                                    <td className="px-4 py-3 text-slate-800 dark:text-slate-100">{m.name} {m.parentMohalla ? '' : <span className="text-xs bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 px-2 py-0.5 rounded ml-2">Main</span>}</td>
                                     <td className="px-4 py-3">
                                       <div className="flex justify-end items-center gap-3">
                                         <button
@@ -1220,7 +1220,7 @@ const AdminDashboard = () => {
                                             setNewMohallaName(m.name);
                                             setNewMohallaParent(m.parentMohalla || '');
                                           }}
-                                          className="text-brand-accent hover:text-brand-accent-hover p-1 transition-colors"
+                                          className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover p-1 transition-colors"
                                           title="Edit Mohallah"
                                         >
                                           <Edit2 className="w-4 h-4" />
@@ -1261,34 +1261,34 @@ const AdminDashboard = () => {
                         <h3 className="text-lg font-medium mb-4">Add New Member</h3>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">ITS ID</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">ITS ID</label>
                             <input type="number" inputMode="numeric" name="itsId" value={userFormData.itsId} onChange={handleUserChange} onBlur={(e) => {
                               if (!/^\d{8}$/.test(e.target.value.trim())) {
                                 setUserFormErrors((prev) => ({ ...prev, itsId: true }));
                               }
-                            }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
+                            }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
                             {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Full Name</label>
-                            <input type="text" name="fullName" value={userFormData.fullName} onChange={handleUserChange} className={`input-field ${userFormErrors.fullName ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Full Name</label>
+                            <input type="text" name="fullName" value={userFormData.fullName} onChange={handleUserChange} className={`input-field ${userFormErrors.fullName ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
                             {userFormErrors.fullName && <p className="text-red-500 text-xs px-1">Full Name is required</p>}
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Email</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Email</label>
                             <input type="email" name="email" value={userFormData.email} onChange={handleUserChange} className="input-field" placeholder="Optional" />
                           </div>
                           <div className="space-y-1">
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Mobile Number</label>
-                            <input type="text" name="mobile" value={userFormData.mobile} onChange={handleUserChange} className={`input-field ${userFormErrors.mobile ? 'border-red-500 bg-red-50 animate-gentle-shake' : ''}`} />
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Mobile Number</label>
+                            <input type="text" name="mobile" value={userFormData.mobile} onChange={handleUserChange} className={`input-field ${userFormErrors.mobile ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
                             {userFormErrors.mobile && <p className="text-red-500 text-xs px-1">Mobile Number is required</p>}
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Initial Password</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Initial Password</label>
                             <input type="password" name="password" value={userFormData.password} onChange={handleUserChange} className="input-field" placeholder="Leave blank for '1234'" />
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Role</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Role</label>
                             <CustomDropdown
                               options={[
                                 { label: 'User', value: 'USER' },
@@ -1300,7 +1300,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="md:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Parent Mohallah</label>
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Parent Mohallah</label>
                               <CustomDropdown
                                 options={mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || []}
                                 value={selectedUserParentMohalla || 'Burhani'}
@@ -1311,7 +1311,7 @@ const AdminDashboard = () => {
                               />
                             </div>
                             <div>
-                              <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Child Mohallah</label>
+                              <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Child Mohallah</label>
                               <CustomDropdown
                                 options={(() => {
                                   const parent = selectedUserParentMohalla || 'Burhani';
@@ -1324,7 +1324,7 @@ const AdminDashboard = () => {
                             </div>
                           </div>
                           <div>
-                            <label className="block text-xs font-semibold text-slate-500 mb-2 uppercase tracking-wide">Gender</label>
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Gender</label>
                             <CustomDropdown
                               options={[
                                 { label: 'Male', value: 'Male' },
@@ -1334,7 +1334,7 @@ const AdminDashboard = () => {
                               onChange={(val) => handleUserChange({ target: { name: 'gender', value: val } } as any)}
                             />
                           </div>
-                          <div className="md:col-span-2 pt-6 border-t border-slate-200 mt-2">
+                          <div className="md:col-span-2 pt-6 border-t border-slate-200 dark:border-slate-700 mt-2">
                             <button type="submit" disabled={createUserMutation.isPending} className="btn-primary">
                               {createUserMutation.isPending ? 'Saving...' : 'Save Member'}
                             </button>
@@ -1361,8 +1361,8 @@ const AdminDashboard = () => {
 
                 <div className="clean-panel flex flex-col max-h-[75vh]">
                   <div className="flex-1 overflow-y-auto overflow-x-auto">
-                    <table className="w-full text-left text-sm text-slate-600 relative">
-                      <thead className="bg-slate-200 text-xs uppercase tracking-wider text-slate-600 font-semibold sticky top-0 z-10 shadow-sm">
+                    <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 relative">
+                      <thead className="bg-slate-200 dark:bg-slate-700 text-xs uppercase tracking-wider text-slate-600 dark:text-slate-300 dark:text-slate-200 font-semibold sticky top-0 z-10 shadow-sm">
                         <tr>
                           <th className="px-4 py-4 whitespace-nowrap">ITS ID</th>
                           <th className="px-4 py-4 whitespace-nowrap">Member</th>
@@ -1374,40 +1374,40 @@ const AdminDashboard = () => {
                           <th className="px-4 py-4 whitespace-nowrap">Relay Access</th>
                           <th className="px-4 py-4 whitespace-nowrap">IP & Device</th>
                           <th className="px-4 py-4 whitespace-nowrap">Logged In</th>
-                          <th className="px-4 py-4 text-right whitespace-nowrap border-l border-slate-300">Actions</th>
+                          <th className="px-4 py-4 text-right whitespace-nowrap border-l border-slate-300 dark:border-slate-600">Actions</th>
                         </tr>
                       </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
+                      <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         {isLoadingUsers ? (
                           <tr><td colSpan={8} className="px-6 py-4 text-center">Loading members...</td></tr>
                         ) : processedUsers.length === 0 ? (
-                          <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500">No members found.</td></tr>
+                          <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">No members found.</td></tr>
                         ) : processedUsers.map((user: any) => (
-                          <tr key={user._id} className="group hover:bg-slate-50 transition-colors">
-                            <td className="px-4 py-4 font-mono text-slate-700 font-medium">{user.itsId}</td>
+                          <tr key={user._id} className="group hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors">
+                            <td className="px-4 py-4 font-mono text-slate-700 dark:text-slate-200 font-medium">{user.itsId}</td>
                             <td className="px-4 py-4">
-                              <div className="text-slate-900 font-semibold">{user.fullName}</div>
+                              <div className="text-slate-900 dark:text-slate-50 font-semibold">{user.fullName}</div>
                               <div className="flex items-center space-x-2 mt-1.5">
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.role === 'ADMIN' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-slate-500 bg-slate-100 border-slate-200'}`}>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.role === 'ADMIN' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                                   {user.role}
                                 </span>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 border-red-200'}`}>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 dark:!bg-red-950/30 border-red-200'}`}>
                                   {user.isActive ? 'ACTIVE' : 'DISABLED'}
                                 </span>
                               </div>
                             </td>
                             <td className="px-4 py-4">
-                              <span className="text-sm font-medium text-slate-700">
+                              <span className="text-sm font-medium text-slate-700 dark:text-slate-200">
                                 {getMohallaString(user.mohalla || 'Burhani')}
                               </span>
                             </td>
-                            <td className="px-4 py-4 text-sm font-medium text-slate-700">
+                            <td className="px-4 py-4 text-sm font-medium text-slate-700 dark:text-slate-200">
                               {user.gender || 'Male'}
                             </td>
-                            <td className="px-4 py-4 text-sm text-slate-600 whitespace-nowrap">
+                            <td className="px-4 py-4 text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 whitespace-nowrap">
                               {user.email || <span className="text-slate-400 italic">N/A</span>}
                             </td>
-                            <td className="px-4 py-4 text-sm font-mono text-slate-700 whitespace-nowrap">
+                            <td className="px-4 py-4 text-sm font-mono text-slate-700 dark:text-slate-200 whitespace-nowrap">
                               {user.mobile || <span className="text-slate-400 italic font-sans">N/A</span>}
                             </td>
                             <td className="px-4 py-4">
@@ -1417,26 +1417,26 @@ const AdminDashboard = () => {
                                   In Use
                                 </span>
                               ) : (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-50 text-slate-500 border border-slate-200">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
                                   Idle
                                 </span>
                               )}
                             </td>
                             <td className="px-4 py-4">
-                              <button onClick={() => toggleRelayAccessMutation.mutate({ id: user._id, hasRelayAccess: !user.hasRelayAccess })} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.hasRelayAccess ? 'Revoke Relay Access' : 'Grant Relay Access'}>
+                              <button onClick={() => toggleRelayAccessMutation.mutate({ id: user._id, hasRelayAccess: !user.hasRelayAccess })} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 transition-colors inline-flex align-middle" title={user.hasRelayAccess ? 'Revoke Relay Access' : 'Grant Relay Access'}>
                                 {user.hasRelayAccess ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
                               </button>
                             </td>
                             <td className="px-4 py-4 max-w-[200px]">
-                              <div className="text-xs font-mono text-slate-800 mb-1">{user.lastIpAddress || 'N/A'}</div>
-                              <div className="text-[10px] text-slate-500 leading-tight truncate" title={user.lastDeviceDetails || 'N/A'}>
+                              <div className="text-xs font-mono text-slate-800 dark:text-slate-100 mb-1">{user.lastIpAddress || 'N/A'}</div>
+                              <div className="text-[10px] text-slate-500 dark:text-slate-400 leading-tight truncate" title={user.lastDeviceDetails || 'N/A'}>
                                 {user.lastDeviceDetails || 'N/A'}
                               </div>
                             </td>
                             <td className="px-4 py-4 whitespace-nowrap">
                               {user.lastLogin ? (
                                 <>
-                                  <div className="text-xs text-slate-800">{new Date(user.lastLogin).toLocaleDateString()} {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
+                                  <div className="text-xs text-slate-800 dark:text-slate-100">{new Date(user.lastLogin).toLocaleDateString()} {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                   {user.sessionStatus === 'inUse' && user.sessionDuration !== null && (
                                     <div className="text-xs text-blue-600 font-medium mt-0.5">({user.sessionDuration} mins)</div>
                                   )}
@@ -1445,7 +1445,7 @@ const AdminDashboard = () => {
                                 <span className="text-xs text-slate-400">Never</span>
                               )}
                             </td>
-                            <td className="px-4 py-4 text-right space-x-3 whitespace-nowrap border-l border-slate-200">
+                            <td className="px-4 py-4 text-right space-x-3 whitespace-nowrap border-l border-slate-200 dark:border-slate-700">
                               <button onClick={async () => {
                                 if (user.isActive) {
                                   if (await confirm(`Do you want to deactivate user ${user.fullName}?`, { confirmText: 'Deactivate' })) {
@@ -1454,10 +1454,10 @@ const AdminDashboard = () => {
                                 } else {
                                   toggleUserStatusMutation.mutate({ id: user._id, isActive: true });
                                 }
-                              }} className="text-slate-500 hover:text-slate-800 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
+                              }} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
                                 {user.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
                               </button>
-                              <button onClick={() => handleEditUser(user)} className="text-brand-accent hover:text-brand-accent-hover transition-colors inline-flex align-middle" title="Edit User">
+                              <button onClick={() => handleEditUser(user)} className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors inline-flex align-middle" title="Edit User">
                                 <Edit2 className="w-4 h-4" />
                               </button>
                               <button onClick={async () => {
@@ -1472,7 +1472,7 @@ const AdminDashboard = () => {
                                   if (await confirm(`Forcefully log out ${user.fullName}? They will be immediately disconnected.`, { confirmText: 'Force Logout' })) {
                                     forceLogoutUserMutation.mutate(user._id);
                                   }
-                                }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 pl-3" title="Force Logout">
+                                }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 dark:border-slate-700 pl-3" title="Force Logout">
                                   <LogOut className="w-4 h-4" />
                                 </button>
                               )}
@@ -1482,8 +1482,8 @@ const AdminDashboard = () => {
                       </tbody>
                     </table>
                   </div>
-                  <div className="bg-slate-50 border-t border-slate-200 px-6 py-4 flex justify-between items-center text-sm shrink-0">
-                    <div className="text-slate-600 font-medium">Total Members: <span className="text-slate-900 font-bold ml-1">{totalMembers}</span></div>
+                  <div className="bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center text-sm shrink-0">
+                    <div className="text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">Total Members: <span className="text-slate-900 dark:text-slate-50 font-bold ml-1">{totalMembers}</span></div>
                     <div className="text-blue-600 font-medium">{sessionsInUse === 1 ? "Session" : "Sessions"} In Use: {sessionsInUse} </div>
                   </div>
                 </div>
@@ -1495,35 +1495,35 @@ const AdminDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                   <div className="flex justify-between items-start w-full md:w-auto">
                     <div>
-                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Support Queries</h2>
-                      <p className="text-slate-500 text-sm">Review and resolve messages from members.</p>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent dark:text-blue-300">Support Queries</h2>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Review and resolve messages from members.</p>
                     </div>
                     <button
                       onClick={() => refetchQueries()}
-                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Queries"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingQueries ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                     <button
                       onClick={() => refetchQueries()}
-                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Queries"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingQueries ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                 </div>
 
                 <div className="clean-panel">
-                  <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
-                    <h3 className="text-sm font-semibold text-slate-700">
+                  <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-between items-center">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       {selectedQuery ? 'Query Details' : 'All Submissions'}
                     </h3>
                     {selectedQuery && (
-                      <button onClick={() => setSelectedQuery(null)} className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white border-slate-300 shadow-sm hover:bg-slate-50">
+                      <button onClick={() => setSelectedQuery(null)} className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800">
                         &larr; Back to List
                       </button>
                     )}
@@ -1539,7 +1539,7 @@ const AdminDashboard = () => {
                         <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="w-full">
                           <div className="p-6 sm:p-10">
                             <div className="flex justify-between items-start mb-8">
-                              <h3 className="text-2xl font-bold text-slate-800">{selectedQuery.name}</h3>
+                              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">{selectedQuery.name}</h3>
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
@@ -1548,7 +1548,7 @@ const AdminDashboard = () => {
                                     setSelectedQuery(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-950/30 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Query"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
@@ -1556,67 +1556,67 @@ const AdminDashboard = () => {
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
-                                <span className="text-sm font-medium text-slate-800">{new Date(selectedQuery.createdAt).toLocaleString()}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{new Date(selectedQuery.createdAt).toLocaleString()}</span>
                               </div>
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">ITS ID</span>
-                                <span className="text-sm font-medium text-brand-accent font-mono">{selectedQuery.itsId}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">ITS ID</span>
+                                <span className="text-sm font-medium text-brand-accent dark:text-blue-300 font-mono">{selectedQuery.itsId}</span>
                               </div>
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mobile</span>
-                                <span className="text-sm font-medium text-slate-800">{selectedQuery.mobile}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Mobile</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{selectedQuery.mobile}</span>
                               </div>
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">City/Town</span>
-                                <span className="text-sm font-medium text-slate-800">{selectedQuery.city}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">City/Town</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{selectedQuery.city}</span>
                               </div>
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mohalla</span>
-                                <span className="text-sm font-medium text-slate-800">{getMohallaString(selectedQuery.mohalla)}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Mohalla</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{getMohallaString(selectedQuery.mohalla)}</span>
                               </div>
                             </div>
 
                             <div>
-                              <span className="text-sm font-bold text-slate-800 block mb-3">Full Query Description</span>
-                              <div className="bg-white border border-slate-200 rounded-xl p-6 whitespace-pre-wrap break-words text-slate-700 leading-relaxed shadow-sm min-h-[150px]">
+                              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block mb-3">Full Query Description</span>
+                              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 whitespace-pre-wrap break-words text-slate-700 dark:text-slate-200 leading-relaxed shadow-sm min-h-[150px]">
                                 {selectedQuery.query}
                               </div>
                             </div>
                           </div>
                         </motion.div>
                       ) : queries?.length > 0 ? (
-                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 rounded-lg overflow-hidden">
+                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                           <div className="flex-1 overflow-y-auto overflow-x-auto">
                             <table className="w-full text-left border-collapse relative">
                               <thead className="sticky top-0 z-10 shadow-sm">
-                                <tr className="bg-slate-50 border-b border-slate-200">
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Query</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mohalla</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date & Time</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ITS ID</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Query</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mohalla</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-100 bg-white">
+                              <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                                 {queries.map((q: any) => (
-                                  <tr key={q._id} onClick={() => setSelectedQuery(q)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                  <tr key={q._id} onClick={() => setSelectedQuery(q)} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors cursor-pointer group">
+                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                       {new Date(q.createdAt).toLocaleString()}
                                     </td>
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm font-mono text-brand-accent font-medium">
+                                    <td className="py-4 px-6 whitespace-nowrap text-sm font-mono text-brand-accent dark:text-blue-300 font-medium">
                                       {q.itsId}
                                     </td>
                                     <td className="py-4 px-6 whitespace-nowrap">
-                                      <div className="text-sm font-semibold text-slate-800">{q.name}</div>
+                                      <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">{q.name}</div>
                                     </td>
-                                    <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={q.query}>
+                                    <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 max-w-xs truncate" title={q.query}>
                                       {q.query}
                                     </td>
-                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                    <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                       {getMohallaString(q.mohalla)}
                                     </td>
                                     <td className="py-4 px-6 text-right">
@@ -1639,7 +1639,7 @@ const AdminDashboard = () => {
                           </div>
                         </motion.div>
                       ) : (
-                        <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-12 text-center text-slate-500 border-t border-slate-100 w-full">
+                        <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-12 text-center text-slate-500 dark:text-slate-400 border-t border-slate-100 w-full">
                           No support queries yet.
                         </motion.div>
                       )}
@@ -1655,35 +1655,35 @@ const AdminDashboard = () => {
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                   <div className="flex justify-between items-start w-full md:w-auto">
                     <div>
-                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent">Login Issues</h2>
-                      <p className="text-slate-500 text-sm">Review members stuck at the log in screen.</p>
+                      <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent dark:text-blue-300">Login Issues</h2>
+                      <p className="text-slate-500 dark:text-slate-400 text-sm">Review members stuck at the log in screen.</p>
                     </div>
                     <button
                       onClick={() => refetchLoginIssues()}
-                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50 shrink-0 ml-4"
+                      className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Login Issues"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
                     <button
                       onClick={() => refetchLoginIssues()}
-                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 bg-white hover:bg-slate-50"
+                      className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Login Issues"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent' : ''}`} />
+                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
                     </button>
                   </div>
                 </div>
 
                 <div className="clean-panel">
-                  <div className="bg-slate-200 px-6 py-4 border-b border-slate-300 flex justify-between items-center">
-                    <h3 className="text-sm font-semibold text-slate-700">
+                  <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-between items-center">
+                    <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                       {selectedLoginIssue ? 'Issue Details' : 'All Submissions'}
                     </h3>
                     {selectedLoginIssue && (
-                      <button onClick={() => setSelectedLoginIssue(null)} className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white border-slate-300 shadow-sm hover:bg-slate-50">
+                      <button onClick={() => setSelectedLoginIssue(null)} className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800">
                         &larr; Back to List
                       </button>
                     )}
@@ -1699,7 +1699,7 @@ const AdminDashboard = () => {
                         <motion.div key="details" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} transition={{ duration: 0.2 }} className="w-full">
                           <div className="p-6 sm:p-10">
                             <div className="flex justify-between items-start mb-8">
-                              <h3 className="text-2xl font-bold text-slate-800">ITS Number: <span className="font-mono text-brand-accent">{selectedLoginIssue.itsId}</span></h3>
+                              <h3 className="text-2xl font-bold text-slate-800 dark:text-slate-100">ITS Number: <span className="font-mono text-brand-accent dark:text-blue-300">{selectedLoginIssue.itsId}</span></h3>
                               <button
                                 onClick={async (e) => {
                                   e.stopPropagation();
@@ -1708,7 +1708,7 @@ const AdminDashboard = () => {
                                     setSelectedLoginIssue(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-950/30 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Login Issue"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
@@ -1716,26 +1716,26 @@ const AdminDashboard = () => {
                               </button>
                             </div>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 bg-slate-50 p-6 rounded-xl border border-slate-200">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8 bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl border border-slate-200 dark:border-slate-700">
                               <div>
-                                <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
-                                <span className="text-sm font-medium text-slate-800">{new Date(selectedLoginIssue.createdAt).toLocaleString()}</span>
+                                <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Date & Time Submitted</span>
+                                <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{new Date(selectedLoginIssue.createdAt).toLocaleString()}</span>
                               </div>
                               {(() => {
                                 const issueUser = users?.find((u: any) => u.itsId === selectedLoginIssue.itsId);
                                 return (
                                   <>
                                     <div>
-                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Name</span>
-                                      <span className="text-sm font-medium text-slate-800">{issueUser ? issueUser.fullName : 'Unknown'}</span>
+                                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Name</span>
+                                      <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{issueUser ? issueUser.fullName : 'Unknown'}</span>
                                     </div>
                                     <div>
-                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mobile</span>
-                                      <span className="text-sm font-medium text-slate-800">{issueUser ? issueUser.mobile : 'Unknown'}</span>
+                                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Mobile</span>
+                                      <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{issueUser ? issueUser.mobile : 'Unknown'}</span>
                                     </div>
                                     <div>
-                                      <span className="text-xs font-semibold text-slate-500 uppercase tracking-wider block mb-1">Mohalla</span>
-                                      <span className="text-sm font-medium text-slate-800">{issueUser ? getMohallaString(issueUser.mohalla) : 'Unknown'}</span>
+                                      <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-1">Mohalla</span>
+                                      <span className="text-sm font-medium text-slate-800 dark:text-slate-100">{issueUser ? getMohallaString(issueUser.mohalla) : 'Unknown'}</span>
                                     </div>
                                   </>
                                 );
@@ -1743,45 +1743,45 @@ const AdminDashboard = () => {
                             </div>
 
                             <div>
-                              <span className="text-sm font-bold text-slate-800 block mb-3">Full Issue Description</span>
-                              <div className="bg-white border border-slate-200 rounded-xl p-6 whitespace-pre-wrap break-words text-slate-700 leading-relaxed shadow-sm min-h-[150px]">
+                              <span className="text-sm font-bold text-slate-800 dark:text-slate-100 block mb-3">Full Issue Description</span>
+                              <div className="bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl p-6 whitespace-pre-wrap break-words text-slate-700 dark:text-slate-200 leading-relaxed shadow-sm min-h-[150px]">
                                 {selectedLoginIssue.issueDescription}
                               </div>
                             </div>
                           </div>
                         </motion.div>
                       ) : loginIssues?.length > 0 ? (
-                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 rounded-lg overflow-hidden">
+                        <motion.div key="table" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }} transition={{ duration: 0.2 }} className="w-full flex flex-col max-h-[70vh] border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
                           <div className="flex-1 overflow-y-auto overflow-x-auto">
                             <table className="w-full text-left border-collapse relative">
                               <thead className="sticky top-0 z-10 shadow-sm">
-                                <tr className="bg-slate-50 border-b border-slate-200">
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Date & Time</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">ITS ID</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Name</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Query</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider">Mohalla</th>
-                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 uppercase tracking-wider text-right">Actions</th>
+                                <tr className="bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700">
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Date & Time</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">ITS ID</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Name</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Query</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mohalla</th>
+                                  <th className="py-4 px-6 text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider text-right">Actions</th>
                                 </tr>
                               </thead>
-                              <tbody className="divide-y divide-slate-100 bg-white">
+                              <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                                 {loginIssues.map((issue: any) => {
                                   const issueUser = users?.find((u: any) => u.itsId === issue.itsId);
                                   return (
-                                    <tr key={issue._id} onClick={() => setSelectedLoginIssue(issue)} className="hover:bg-slate-50 transition-colors cursor-pointer group">
-                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                    <tr key={issue._id} onClick={() => setSelectedLoginIssue(issue)} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors cursor-pointer group">
+                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                         {new Date(issue.createdAt).toLocaleString()}
                                       </td>
                                       <td className="py-4 px-6 whitespace-nowrap">
-                                        <div className="text-sm font-semibold text-slate-800 font-mono">{issue.itsId}</div>
+                                        <div className="text-sm font-semibold text-slate-800 dark:text-slate-100 font-mono">{issue.itsId}</div>
                                       </td>
                                       <td className="py-4 px-6 whitespace-nowrap">
-                                        <div className="text-sm font-semibold text-slate-800">{issueUser ? issueUser.fullName : 'Unknown'}</div>
+                                        <div className="text-sm font-semibold text-slate-800 dark:text-slate-100">{issueUser ? issueUser.fullName : 'Unknown'}</div>
                                       </td>
-                                      <td className="py-4 px-6 text-sm text-slate-600 max-w-xs truncate" title={issue.issueDescription}>
+                                      <td className="py-4 px-6 text-sm text-slate-600 dark:text-slate-300 dark:text-slate-200 max-w-xs truncate" title={issue.issueDescription}>
                                         {issue.issueDescription}
                                       </td>
-                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500">
+                                      <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                         {issueUser ? getMohallaString(issueUser.mohalla) : 'Unknown'}
                                       </td>
                                       <td className="py-4 px-6 text-right">
@@ -1805,7 +1805,7 @@ const AdminDashboard = () => {
                           </div>
                         </motion.div>
                       ) : (
-                        <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-12 text-center text-slate-500 border-t border-slate-100 w-full">
+                        <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="p-12 text-center text-slate-500 dark:text-slate-400 border-t border-slate-100 w-full">
                           No login issues reported.
                         </motion.div>
                       )}

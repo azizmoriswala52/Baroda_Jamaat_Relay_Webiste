@@ -81,6 +81,10 @@ function App() {
             console.error("Failed to parse session transfer");
           }
         }
+      } else if (event.key === 'logout') {
+        sessionStorage.removeItem('token');
+        sessionStorage.removeItem('user');
+        window.location.href = '/login';
       }
     };
 
@@ -119,18 +123,8 @@ function App() {
           reverseOrder={false}
           toastOptions={{ 
             duration: 4000,
-            className: 'font-sans',
-            style: { 
-              background: '#ffffff', 
-              color: '#334155', 
-              borderRadius: '12px',
-              boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1)',
-              border: '1px solid #f1f5f9',
-              fontSize: '14px',
-              fontWeight: '600',
-              padding: '16px 24px',
-              letterSpacing: '0.01em'
-            },
+            className: '!bg-white dark:!bg-slate-800 !text-slate-800 dark:!text-slate-100 !shadow-[0_10px_25px_-5px_rgba(0,0,0,0.1)] !rounded-xl !border !border-slate-100 dark:!border-slate-700 font-sans text-[14px] font-semibold !px-6 !py-4 tracking-[0.01em]',
+            style: {},
             success: { 
               iconTheme: { primary: '#0f3c6e', secondary: '#ffffff' },
             },

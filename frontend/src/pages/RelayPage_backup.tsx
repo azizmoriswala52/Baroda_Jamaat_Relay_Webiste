@@ -65,19 +65,19 @@ const RelayPage = () => {
   // If no server is selected, render the server selection view
   if (!selectedServer) {
     return (
-      <div className="min-h-screen bg-brand-bg text-slate-800 flex flex-col font-sans">
+      <div className="min-h-screen bg-brand-bg text-slate-800 dark:text-slate-100 flex flex-col font-sans">
         {/* Top Navbar */}
-        <header className="bg-white shadow-sm flex justify-between items-center px-6 py-4 z-10 border-b border-slate-200">
+        <header className="bg-white dark:bg-slate-800 shadow-sm flex justify-between items-center px-6 py-4 z-10 border-b border-slate-200 dark:border-slate-700">
           <div className="flex items-center space-x-4">
             <div className="w-32 h-8 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat opacity-80" style={{ filter: 'invert(1) brightness(0.2)' }}></div>
-            <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
-            <Link to="/dashboard" className="text-sm font-semibold tracking-wide text-brand-accent hover:text-brand-accent-hover transition-colors hidden sm:block uppercase">Back to Dashboard</Link>
+            <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+            <Link to="/dashboard" className="text-sm font-semibold tracking-wide text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors hidden sm:block uppercase">Back to Dashboard</Link>
           </div>
           <div className="flex items-center space-x-6">
             <Link to="/profile" className="flex items-center space-x-3 group cursor-pointer">
-              <span className="text-sm text-slate-600 font-medium group-hover:text-brand-accent transition-colors">Abbas Ali</span>
-              <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-brand-accent/10 transition-colors border border-slate-200">
-                <User className="w-4 h-4 text-slate-500 group-hover:text-brand-accent" />
+              <span className="text-sm text-slate-600 dark:text-slate-300 font-medium group-hover:text-brand-accent dark:text-blue-300 transition-colors">Abbas Ali</span>
+              <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-brand-accent/10 transition-colors border border-slate-200 dark:border-slate-700">
+                <User className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-brand-accent dark:text-blue-300" />
               </div>
             </Link>
           </div>
@@ -87,23 +87,23 @@ const RelayPage = () => {
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            className="clean-panel bg-white p-10 max-w-lg w-full text-center shadow-lg"
+            className="clean-panel bg-white dark:bg-slate-800 p-10 max-w-lg w-full text-center shadow-lg"
           >
-            <h2 className="text-2xl font-light text-slate-800 mb-2">Connect to Stream</h2>
-            <p className="text-slate-500 text-sm mb-8">Please select a connection server. If you experience buffering during the relay, you can refresh and choose a different server.</p>
+            <h2 className="text-2xl font-light text-slate-800 dark:text-slate-100 mb-2">Connect to Stream</h2>
+            <p className="text-slate-500 dark:text-slate-400 text-sm mb-8">Please select a connection server. If you experience buffering during the relay, you can refresh and choose a different server.</p>
 
             <div className="space-y-4">
               <button
                 onClick={() => setSelectedServer('Server A')}
-                className="w-full flex items-center justify-between p-5 rounded-xl border border-slate-200 hover:border-brand-accent hover:bg-sky-50 transition-all group"
+                className="w-full flex items-center justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-accent hover:bg-sky-50 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-all group"
               >
                 <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full bg-sky-100 flex items-center justify-center text-brand-accent group-hover:bg-brand-accent group-hover:text-white transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-sky-100 dark:bg-sky-900/40 flex items-center justify-center text-brand-accent dark:text-blue-300 group-hover:bg-brand-accent group-hover:text-white transition-colors">
                     <Server className="w-6 h-6" />
                   </div>
                   <div className="ml-4 text-left">
-                    <div className="font-semibold text-slate-800 group-hover:text-brand-accent transition-colors text-lg">Server A</div>
-                    <div className="text-xs text-slate-500">Primary Network</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-brand-accent dark:text-blue-300 transition-colors text-lg">Server A</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Primary Network</div>
                   </div>
                 </div>
                 <div className="text-emerald-500 text-xs font-semibold px-3 py-1 bg-emerald-50 rounded-full">Excellent</div>
@@ -111,15 +111,15 @@ const RelayPage = () => {
 
               <button
                 onClick={() => setSelectedServer('Server B')}
-                className="w-full flex items-center justify-between p-5 rounded-xl border border-slate-200 hover:border-brand-accent hover:bg-sky-50 transition-all group"
+                className="w-full flex items-center justify-between p-5 rounded-xl border border-slate-200 dark:border-slate-700 hover:border-brand-accent hover:bg-sky-50 dark:hover:bg-slate-800 dark:hover:bg-slate-800 transition-all group"
               >
                 <div className="flex items-center">
-                  <div className="w-12 h-12 rounded-full bg-slate-100 flex items-center justify-center text-slate-600 group-hover:bg-brand-accent group-hover:text-white transition-colors">
+                  <div className="w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center text-slate-600 dark:text-slate-300 group-hover:bg-brand-accent group-hover:text-white transition-colors">
                     <Server className="w-6 h-6" />
                   </div>
                   <div className="ml-4 text-left">
-                    <div className="font-semibold text-slate-800 group-hover:text-brand-accent transition-colors text-lg">Server B</div>
-                    <div className="text-xs text-slate-500">Backup Network</div>
+                    <div className="font-semibold text-slate-800 dark:text-slate-100 group-hover:text-brand-accent dark:text-blue-300 transition-colors text-lg">Server B</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">Backup Network</div>
                   </div>
                 </div>
                 <div className="text-amber-500 text-xs font-semibold px-3 py-1 bg-amber-50 rounded-full">Good</div>
@@ -133,13 +133,13 @@ const RelayPage = () => {
 
   // Render the actual Relay Page once server is selected
   return (
-    <div className="min-h-screen bg-brand-bg text-slate-800 flex flex-col font-sans">
+    <div className="min-h-screen bg-brand-bg text-slate-800 dark:text-slate-100 flex flex-col font-sans">
       {/* Top Navbar */}
-      <header className="bg-white shadow-sm flex justify-between items-center px-6 py-4 z-10 relative border-b border-slate-200">
+      <header className="bg-white dark:bg-slate-800 shadow-sm flex justify-between items-center px-6 py-4 z-10 relative border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center space-x-4">
           <div className="w-32 h-8 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat opacity-80" style={{ filter: 'invert(1) brightness(0.2)' }}></div>
-          <div className="w-px h-6 bg-slate-200 hidden sm:block"></div>
-          <Link to="/dashboard" className="text-sm font-semibold tracking-wide text-brand-accent hover:text-brand-accent-hover transition-colors hidden sm:block uppercase">Back to Dashboard</Link>
+          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700 hidden sm:block"></div>
+          <Link to="/dashboard" className="text-sm font-semibold tracking-wide text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors hidden sm:block uppercase">Back to Dashboard</Link>
         </div>
 
         <div className="flex items-center space-x-6">
@@ -153,16 +153,16 @@ const RelayPage = () => {
             )}
           </div>
 
-          <button className="text-slate-400 hover:text-brand-accent transition-colors">
+          <button className="text-slate-400 hover:text-brand-accent dark:text-blue-300 transition-colors">
             <Bell className="w-5 h-5" />
           </button>
 
-          <div className="w-px h-6 bg-slate-200"></div>
+          <div className="w-px h-6 bg-slate-200 dark:bg-slate-700"></div>
 
           <Link to="/profile" className="flex items-center space-x-3 group cursor-pointer">
-            <span className="text-sm text-slate-600 font-medium group-hover:text-brand-accent transition-colors">Abbas Ali</span>
-            <div className="w-8 h-8 rounded-full bg-slate-100 flex items-center justify-center group-hover:bg-brand-accent/10 transition-colors border border-slate-200">
-              <User className="w-4 h-4 text-slate-500 group-hover:text-brand-accent" />
+            <span className="text-sm text-slate-600 dark:text-slate-300 font-medium group-hover:text-brand-accent dark:text-blue-300 transition-colors">Abbas Ali</span>
+            <div className="w-8 h-8 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center group-hover:bg-brand-accent/10 transition-colors border border-slate-200 dark:border-slate-700">
+              <User className="w-4 h-4 text-slate-500 dark:text-slate-400 group-hover:text-brand-accent dark:text-blue-300" />
             </div>
           </Link>
         </div>
@@ -230,7 +230,7 @@ const RelayPage = () => {
                         value={played}
                         onChange={handleSeekChange}
                         onMouseUp={handleSeekMouseUp}
-                        className="w-full h-1 bg-white/30 rounded-lg appearance-none cursor-pointer accent-brand-accent hover:h-2 transition-all"
+                        className="w-full h-1 bg-white dark:bg-slate-800/30 rounded-lg appearance-none cursor-pointer accent-brand-accent dark:text-blue-300 hover:h-2 transition-all"
                         style={{
                           background: `linear-gradient(to right, #0284c7 0%, #0284c7 ${played * 100}%, rgba(255, 255, 255, 0.3) ${played * 100}%, rgba(255, 255, 255, 0.3) 100%)`
                         }}
@@ -240,14 +240,14 @@ const RelayPage = () => {
                     {/* Controls Row */}
                     <div className="flex items-center justify-between text-white pt-2">
                       <div className="flex items-center space-x-4">
-                        <button onClick={handlePlayPause} className="hover:text-brand-accent transition-colors">
+                        <button onClick={handlePlayPause} className="hover:text-brand-accent dark:text-blue-300 transition-colors">
                           {playing ? <Pause className="w-6 h-6" /> : <Play className="w-6 h-6" />}
                         </button>
-                        <button onClick={handleToggleMute} className="hover:text-brand-accent transition-colors">
+                        <button onClick={handleToggleMute} className="hover:text-brand-accent dark:text-blue-300 transition-colors">
                           {muted ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
                         </button>
                       </div>
-                      <button onClick={toggleFullScreen} className="hover:text-brand-accent transition-colors">
+                      <button onClick={toggleFullScreen} className="hover:text-brand-accent dark:text-blue-300 transition-colors">
                         <Maximize className="w-5 h-5" />
                       </button>
                     </div>
@@ -267,14 +267,14 @@ const RelayPage = () => {
           <div className="clean-panel p-6">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-light tracking-tight mb-2 text-slate-800">Lailatul Qadr Bayaan & Waaz</h2>
-                <p className="text-brand-accent text-sm font-medium mb-4 uppercase tracking-wider">Syedi Mukasir Saheb (A.Q.)</p>
+                <h2 className="text-2xl font-light tracking-tight mb-2 text-slate-800 dark:text-slate-100">Lailatul Qadr Bayaan & Waaz</h2>
+                <p className="text-brand-accent dark:text-blue-300 text-sm font-medium mb-4 uppercase tracking-wider">Syedi Mukasir Saheb (A.Q.)</p>
               </div>
-              <div className="bg-sky-50 text-brand-accent border border-sky-100 px-3 py-1 rounded-full text-xs font-semibold flex items-center shadow-sm">
+              <div className="bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 px-3 py-1 rounded-full text-xs font-semibold flex items-center shadow-sm">
                 <Server className="w-3 h-3 mr-1.5" /> Connected to {selectedServer}
               </div>
             </div>
-            <p className="text-slate-600 leading-relaxed text-sm">
+            <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
               Join us for the spiritual and uplifting bayaan of Lailatul Qadr. Please ensure your surroundings are quiet and respectful during the relay.
             </p>
           </div>
@@ -284,8 +284,8 @@ const RelayPage = () => {
         <aside className="w-full lg:w-[400px] flex flex-col gap-6">
           {/* Today's Schedule Card */}
           <div className="clean-panel flex flex-col flex-1 max-h-[400px]">
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 flex items-center">
+            <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center">
                 <Calendar className="w-4 h-4 mr-2" />
                 Schedule
               </h3>
@@ -297,11 +297,11 @@ const RelayPage = () => {
                 { time: '20:00', title: 'Waaz Relay Begins', active: true },
                 { time: '22:30', title: 'Dua & Niyaz', active: false }
               ].map((item, idx) => (
-                <div key={idx} className={`flex items-baseline py-3 px-4 rounded ${item.active ? 'bg-sky-50 border-l-2 border-brand-accent' : 'bg-slate-50 border-l-2 border-transparent'}`}>
-                  <div className={`text-xs font-mono w-16 shrink-0 ${item.active ? 'text-brand-accent font-bold' : 'text-slate-400'}`}>
+                <div key={idx} className={`flex items-baseline py-3 px-4 rounded ${item.active ? 'bg-sky-50 dark:bg-slate-800 border-l-2 border-brand-accent' : 'bg-slate-50 dark:bg-slate-900/50 border-l-2 border-transparent'}`}>
+                  <div className={`text-xs font-mono w-16 shrink-0 ${item.active ? 'text-brand-accent dark:text-blue-300 font-bold' : 'text-slate-400'}`}>
                     {item.time}
                   </div>
-                  <div className={`text-sm ${item.active ? 'text-slate-800 font-medium' : 'text-slate-600'}`}>
+                  <div className={`text-sm ${item.active ? 'text-slate-800 dark:text-slate-100 font-medium' : 'text-slate-600 dark:text-slate-300'}`}>
                     {item.title}
                   </div>
                 </div>
@@ -311,8 +311,8 @@ const RelayPage = () => {
 
           {/* Announcements Card */}
           <div className="clean-panel flex flex-col flex-1 max-h-[400px]">
-            <div className="bg-slate-50 px-6 py-4 border-b border-slate-200">
-              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 flex items-center">
+            <div className="bg-slate-50 dark:bg-slate-900/50 px-6 py-4 border-b border-slate-200 dark:border-slate-700">
+              <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 dark:text-slate-400 flex items-center">
                 <Bell className="w-4 h-4 mr-2" />
                 Announcements
               </h3>
@@ -323,8 +323,8 @@ const RelayPage = () => {
                 { date: 'Yesterday', content: 'Salawaat Jaman pass collection will be open tomorrow from 10:00 to 13:00.' }
               ].map((announcement, idx) => (
                 <div key={idx} className="group cursor-pointer border-b border-slate-100 pb-4 last:border-0 last:pb-0">
-                  <div className="text-[10px] uppercase tracking-wider text-brand-accent mb-1 font-semibold">{announcement.date}</div>
-                  <p className="text-sm text-slate-700 leading-relaxed group-hover:text-slate-900 transition-colors">{announcement.content}</p>
+                  <div className="text-[10px] uppercase tracking-wider text-brand-accent dark:text-blue-300 mb-1 font-semibold">{announcement.date}</div>
+                  <p className="text-sm text-slate-700 dark:text-slate-200 leading-relaxed group-hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white dark:text-slate-50 transition-colors">{announcement.content}</p>
                 </div>
               ))}
             </div>
