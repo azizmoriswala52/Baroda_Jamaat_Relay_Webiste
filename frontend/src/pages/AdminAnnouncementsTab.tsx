@@ -400,7 +400,7 @@ const AdminAnnouncementsTab = () => {
     });
     setEditingAnnouncementId(announcement._id);
     setShowForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const handleToggleForm = async () => {

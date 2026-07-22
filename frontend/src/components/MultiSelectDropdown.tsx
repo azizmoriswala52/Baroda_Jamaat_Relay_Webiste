@@ -162,7 +162,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
                     onMouseEnter={() => setHighlightedIndex(index)}
                     className={`w-full flex items-center px-4 py-2.5 text-sm transition-colors duration-150 ${
                       highlightedIndex === index
-                        ? 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-50'
+                        ? 'bg-slate-100 dark:bg-slate-700/50 text-slate-900 dark:text-slate-50'
                         : 'text-slate-700 dark:text-slate-200'
                     }`}
                   >

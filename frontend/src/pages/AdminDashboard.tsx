@@ -289,7 +289,7 @@ const AdminDashboard = () => {
     setStreamFormData(newData);
     setInitialStreamFormData(newData);
     setEditingStreamId(stream._id);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // --- USER STATE & MUTATIONS ---
@@ -570,7 +570,7 @@ const AdminDashboard = () => {
     setSelectedUserParentMohalla(userMohallaObj?.parentMohalla || (userMohallaObj ? userMohallaObj.name : 'Burhani'));
 
     setShowUserForm(true);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const processedUsers = React.useMemo(() => {
@@ -1219,6 +1219,7 @@ const AdminDashboard = () => {
                                             setEditingMohallaId(m._id);
                                             setNewMohallaName(m.name);
                                             setNewMohallaParent(m.parentMohalla || '');
+                                            document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
                                           }}
                                           className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover p-1 transition-colors"
                                           title="Edit Mohallah"
