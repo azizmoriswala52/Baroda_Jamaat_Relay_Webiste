@@ -134,7 +134,7 @@ const AnnouncementsPage = () => {
                       {announcement.title}
                     </h2>
 
-                    <div className="text-slate-600 dark:text-slate-300 leading-relaxed max-w-none">
+                    <div className="text-slate-600 dark:text-slate-100 leading-relaxed max-w-none">
                       {announcement.content.split('\n').map((para, i) => (
                         <p key={i} className="mb-3 last:mb-0">{para}</p>
                       ))}
@@ -238,13 +238,13 @@ const AnnouncementsPage = () => {
                         ) : announcement.userResponse && announcement.userResponseStatus !== 'REVOKED' ? (
                           <div className="clean-panel p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-3">
-                              <h4 className="text-sm font-bold text-emerald-700 flex items-center">
+                              <h4 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 flex items-center">
                                 <CheckCircle2 className="w-4 h-4 mr-2" />
                                 Your response has been recorded.
                               </h4>
                               <div className="flex items-center space-x-4 mt-2 sm:mt-0">
                                 {announcement.responseType === 'APPROVAL' && (
-                                  <span className="font-semibold text-[#0a2f5c]">
+                                  <span className="font-semibold text-brand-accent dark:text-blue-300">
                                     Status: {announcement.userResponseStatus === 'APPROVED' ? 'Approved' :
                                       announcement.userResponseStatus === 'REJECTED' ? 'Not approved' :
                                         'Pending'}
@@ -255,18 +255,18 @@ const AnnouncementsPage = () => {
 
                             <div className="space-y-4 opacity-80 pointer-events-none">
                               <div>
-                                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">ITS ID</label>
+                                <label className="block text-xs font-semibold text-slate-500 dark:text-slate-300 mb-1.5">ITS ID</label>
                                 <input
                                   type="text"
                                   readOnly
                                   value={user?.itsId || ''}
-                                  className="input-field bg-slate-100 dark:bg-slate-800 font-mono text-slate-600 dark:text-slate-300"
+                                  className="input-field bg-slate-100 dark:bg-slate-800 font-mono text-slate-600 dark:text-slate-100"
                                 />
                               </div>
 
                               {announcement.responseType === 'RSVP' && announcement.rsvpOptions && announcement.rsvpOptions.length > 0 && (
                                 <div>
-                                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Selected RSVP Option</label>
+                                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-300 mb-2 uppercase tracking-wide">Selected RSVP Option</label>
                                   <div className="space-y-2">
                                     {announcement.rsvpOptions.map((opt: string, idx: number) => (
                                       <label key={idx} className={`flex items-start p-3 border rounded-lg ${announcement.userResponse === opt ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
@@ -301,11 +301,11 @@ const AnnouncementsPage = () => {
 
                               {announcement.responseType === 'APPROVAL' && (
                                 <div>
-                                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-1.5">Reason for request</label>
+                                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-300 mb-1.5">Reason for request</label>
                                   <textarea
-                                    value={announcement.userResponse}
                                     readOnly
-                                    className="input-field min-h-[80px] resize-none bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
+                                    value={announcement.userResponse}
+                                    className="input-field min-h-[100px] resize-y bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-100"
                                   />
                                 </div>
                               )}
