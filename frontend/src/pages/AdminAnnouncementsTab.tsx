@@ -396,7 +396,7 @@ const AdminAnnouncementsTab = () => {
       rsvpOptions: announcement.rsvpOptions ? announcement.rsvpOptions.join(', ') : '',
       targetParentMohallas: announcement.targetParentMohallas || ['All'],
       targetChildMohallas: announcement.targetChildMohallas || ['All'],
-      deadline: announcement.deadline ? new Date(announcement.deadline).toISOString().slice(0, 16) : ''
+      deadline: announcement.deadline ? new Date(new Date(announcement.deadline).getTime() - (new Date(announcement.deadline).getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''
     });
     setEditingAnnouncementId(announcement._id);
     setShowForm(true);

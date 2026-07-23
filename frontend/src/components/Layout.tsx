@@ -110,6 +110,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const displayName = user?.role === 'ADMIN' ? `${itsText}${user?.fullName || 'User'} (Admin)` : `${itsText}${user?.fullName || 'User'}`;
 
   useEffect(() => {
+    document.getElementById('main-scroll-container')?.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
         setShowUserMenu(false);

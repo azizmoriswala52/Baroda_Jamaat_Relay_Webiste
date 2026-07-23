@@ -145,7 +145,7 @@ const AnnouncementsPage = () => {
                         {announcement.deadline && (
                           <div className="mb-4 flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
                             <Clock className="w-4 h-4 mr-2 shrink-0 text-slate-400 dark:text-slate-500" />
-                            <span>Responses accepted till: <span className="text-slate-700 dark:text-slate-200 dark:text-slate-300 font-semibold">{new Date(announcement.deadline).toLocaleString([], { dateStyle: 'medium', timeStyle: 'short' })}</span></span>
+                            <span>Responses accepted till: <span className="text-slate-700 dark:text-slate-200 dark:text-slate-300 font-semibold">{new Date(announcement.deadline).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</span></span>
                           </div>
                         )}
                         {activeFormId === announcement._id ? (
