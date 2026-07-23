@@ -122,6 +122,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
               liveSyncDurationCount: 2,
               liveMaxLatencyDurationCount: 4,
               manifestLoadingMaxRetry: 5,
+              xhrSetup: (xhr, url) => {
+                xhr.setRequestHeader('bypass-tunnel-reminder', 'true');
+              }
             });
 
             hlsRef.current = hls;
