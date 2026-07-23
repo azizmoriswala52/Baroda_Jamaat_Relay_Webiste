@@ -413,7 +413,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
           </p>
           <button 
             onClick={() => fetchStreamUrl()} 
-            className="mt-6 flex items-center px-4 py-2 bg-white dark:bg-slate-800/10 hover:bg-white dark:hover:bg-slate-800 dark:hover:bg-slate-800/20 text-white rounded-full transition-colors text-sm font-semibold"
+            className="mt-6 flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-sm font-semibold border border-white/20"
           >
             <RefreshCw className="w-4 h-4 mr-2" /> Retry Connection
           </button>
@@ -444,9 +444,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
             value={currentTime} 
             onChange={handleSeek}
             style={{
-              background: `linear-gradient(to right, var(--color-brand-accent dark:text-blue-300) ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255, 255, 255, 0.3) ${duration > 0 ? (currentTime / duration) * 100 : 0}%)`
+              background: `linear-gradient(to right, #ffffff ${duration > 0 ? (currentTime / duration) * 100 : 0}%, rgba(255, 255, 255, 0.3) ${duration > 0 ? (currentTime / duration) * 100 : 0}%)`
             }}
-            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-brand-accent dark:text-blue-300 hover:h-2 transition-all duration-200"
+            className="w-full h-1.5 rounded-lg appearance-none cursor-pointer accent-white hover:h-2 transition-all duration-200"
           />
         </div>
 
@@ -455,7 +455,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
           <div className="flex items-center space-x-6">
             <button 
               onClick={togglePlay}
-              className="text-white hover:text-brand-accent dark:text-blue-300 transition-transform hover:scale-110"
+              className="text-white hover:text-white/80 transition-transform hover:scale-110"
             >
               {isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
             </button>
@@ -463,7 +463,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
             <div className="flex items-center space-x-3 group/volume">
               <button 
                 onClick={handleSpeakerClick}
-                className="text-white hover:text-brand-accent dark:text-blue-300 transition-colors"
+                className="text-white hover:text-white/80 transition-colors"
               >
                 {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
               </button>
@@ -474,9 +474,9 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
                 step="0.01" 
                 value={isMuted ? 0 : volume} 
                 onChange={handleVolumeChange}
-                className={`transition-all duration-300 h-1.5 rounded-lg appearance-none cursor-pointer accent-brand-accent dark:text-blue-300 ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100'}`}
+                className={`transition-all duration-300 h-1.5 rounded-lg appearance-none cursor-pointer accent-white ${showVolumeSlider ? 'w-24 opacity-100' : 'w-0 opacity-0 group-hover/volume:w-24 group-hover/volume:opacity-100'}`}
                 style={{
-                  background: `linear-gradient(to right, var(--color-brand-accent dark:text-blue-300) ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)`
+                  background: `linear-gradient(to right, #ffffff ${(isMuted ? 0 : volume) * 100}%, rgba(255, 255, 255, 0.3) ${(isMuted ? 0 : volume) * 100}%)`
                 }}
               />
             </div>
@@ -487,7 +487,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
               className={`flex items-center px-2 py-1 bg-red-600/90 rounded text-[10px] font-bold text-white tracking-widest uppercase hover:bg-red-500 transition-colors cursor-pointer ${duration - currentTime > 10 ? 'opacity-70' : 'opacity-100'}`}
               title={duration - currentTime > 10 ? "Click to jump to live edge" : "You are watching live"}
             >
-              <span className={`w-1.5 h-1.5 rounded-full bg-white dark:bg-slate-800 mr-1.5 ${isPlaying && !isBuffering && (duration - currentTime <= 10) ? 'animate-pulse' : ''}`}></span>
+              <span className={`w-1.5 h-1.5 rounded-full bg-white mr-1.5 ${isPlaying && !isBuffering && (duration - currentTime <= 10) ? 'animate-pulse' : ''}`}></span>
               Live
             </button>
           </div>
@@ -496,7 +496,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
           <div className="flex items-center">
             <button 
               onClick={toggleFullscreen}
-              className="text-white hover:text-brand-accent dark:text-blue-300 transition-transform hover:scale-110"
+              className="text-white hover:text-white/80 transition-transform hover:scale-110"
             >
               {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
             </button>

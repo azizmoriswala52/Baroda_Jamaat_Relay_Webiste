@@ -49,11 +49,11 @@ const RelayPage = () => {
     }
   };
 
-  const { 
-    activeStream, 
-    isLoadingStream, 
-    isStreamError, 
-    refetchStream, 
+  const {
+    activeStream,
+    isLoadingStream,
+    isStreamError,
+    refetchStream,
     isFetchingStream,
     isCurrentlyLive,
     servers,
@@ -91,10 +91,10 @@ const RelayPage = () => {
       if (placeholderRef.current) {
         const mainContainer = document.getElementById('main-scroll-container');
         if (!mainContainer) return;
-        
+
         const mainRect = mainContainer.getBoundingClientRect();
         const phRect = placeholderRef.current.getBoundingClientRect();
-        
+
         setPlayerRect({
           top: phRect.top - mainRect.top + mainContainer.scrollTop,
           left: phRect.left - mainRect.left,
@@ -105,7 +105,7 @@ const RelayPage = () => {
     };
 
     updateRect();
-    
+
     // We use a small timeout to ensure layout is fully settled
     setTimeout(updateRect, 100);
 
@@ -114,7 +114,7 @@ const RelayPage = () => {
       observer.observe(placeholderRef.current);
     }
     window.addEventListener('resize', updateRect);
-    
+
     return () => {
       observer.disconnect();
       window.removeEventListener('resize', updateRect);
@@ -202,19 +202,19 @@ const RelayPage = () => {
         <div className="flex justify-between items-center">
           <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Relay Room</h3>
           {isCurrentlyLive && (
-          <div className="flex items-center space-x-3">
-            <button 
-              onClick={() => refetchStream()}
-              className="p-2 transition-colors bg-transparent border-none cursor-pointer group"
-              title="Refresh Stream"
-            >
-              <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-brand-accent dark:text-blue-300 transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
-            </button>
-            <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
-              <span className="w-2 h-2 rounded-full bg-white dark:bg-slate-800 animate-pulse mr-2"></span> LIVE NOW
-            </span>
-          </div>
-        )}
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => refetchStream()}
+                className="p-2 transition-colors bg-transparent border-none cursor-pointer group"
+                title="Refresh Stream"
+              >
+                <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-brand-accent dark:text-blue-300 transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+              </button>
+              <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
+                <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
+              </span>
+            </div>
+          )}
         </div>
         <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
@@ -222,7 +222,7 @@ const RelayPage = () => {
       <div className="relative z-10 flex flex-col lg:flex-row gap-6 w-full flex-1 min-w-0">
         {/* Left/Main Column - Video Player */}
         <div className="flex-1 flex flex-col space-y-6">
-          
+
           {/* Server Selection Area - Inline Buttons */}
           {isCurrentlyLive && servers.length > 1 && (
             <div className="flex flex-wrap gap-3 items-center">
@@ -231,11 +231,10 @@ const RelayPage = () => {
                 <button
                   key={idx}
                   onClick={() => handleServerSelect(server)}
-                  className={`btn-primary flex items-center space-x-2 ${
-                    selectedServer?.name === server.name 
-                      ? '!bg-brand-accent !text-white' 
+                  className={`btn-primary flex items-center space-x-2 ${selectedServer?.name === server.name
+                      ? '!bg-brand-accent !text-white'
                       : ''
-                  }`}
+                    }`}
                 >
                   <span>{server.name}</span>
                 </button>
@@ -278,7 +277,7 @@ const RelayPage = () => {
                 </div>
               )}
             </div>
-            
+
             {activeStream?.description && (
               <div className="p-6 bg-white dark:bg-slate-800 dark:bg-slate-900/50">
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed text-sm">
@@ -299,14 +298,14 @@ const RelayPage = () => {
                 Schedule
               </h3>
             </div>
-            
+
             {/* Admin Add Schedule Inline Form */}
             {isAdmin && (
               <form onSubmit={handleAddSchedule} className="p-4 border-b border-slate-100 bg-sky-50 dark:bg-slate-800/30 flex flex-col gap-2">
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Schedule Event Title..." 
+                  <input
+                    type="text"
+                    placeholder="Schedule Event Title..."
                     value={scheduleContent}
                     onChange={(e) => {
                       setScheduleContent(e.target.value);
@@ -362,9 +361,9 @@ const RelayPage = () => {
             {isAdmin && (
               <form onSubmit={handleAddUpdate} className="p-4 border-b border-slate-100 bg-blue-50/30 flex flex-col gap-2">
                 <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Post a live update..." 
+                  <input
+                    type="text"
+                    placeholder="Post a live update..."
                     value={updateContent}
                     onChange={(e) => {
                       setUpdateContent(e.target.value);
@@ -430,7 +429,7 @@ const RelayPage = () => {
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Before you join...</h3>
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium">
-                  Please do not attempt to record this relay using any device. Taking clips, photos, or engaging in any kind of mischief is strictly prohibited. 
+                  Please do not attempt to record this relay using any device. Taking clips, photos, or engaging in any kind of mischief is strictly prohibited.
                   Any violation will result in immediate termination of your access to the relay.
                 </p>
               </div>

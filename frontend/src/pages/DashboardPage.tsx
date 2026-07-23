@@ -90,7 +90,7 @@ const DashboardPage = () => {
 
                 {relay.isLive ? (
                   <div className="absolute bottom-4 left-4 bg-red-600 text-white px-2.5 py-1 rounded text-[10px] font-bold tracking-wider flex items-center shadow-md">
-                    <span className="w-1.5 h-1.5 rounded-full bg-white dark:bg-slate-800 animate-pulse mr-1.5"></span> LIVE
+                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse mr-1.5"></span> LIVE
                   </div>
                 ) : (
                   <div className="absolute bottom-4 left-4 bg-slate-800/70 text-white px-2.5 py-1 rounded text-[10px] font-bold tracking-wider">
