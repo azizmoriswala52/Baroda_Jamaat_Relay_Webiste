@@ -5,6 +5,7 @@ import { Megaphone, Calendar, CheckCircle2, ShieldAlert, RefreshCw, Clock, XCirc
 import { apiClient } from '../api/apiClient';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { useConfirm } from '../contexts/ConfirmContext';
 
 interface Announcement {
   _id: string;
@@ -24,6 +25,7 @@ interface Announcement {
 const AnnouncementsPage = () => {
   useDocumentTitle('Announcements');
   const queryClient = useQueryClient();
+  const confirm = useConfirm();
   const [activeFormId, setActiveFormId] = useState<string | null>(null);
   const [reason, setReason] = useState('');
   const [selectedRsvpOption, setSelectedRsvpOption] = useState<string>('');
@@ -327,7 +329,11 @@ const AnnouncementsPage = () => {
                                 )}
                                 {announcement.responseType === 'APPROVAL' && announcement.userResponseStatus === 'PENDING' && (
                                   <button
-                                    onClick={() => revokeRequestMutation.mutate(announcement._id)}
+                                    onClick={async () => {
+                                      if (await confirm('Are you sure you want to revoke this request?', { confirmText: 'Revoke' })) {
+                                        revokeRequestMutation.mutate(announcement._id);
+                                      }
+                                    }}
                                     disabled={revokeRequestMutation.isPending}
                                     className="px-6 py-2 bg-red-100 text-red-600 font-semibold rounded-lg text-sm shadow-sm hover:bg-red-200 transition-colors disabled:opacity-50"
                                   >

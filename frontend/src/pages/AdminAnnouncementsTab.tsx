@@ -326,6 +326,8 @@ const AdminAnnouncementsTab = () => {
     deadline: ''
   });
 
+  const [initialFormData, setInitialFormData] = useState<any>(null);
+
   const [errors, setErrors] = useState<Record<string, boolean>>({});
 
   const { data: announcements = [], isLoading, refetch, isFetching } = useQuery({
@@ -389,7 +391,7 @@ const AdminAnnouncementsTab = () => {
   });
 
   const handleEdit = (announcement: any) => {
-    setFormData({
+    const data = {
       title: announcement.title,
       content: announcement.content,
       responseType: announcement.responseType,
@@ -397,7 +399,9 @@ const AdminAnnouncementsTab = () => {
       targetParentMohallas: announcement.targetParentMohallas || ['All'],
       targetChildMohallas: announcement.targetChildMohallas || ['All'],
       deadline: announcement.deadline ? new Date(new Date(announcement.deadline).getTime() - (new Date(announcement.deadline).getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''
-    });
+    };
+    setFormData(data);
+    setInitialFormData(data);
     setEditingAnnouncementId(announcement._id);
     setShowForm(true);
     document.getElementById('main-scroll-container')?.scrollTo({ top: 0, behavior: 'smooth' });
@@ -437,8 +441,24 @@ const AdminAnnouncementsTab = () => {
       deadline: formData.responseType !== 'NONE' && formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
     };
 
-    if (editingAnnouncementId) {
-      updateMutation.mutate({ id: editingAnnouncementId, data: payload });
+    if (editingAnnouncementId && initialFormData) {
+      const changedData: any = {};
+      if (formData.title !== initialFormData.title) changedData.title = payload.title;
+      if (formData.content !== initialFormData.content) changedData.content = payload.content;
+      if (formData.responseType !== initialFormData.responseType) changedData.responseType = payload.responseType;
+      if (formData.rsvpOptions !== initialFormData.rsvpOptions) changedData.rsvpOptions = payload.rsvpOptions;
+      if (JSON.stringify(formData.targetParentMohallas) !== JSON.stringify(initialFormData.targetParentMohallas)) changedData.targetParentMohallas = payload.targetParentMohallas;
+      if (JSON.stringify(formData.targetChildMohallas) !== JSON.stringify(initialFormData.targetChildMohallas)) changedData.targetChildMohallas = payload.targetChildMohallas;
+      if (formData.deadline !== initialFormData.deadline) changedData.deadline = payload.deadline;
+
+      if (Object.keys(changedData).length === 0) {
+        toast.success('No changes made');
+        setShowForm(false);
+        setEditingAnnouncementId(null);
+        return;
+      }
+      
+      updateMutation.mutate({ id: editingAnnouncementId, data: changedData });
     } else {
       createMutation.mutate(payload);
     }

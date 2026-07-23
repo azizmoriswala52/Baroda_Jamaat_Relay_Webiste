@@ -43,15 +43,7 @@ const AdminDashboard = () => {
     refetchInterval: 10000,
   });
 
-  const hasApprovalAnnouncement = siteAnnouncements?.some((a: any) => a.isActive && a.responseType === 'APPROVAL');
 
-  React.useEffect(() => {
-    if (hasApprovalAnnouncement && streamFormData.visibility !== 'AS_APPROVED') {
-      setStreamFormData(prev => ({ ...prev, visibility: 'AS_APPROVED' }));
-    } else if (!hasApprovalAnnouncement && streamFormData.visibility === 'AS_APPROVED') {
-      setStreamFormData(prev => ({ ...prev, visibility: 'ADMIN' }));
-    }
-  }, [hasApprovalAnnouncement, streamFormData.visibility]);
 
   const createStreamMutation = useMutation({
     mutationFn: (data: typeof streamFormData & { isLive?: boolean }) => apiClient('/streams', {
@@ -742,13 +734,11 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Visibility</label>
                               <CustomDropdown
-                                options={hasApprovalAnnouncement
-                                  ? [{ label: 'As Approved', value: 'AS_APPROVED' }]
-                                  : [
-                                    { label: 'Admin Only', value: 'ADMIN' },
-                                    { label: 'All Users', value: 'USERS' }
-                                  ]
-                                }
+                                options={[
+                                  { label: 'Admin Only', value: 'ADMIN' },
+                                  { label: 'All Users', value: 'USERS' },
+                                  { label: 'As Approved', value: 'AS_APPROVED' }
+                                ]}
                                 value={streamFormData.visibility}
                                 onChange={(val) => handleStreamChange({ target: { name: 'visibility', value: val } } as any)}
                               />

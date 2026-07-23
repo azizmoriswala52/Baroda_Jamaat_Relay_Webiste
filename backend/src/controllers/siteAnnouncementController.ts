@@ -94,19 +94,9 @@ export const updateAnnouncement = async (req: Request, res: Response) => {
   try {
     if ((req as any).user?.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
     const { id } = req.params;
-    const { title, content, responseType, rsvpOptions, targetParentMohallas, targetChildMohallas, deadline } = req.body;
-    
     const updatedAnnounce = await SiteAnnouncement.findByIdAndUpdate(
       id,
-      { 
-        title, 
-        content, 
-        responseType, 
-        rsvpOptions, 
-        targetParentMohallas: targetParentMohallas || ['All'],
-        targetChildMohallas: targetChildMohallas || ['All'],
-        deadline
-      },
+      { $set: req.body },
       { new: true }
     );
     
