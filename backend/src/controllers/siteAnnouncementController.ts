@@ -47,11 +47,12 @@ export const getAnnouncements = async (req: Request, res: Response) => {
     const responseMap = userResponses.reduce((acc, curr) => {
       acc[curr.announcementId.toString()] = {
         response: curr.response,
+        formData: curr.formData,
         status: curr.status,
         submissionCount: curr.submissionCount
       };
       return acc;
-    }, {} as Record<string, { response: string; status: string; submissionCount: number }>);
+    }, {} as Record<string, { response?: string; formData?: any; status: string; submissionCount: number }>);
 
       const announcementsWithResponse = announcements.map(a => {
         const obj = a.toObject();
@@ -59,6 +60,7 @@ export const getAnnouncements = async (req: Request, res: Response) => {
         return {
           ...obj,
           userResponse: userResp ? userResp.response : null,
+          userFormData: userResp ? userResp.formData : null,
           userResponseStatus: userResp ? userResp.status : null,
           submissionCount: userResp ? userResp.submissionCount : 0
         };
@@ -72,13 +74,14 @@ export const getAnnouncements = async (req: Request, res: Response) => {
 export const createAnnouncement = async (req: Request, res: Response) => {
   try {
     if ((req as any).user?.role !== 'ADMIN') return res.status(403).json({ error: 'Admin only' });
-    const { title, content, responseType, rsvpOptions, targetParentMohallas, targetChildMohallas, deadline } = req.body;
+    const { title, content, responseType, rsvpOptions, targetParentMohallas, targetChildMohallas, deadline, formFields } = req.body;
     
     const newAnnounce = new SiteAnnouncement({ 
       title, 
       content, 
       responseType, 
       rsvpOptions, 
+      formFields,
       targetParentMohallas: targetParentMohallas || ['All'],
       targetChildMohallas: targetChildMohallas || ['All'],
       deadline
@@ -133,7 +136,7 @@ export const deleteAnnouncement = async (req: Request, res: Response) => {
 export const submitResponse = async (req: Request, res: Response) => {
   try {
     const { id } = req.params;
-    const { response } = req.body;
+    const { response, formData } = req.body;
     const userId = (req as any).user?.userId;
 
     if (!userId) return res.status(401).json({ error: 'Unauthorized' });
@@ -157,7 +160,12 @@ export const submitResponse = async (req: Request, res: Response) => {
         return res.status(400).json({ error: 'You have reached the maximum number of approval requests (2).' });
       }
 
-      existing.response = response;
+      if (announcement.responseType === 'FORM' && existing.submissionCount >= 5) {
+        return res.status(400).json({ error: 'You have reached the maximum number of form submissions (5).' });
+      }
+
+      existing.response = response || '';
+      existing.formData = formData;
       if (announcement.responseType === 'APPROVAL') {
         existing.status = 'PENDING';
       }
@@ -167,7 +175,8 @@ export const submitResponse = async (req: Request, res: Response) => {
       await SiteAnnouncementResponse.create({ 
         announcementId: new mongoose.Types.ObjectId(id as string), 
         userId: new mongoose.Types.ObjectId(userId as string), 
-        response,
+        response: response || '',
+        formData,
         submissionCount: 1,
         status: 'PENDING'
       });

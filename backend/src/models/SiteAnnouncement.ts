@@ -5,6 +5,7 @@ export interface ISiteAnnouncement extends Document {
   content: string;
   responseType: string;
   rsvpOptions?: string[];
+  formFields?: any[];
   targetParentMohallas?: string[];
   targetChildMohallas?: string[];
   deadline?: Date;
@@ -15,8 +16,17 @@ export interface ISiteAnnouncement extends Document {
 const SiteAnnouncementSchema: Schema = new Schema({
   title: { type: String, required: true },
   content: { type: String, required: true },
-  responseType: { type: String, enum: ['NONE', 'APPROVAL', 'RSVP'], default: 'APPROVAL' },
+  responseType: { type: String, enum: ['NONE', 'APPROVAL', 'RSVP', 'FORM'], default: 'APPROVAL' },
   rsvpOptions: { type: [String], default: [] },
+  formFields: {
+    type: [{
+      name: { type: String, required: true },
+      type: { type: String, enum: ['text', 'textarea', 'radio', 'checkbox', 'dropdown'], required: true },
+      options: { type: [String], default: [] },
+      required: { type: Boolean, default: false }
+    }],
+    default: []
+  },
   targetParentMohallas: { type: [String], default: ['All'] },
   targetChildMohallas: { type: [String], default: ['All'] },
   deadline: { type: Date },

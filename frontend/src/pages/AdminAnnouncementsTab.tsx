@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { CheckCircle2, Download, Edit2, Eye, Plus, Trash2, X, RefreshCw } from 'lucide-react';
+import { Check, CheckCircle2, Download, Edit2, Eye, Plus, Trash2, X, RefreshCw } from 'lucide-react';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
 import CustomDropdown from '../components/CustomDropdown';
@@ -104,7 +104,7 @@ const ResponseTable = ({
     <div className="clean-panel mt-8">
       <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-between items-center">
         <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
-          {selectedApproval ? 'Approval Request Details' : headerText}
+          {selectedApproval ? (announcement.responseType === 'FORM' ? 'Form Response Details' : 'Approval Request Details') : headerText}
         </h3>
         <div className="flex space-x-2">
           {selectedApproval ? (
@@ -173,48 +173,68 @@ const ResponseTable = ({
                   </div>
 
                   <div className="mb-8">
-                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">Request Reason / Response</span>
+                    <span className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider block mb-2">
+                      {announcement.responseType === 'FORM' ? 'Submitted Form Data' : 'Request Reason / Response'}
+                    </span>
                     <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-xl text-sm text-slate-700 dark:text-slate-200 whitespace-pre-wrap border border-slate-200 dark:border-slate-700 leading-relaxed">
-                      {selectedApproval.response}
+                      {announcement.responseType === 'FORM' ? (
+                        <div className="space-y-4">
+                          {selectedApproval.formData && Object.entries(selectedApproval.formData).map(([key, value]) => (
+                            <div key={key}>
+                              <span className="block font-semibold text-slate-800 dark:text-slate-100 mb-1">{key}</span>
+                              <span className="text-slate-600 dark:text-slate-300">
+                                {Array.isArray(value) ? value.join(', ') : typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value)}
+                              </span>
+                            </div>
+                          ))}
+                          {(!selectedApproval.formData || Object.keys(selectedApproval.formData).length === 0) && (
+                            <span className="text-slate-400 italic">No data submitted.</span>
+                          )}
+                        </div>
+                      ) : (
+                        selectedApproval.response
+                      )}
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
-                    <button
-                      onClick={async () => {
-                        if (await confirm(`Are you sure you want to approve the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Approve Request' })) {
-                          updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'APPROVED' });
-                        }
-                      }}
-                      disabled={updateStatusMutation.isPending || selectedApproval.status === 'APPROVED'}
-                      className="btn-primary px-6 shadow-sm"
-                    >
-                      Approve Request
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (await confirm(`Are you sure you want to mark the request for ${selectedApproval.userId.fullName} as pending?`, { confirmText: 'Mark Pending' })) {
-                          updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'PENDING' });
-                        }
-                      }}
-                      disabled={updateStatusMutation.isPending || selectedApproval.status === 'PENDING'}
-                      className="px-6 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
-                    >
-                      Mark Pending
-                    </button>
-                    <button
-                      onClick={async () => {
-                        if (await confirm(`Are you sure you want to reject the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Not Approve' })) {
-                          updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'REJECTED' });
-                        }
-                      }}
-                      disabled={updateStatusMutation.isPending || selectedApproval.status === 'REJECTED'}
-                      className="px-6 py-2 bg-red-100 text-red-700 hover:bg-red-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
-                    >
-                      Not Approve
-                    </button>
+                    {announcement.responseType === 'APPROVAL' && (
+                      <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+                        <button
+                          onClick={async () => {
+                            if (await confirm(`Are you sure you want to approve the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Approve Request' })) {
+                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'APPROVED' });
+                            }
+                          }}
+                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'APPROVED'}
+                          className="btn-primary px-6 shadow-sm"
+                        >
+                          Approve Request
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (await confirm(`Are you sure you want to mark the request for ${selectedApproval.userId.fullName} as pending?`, { confirmText: 'Mark Pending' })) {
+                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'PENDING' });
+                            }
+                          }}
+                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'PENDING'}
+                          className="px-6 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+                        >
+                          Mark Pending
+                        </button>
+                        <button
+                          onClick={async () => {
+                            if (await confirm(`Are you sure you want to reject the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Not Approve' })) {
+                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'REJECTED' });
+                            }
+                          }}
+                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'REJECTED'}
+                          className="px-6 py-2 bg-red-100 text-red-700 hover:bg-red-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+                        >
+                          Not Approve
+                        </button>
+                      </div>
+                    )}
                   </div>
-                </div>
               </motion.div>
             ) : announcement.responseType === 'RSVP' ? (
               <motion.div key="rsvp-table" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto w-full">
@@ -244,6 +264,43 @@ const ResponseTable = ({
                           </span>
                         </td>
                         <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400">
+                          {new Date(r.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </motion.div>
+            ) : announcement.responseType === 'FORM' ? (
+              <motion.div key="form-table" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto w-full">
+                <table className="w-full text-left text-sm text-slate-600 dark:text-slate-300 relative">
+                  <thead className="bg-slate-50 dark:bg-slate-900/50 text-xs uppercase text-slate-500 dark:text-slate-400 font-semibold border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-6 py-4 whitespace-nowrap">ITS ID</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Name</th>
+                      <th className="px-6 py-4 whitespace-nowrap">Mobile</th>
+                      {announcement.formFields?.map((field: any, idx: number) => (
+                        <th key={idx} className="px-6 py-4 whitespace-nowrap max-w-[200px] truncate" title={field.name}>{field.name}</th>
+                      ))}
+                      <th className="px-6 py-4 whitespace-nowrap">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
+                    {responses.map((r: any) => (
+                      <tr key={r._id} onClick={() => setSelectedApprovalId(r._id)} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 transition-colors cursor-pointer group">
+                        <td className="px-6 py-4 font-mono text-slate-800 dark:text-slate-100 group-hover:text-brand-accent dark:text-blue-300">{r.userId.itsId}</td>
+                        <td className="px-6 py-4 font-medium text-slate-800 dark:text-slate-100">{r.userId.fullName}</td>
+                        <td className="px-6 py-4">{r.userId.mobile}</td>
+                        {announcement.formFields?.map((field: any, idx: number) => {
+                          const val = r.formData ? r.formData[field.name] : null;
+                          const displayVal = val == null ? '-' : Array.isArray(val) ? val.join(', ') : typeof val === 'boolean' ? (val ? 'Yes' : 'No') : String(val);
+                          return (
+                            <td key={idx} className="px-6 py-4 truncate max-w-[200px]" title={displayVal}>
+                              {displayVal}
+                            </td>
+                          );
+                        })}
+                        <td className="px-6 py-4 text-xs text-slate-500 dark:text-slate-400 whitespace-nowrap">
                           {new Date(r.createdAt).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })}
                         </td>
                       </tr>
@@ -316,6 +373,7 @@ const AdminAnnouncementsTab = () => {
     targetParentMohallas: string[];
     targetChildMohallas: string[];
     deadline: string;
+    formFields: { name: string; type: string; options: string; required: boolean }[];
   }>({
     title: '',
     content: '',
@@ -323,7 +381,8 @@ const AdminAnnouncementsTab = () => {
     rsvpOptions: '',
     targetParentMohallas: ['All'],
     targetChildMohallas: ['All'],
-    deadline: ''
+    deadline: '',
+    formFields: []
   });
 
   const [initialFormData, setInitialFormData] = useState<any>(null);
@@ -358,7 +417,7 @@ const AdminAnnouncementsTab = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-announcements'] });
       toast.success('Announcement created successfully');
       setShowForm(false);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '' });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to create announcement')
@@ -384,7 +443,7 @@ const AdminAnnouncementsTab = () => {
       toast.success('Announcement updated successfully');
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '' });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to update announcement')
@@ -398,7 +457,8 @@ const AdminAnnouncementsTab = () => {
       rsvpOptions: announcement.rsvpOptions ? announcement.rsvpOptions.join(', ') : '',
       targetParentMohallas: announcement.targetParentMohallas || ['All'],
       targetChildMohallas: announcement.targetChildMohallas || ['All'],
-      deadline: announcement.deadline ? new Date(new Date(announcement.deadline).getTime() - (new Date(announcement.deadline).getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : ''
+      deadline: announcement.deadline ? new Date(new Date(announcement.deadline).getTime() - (new Date(announcement.deadline).getTimezoneOffset() * 60000)).toISOString().slice(0, 16) : '',
+      formFields: announcement.formFields ? announcement.formFields.map((f: any) => ({ ...f, options: f.options ? f.options.join(', ') : '' })) : []
     };
     setFormData(data);
     setInitialFormData(data);
@@ -415,7 +475,7 @@ const AdminAnnouncementsTab = () => {
       }
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '' });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     } else {
       setShowForm(true);
@@ -428,6 +488,24 @@ const AdminAnnouncementsTab = () => {
     if (!formData.title) newErrors.title = true;
     if (!formData.content) newErrors.content = true;
     if (formData.responseType === 'RSVP' && !formData.rsvpOptions.trim()) newErrors.rsvpOptions = true;
+    if (formData.responseType === 'FORM' && formData.formFields.length === 0) {
+      toast.error('Form must have at least one field');
+      return;
+    }
+    if (formData.responseType === 'FORM') {
+      let hasError = false;
+      formData.formFields.forEach((field, idx) => {
+        if (!field.name.trim()) { newErrors[`field_${idx}_name`] = true; hasError = true; }
+        if (['radio', 'checkbox', 'dropdown'].includes(field.type) && !field.options.trim()) {
+          newErrors[`field_${idx}_options`] = true; hasError = true;
+        }
+      });
+      if (hasError) {
+        setErrors(newErrors);
+        toast.error('Please fill in all required form field details');
+        return;
+      }
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
@@ -438,6 +516,12 @@ const AdminAnnouncementsTab = () => {
     const payload = {
       ...formData,
       rsvpOptions: formData.responseType === 'RSVP' ? formData.rsvpOptions.split(',').map(s => s.trim()).filter(Boolean) : [],
+      formFields: formData.responseType === 'FORM' ? formData.formFields.map(f => ({
+        name: f.name.trim(),
+        type: f.type,
+        required: f.required,
+        options: ['radio', 'checkbox', 'dropdown'].includes(f.type) ? f.options.split(',').map(s => s.trim()).filter(Boolean) : []
+      })) : [],
       deadline: formData.responseType !== 'NONE' && formData.deadline ? new Date(formData.deadline).toISOString() : undefined,
     };
 
@@ -450,6 +534,7 @@ const AdminAnnouncementsTab = () => {
       if (JSON.stringify(formData.targetParentMohallas) !== JSON.stringify(initialFormData.targetParentMohallas)) changedData.targetParentMohallas = payload.targetParentMohallas;
       if (JSON.stringify(formData.targetChildMohallas) !== JSON.stringify(initialFormData.targetChildMohallas)) changedData.targetChildMohallas = payload.targetChildMohallas;
       if (formData.deadline !== initialFormData.deadline) changedData.deadline = payload.deadline;
+      if (formData.responseType === 'FORM' && JSON.stringify(payload.formFields) !== JSON.stringify(initialFormData.formFields)) changedData.formFields = payload.formFields;
 
       if (Object.keys(changedData).length === 0) {
         toast.success('No changes made');
@@ -600,7 +685,8 @@ const AdminAnnouncementsTab = () => {
                     options={[
                       { label: 'None (Info Only)', value: 'NONE' },
                       { label: 'Approval Request', value: 'APPROVAL' },
-                      { label: 'RSVP Confirmation', value: 'RSVP' }
+                      { label: 'RSVP Confirmation', value: 'RSVP' },
+                      { label: 'Custom Form', value: 'FORM' }
                     ]}
                     value={formData.responseType}
                     onChange={(val) => setFormData({ ...formData, responseType: val })}
@@ -691,6 +777,124 @@ const AdminAnnouncementsTab = () => {
                   </motion.div>
                 )}
 
+                {formData.responseType === 'FORM' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: 'auto' }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="max-w-3xl space-y-4"
+                  >
+                    <div className="flex justify-between items-center mb-4">
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Form Fields Builder</label>
+                    </div>
+
+                    {formData.formFields.map((field, index) => (
+                      <div key={index} className="p-4 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700 rounded-lg relative">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            const newFields = [...formData.formFields];
+                            newFields.splice(index, 1);
+                            setFormData({ ...formData, formFields: newFields });
+                          }}
+                          className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
+                          <div className="md:col-span-5">
+                            <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Field Name <span className="text-red-500">*</span></label>
+                            <input
+                              type="text"
+                              value={field.name}
+                              onChange={(e) => {
+                                const newFields = [...formData.formFields];
+                                newFields[index].name = e.target.value;
+                                setFormData({ ...formData, formFields: newFields });
+                                if (errors[`field_${index}_name`]) setErrors(prev => ({ ...prev, [`field_${index}_name`]: false }));
+                              }}
+                              className={`input-field text-sm py-1.5 ${errors[`field_${index}_name`] ? 'border-red-500' : ''}`}
+                              placeholder="e.g. Dietary Requirements"
+                            />
+                          </div>
+                          <div className="md:col-span-4">
+                            <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Field Type</label>
+                            <CustomDropdown
+                              options={[
+                                { label: 'Short Text', value: 'text' },
+                                { label: 'Long Text (Paragraph)', value: 'textarea' },
+                                { label: 'Multiple Choice (Radio)', value: 'radio' },
+                                { label: 'Checkboxes', value: 'checkbox' },
+                                { label: 'Dropdown', value: 'dropdown' }
+                              ]}
+                              value={field.type}
+                              onChange={(val) => {
+                                const newFields = [...formData.formFields];
+                                newFields[index].type = val;
+                                setFormData({ ...formData, formFields: newFields });
+                              }}
+                            />
+                          </div>
+                          <div className="md:col-span-3 flex items-center pt-5">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const newFields = [...formData.formFields];
+                                newFields[index].required = !field.required;
+                                setFormData({ ...formData, formFields: newFields });
+                              }}
+                              className="flex items-center space-x-3 cursor-pointer group focus:outline-none"
+                            >
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
+                                field.required 
+                                  ? 'bg-brand-accent border-brand-accent text-white' 
+                                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
+                              }`}>
+                                {field.required && <Check className="w-3 h-3" />}
+                              </div>
+                              <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">Required Field</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {['radio', 'checkbox', 'dropdown'].includes(field.type) && (
+                          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+                            <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Options (Comma separated) <span className="text-red-500">*</span></label>
+                            <input
+                              type="text"
+                              value={field.options}
+                              onChange={(e) => {
+                                const newFields = [...formData.formFields];
+                                newFields[index].options = e.target.value;
+                                setFormData({ ...formData, formFields: newFields });
+                                if (errors[`field_${index}_options`]) setErrors(prev => ({ ...prev, [`field_${index}_options`]: false }));
+                              }}
+                              className={`input-field text-sm py-1.5 ${errors[`field_${index}_options`] ? 'border-red-500' : ''}`}
+                              placeholder="e.g. Vegetarian, Vegan, Non-Veg"
+                            />
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                    {formData.formFields.length === 0 && (
+                      <div className="text-center p-6 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-dashed border-slate-300 dark:border-slate-700">
+                        <p className="text-sm text-slate-500 dark:text-slate-400">Click "Add Field" to start building your form.</p>
+                      </div>
+                    )}
+                    
+                    <div className="pt-2 flex justify-end">
+                      <button
+                        type="button"
+                        onClick={() => setFormData({ ...formData, formFields: [...formData.formFields, { name: '', type: 'text', options: '', required: false }] })}
+                        className="text-sm font-semibold text-brand-accent dark:text-blue-300 hover:underline flex items-center transition-colors"
+                      >
+                        <Plus className="w-4 h-4 mr-1" /> Add Field
+                      </button>
+                    </div>
+                  </motion.div>
+                )}
+
                 <div className="pt-4 border-t border-slate-100">
                   <button type="submit" disabled={createMutation.isPending || updateMutation.isPending} className="btn-primary px-8">
                     {createMutation.isPending || updateMutation.isPending ? (editingAnnouncementId ? 'Updating...' : 'Publishing...') : (editingAnnouncementId ? 'Update Announcement' : 'Publish Announcement')}
@@ -768,6 +972,11 @@ const AdminAnnouncementsTab = () => {
                         <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
                           <CheckCircle2 className="w-3 h-3 mr-1" />
                           RSVP
+                        </span>
+                      ) : announcement.responseType === 'FORM' ? (
+                        <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
+                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          FORM
                         </span>
                       ) : (
                         <span className="text-slate-400 font-medium">-</span>
