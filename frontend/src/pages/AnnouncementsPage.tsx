@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { motion, AnimatePresence, color } from 'framer-motion';
-import { Check, Megaphone, Calendar, CheckCircle2, ShieldAlert, RefreshCw, Clock, XCircle } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Check, Megaphone, CheckCircle2, ShieldAlert, RefreshCw, Clock, XCircle } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 import { toast } from 'react-hot-toast';
 import CustomDropdown from '../components/CustomDropdown';
@@ -15,7 +15,7 @@ interface Announcement {
   responseType: 'NONE' | 'APPROVAL' | 'RSVP' | 'FORM';
   createdAt: string;
   rsvpOptions?: string[];
-  formFields?: { name: string; type: string; options: string[]; required: boolean }[];
+  formFields?: { name: string; type: string; options: string[] | string; required: boolean }[];
   deadline?: string;
   targetParentMohallas?: string[];
   targetChildMohallas?: string[];
@@ -56,7 +56,7 @@ const AnnouncementsPage = () => {
       setSelectedRsvpOption('');
       setFormDataValues({});
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to submit response');
     },
   });
@@ -70,7 +70,7 @@ const AnnouncementsPage = () => {
       queryClient.invalidateQueries({ queryKey: ['announcements'] });
       toast.success('Your request has been revoked.');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Failed to revoke request');
     },
   });
@@ -234,14 +234,14 @@ const AnnouncementsPage = () => {
                                         {field.type === 'text' && (
                                           <input
                                             type="text"
-                                            value={formDataValues[`${announcement._id}_${idx}`] || ''}
+                                            value={(formDataValues[`${announcement._id}_${idx}`] as string) || ''}
                                             onChange={(e) => setFormDataValues(prev => ({ ...prev, [`${announcement._id}_${idx}`]: e.target.value }))}
                                             className="input-field"
                                           />
                                         )}
                                         {field.type === 'textarea' && (
                                           <textarea
-                                            value={formDataValues[`${announcement._id}_${idx}`] || ''}
+                                            value={(formDataValues[`${announcement._id}_${idx}`] as string) || ''}
                                             onChange={(e) => setFormDataValues(prev => ({ ...prev, [`${announcement._id}_${idx}`]: e.target.value }))}
                                             className="input-field min-h-[80px] resize-y"
                                           />
@@ -249,7 +249,7 @@ const AnnouncementsPage = () => {
                                         {field.type === 'dropdown' && (
                                           <CustomDropdown
                                             options={(typeof field.options === 'string' ? field.options.split(',').map(o => o.trim()).filter(Boolean) : (Array.isArray(field.options) ? field.options : [])).map((opt) => ({ label: opt, value: opt }))}
-                                            value={formDataValues[`${announcement._id}_${idx}`] || ''}
+                                            value={(formDataValues[`${announcement._id}_${idx}`] as string) || ''}
                                             onChange={(val) => setFormDataValues(prev => ({ ...prev, [`${announcement._id}_${idx}`]: val }))}
                                           />
                                         )}
@@ -274,7 +274,7 @@ const AnnouncementsPage = () => {
                                         {field.type === 'checkbox' && (
                                           <div className="space-y-2">
                                             {(typeof field.options === 'string' ? field.options.split(',').map(o => o.trim()).filter(Boolean) : (Array.isArray(field.options) ? field.options : [])).map((opt, i) => {
-                                              const currentValues = formDataValues[`${announcement._id}_${idx}`] || [];
+                                              const currentValues = (formDataValues[`${announcement._id}_${idx}`] as string[]) || [];
                                               return (
                                                 <label key={i} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors ${currentValues.includes(opt) ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`}>
                                                   <div 
@@ -282,7 +282,7 @@ const AnnouncementsPage = () => {
                                                     onClick={() => {
                                                       const isChecked = !currentValues.includes(opt);
                                                       setFormDataValues(prev => {
-                                                        const prevVals = prev[`${announcement._id}_${idx}`] || [];
+                                                        const prevVals = (prev[`${announcement._id}_${idx}`] as string[]) || [];
                                                         return {
                                                           ...prev,
                                                           [`${announcement._id}_${idx}`]: isChecked ? [...prevVals, opt] : prevVals.filter((v: string) => v !== opt)
@@ -403,7 +403,7 @@ const AnnouncementsPage = () => {
                                   <input
                                     type="text"
                                     readOnly
-                                    value={announcement.userResponse}
+                                    value={announcement.userResponse || ''}
                                     className="input-field bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300"
                                   />
                                 </div>
