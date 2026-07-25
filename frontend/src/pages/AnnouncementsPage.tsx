@@ -494,7 +494,7 @@ const AnnouncementsPage = () => {
                               <div className="flex items-center justify-between">
                                 <div className="mb-4 sm:mb-0 opacity-60">
                                   <h4 className="text-sm font-bold text-slate-500 dark:text-slate-400">
-                                    {announcement.responseType === 'APPROVAL' ? 'Approval Required' : 'RSVP Required'}
+                                    {announcement.responseType === 'APPROVAL' ? 'Approval Required' : announcement.responseType === 'FORM' ? 'Form Submission Required' : 'RSVP Required'}
                                   </h4>
                                   <p className="text-xs text-slate-400 mt-1">This form is no longer accepting responses.</p>
                                 </div>
@@ -506,7 +506,7 @@ const AnnouncementsPage = () => {
                               <div className="flex flex-col sm:flex-row sm:items-center justify-between">
                                 <div className="mb-4 sm:mb-0">
                                   <h4 className="text-sm font-bold text-brand-accent dark:text-blue-300">
-                                    {announcement.responseType === 'APPROVAL' ? 'Approval Required' : 'RSVP Required'}
+                                    {announcement.responseType === 'APPROVAL' ? 'Approval Required' : announcement.responseType === 'FORM' ? 'Form Submission Required' : 'RSVP Required'}
                                   </h4>
                                   <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Please submit your response to proceed.</p>
                                 </div>
@@ -518,7 +518,7 @@ const AnnouncementsPage = () => {
                                   }}
                                   className="btn-primary px-6 py-2 shadow-sm whitespace-nowrap"
                                 >
-                                  {announcement.responseType === 'APPROVAL' ? 'Request Approval' : 'RSVP Now'}
+                                  {announcement.responseType === 'APPROVAL' ? 'Request Approval' : announcement.responseType === 'FORM' ? 'Fill Form' : 'RSVP Now'}
                                 </button>
                               </div>
                             )}

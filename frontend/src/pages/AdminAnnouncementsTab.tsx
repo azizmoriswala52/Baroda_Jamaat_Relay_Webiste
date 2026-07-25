@@ -16,7 +16,7 @@ const ResponseTable = ({
 }: {
   announcement: any;
   getMohallaString: (m: string) => string;
-  handleDownloadCsv: (id: string, title: string) => void;
+  handleDownloadCsv: (announcement: any) => void;
   setSelectedAnnouncement: (a: any) => void;
 }) => {
   const queryClient = useQueryClient();
@@ -117,7 +117,7 @@ const ResponseTable = ({
           ) : (
             <div className="flex space-x-2">
               <button
-                onClick={() => handleDownloadCsv(announcement._id, announcement.title)}
+                onClick={() => handleDownloadCsv(announcement)}
                 className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50"
               >
                 <Download className="w-4 h-4 mr-1.5" /> Download CSV
@@ -197,44 +197,44 @@ const ResponseTable = ({
                     </div>
                   </div>
 
-                    {announcement.responseType === 'APPROVAL' && (
-                      <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
-                        <button
-                          onClick={async () => {
-                            if (await confirm(`Are you sure you want to approve the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Approve Request' })) {
-                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'APPROVED' });
-                            }
-                          }}
-                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'APPROVED'}
-                          className="btn-primary px-6 shadow-sm"
-                        >
-                          Approve Request
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (await confirm(`Are you sure you want to mark the request for ${selectedApproval.userId.fullName} as pending?`, { confirmText: 'Mark Pending' })) {
-                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'PENDING' });
-                            }
-                          }}
-                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'PENDING'}
-                          className="px-6 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
-                        >
-                          Mark Pending
-                        </button>
-                        <button
-                          onClick={async () => {
-                            if (await confirm(`Are you sure you want to reject the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Not Approve' })) {
-                              updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'REJECTED' });
-                            }
-                          }}
-                          disabled={updateStatusMutation.isPending || selectedApproval.status === 'REJECTED'}
-                          className="px-6 py-2 bg-red-100 text-red-700 hover:bg-red-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
-                        >
-                          Not Approve
-                        </button>
-                      </div>
-                    )}
-                  </div>
+                  {announcement.responseType === 'APPROVAL' && (
+                    <div className="flex flex-wrap items-center gap-3 pt-6 border-t border-slate-200 dark:border-slate-700">
+                      <button
+                        onClick={async () => {
+                          if (await confirm(`Are you sure you want to approve the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Approve Request' })) {
+                            updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'APPROVED' });
+                          }
+                        }}
+                        disabled={updateStatusMutation.isPending || selectedApproval.status === 'APPROVED'}
+                        className="btn-primary px-6 shadow-sm"
+                      >
+                        Approve Request
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (await confirm(`Are you sure you want to mark the request for ${selectedApproval.userId.fullName} as pending?`, { confirmText: 'Mark Pending' })) {
+                            updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'PENDING' });
+                          }
+                        }}
+                        disabled={updateStatusMutation.isPending || selectedApproval.status === 'PENDING'}
+                        className="px-6 py-2 bg-amber-100 text-amber-700 hover:bg-amber-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+                      >
+                        Mark Pending
+                      </button>
+                      <button
+                        onClick={async () => {
+                          if (await confirm(`Are you sure you want to reject the request for ${selectedApproval.userId.fullName}?`, { confirmText: 'Not Approve' })) {
+                            updateStatusMutation.mutate({ responseId: selectedApproval._id, status: 'REJECTED' });
+                          }
+                        }}
+                        disabled={updateStatusMutation.isPending || selectedApproval.status === 'REJECTED'}
+                        className="px-6 py-2 bg-red-100 text-red-700 hover:bg-red-200 font-medium rounded-lg text-sm transition-colors disabled:opacity-50"
+                      >
+                        Not Approve
+                      </button>
+                    </div>
+                  )}
+                </div>
               </motion.div>
             ) : announcement.responseType === 'RSVP' ? (
               <motion.div key="rsvp-table" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="overflow-x-auto w-full">
@@ -507,9 +507,21 @@ const AdminAnnouncementsTab = () => {
       }
     }
 
+    if (formData.responseType !== 'NONE' && formData.deadline) {
+      const minDeadline = new Date();
+      minDeadline.setMinutes(minDeadline.getMinutes() + 1);
+      if (new Date(formData.deadline) < minDeadline) {
+        newErrors.deadline = true;
+      }
+    }
+
     if (Object.keys(newErrors).length > 0) {
-      setErrors(newErrors);
-      toast.error('Please fill in all required fields');
+      setErrors({}); // Clear errors momentarily to force CSS animation restart
+      setTimeout(() => {
+        setErrors(newErrors);
+      }, 10);
+      
+      toast.error('Please fix the errors in the form');
       return;
     }
 
@@ -542,38 +554,65 @@ const AdminAnnouncementsTab = () => {
         setEditingAnnouncementId(null);
         return;
       }
-      
+
       updateMutation.mutate({ id: editingAnnouncementId, data: changedData });
     } else {
       createMutation.mutate(payload);
     }
   };
 
-  const handleDownloadCsv = async (announcementId: string, title: string) => {
+  const handleDownloadCsv = async (announcement: any) => {
     try {
-      const responses = await apiClient(`/site-announcements/${announcementId}/responses`);
+      const responses = await apiClient(`/site-announcements/${announcement._id}/responses`);
       if (responses.length === 0) return toast.error('No responses to download');
 
-      const headers = ['ITS ID', 'Name', 'Mobile', 'Jamaat', 'Mohallah', 'Response', 'Date'];
-      const rows = responses.map((r: any) => [
-        r.userId.itsId,
-        r.userId.fullName,
-        `${r.userId.mobile}`,
-        r.userId.jamaatName,
-        getMohallaString(r.userId.mohalla || 'Burhani'),
-        r.response,
-        new Date(r.createdAt).toLocaleString('en-US')
-      ]);
+      const isForm = announcement.responseType === 'FORM';
+      const formFields = isForm ? announcement.formFields || [] : [];
+
+      const headers = ['ITS ID', 'Name', 'Mobile', 'Mohallah'];
+      if (isForm) {
+        formFields.forEach((f: any) => headers.push(f.name));
+      } else {
+        headers.push('Response');
+      }
+      headers.push('Date');
+
+      const rows = responses.map((r: any) => {
+        const row = [
+          r.userId.itsId,
+          r.userId.fullName,
+          `'${r.userId.mobile}`, // Prepend single quote for Excel formatting
+          getMohallaString(r.userId.mohalla || 'Burhani')
+        ];
+
+        if (isForm) {
+          formFields.forEach((f: any) => {
+            const val = r.formData ? r.formData[f.name] : '';
+            if (Array.isArray(val)) {
+              row.push(val.join(', '));
+            } else if (typeof val === 'boolean') {
+              row.push(val ? 'Yes' : 'No');
+            } else {
+              row.push(val || '');
+            }
+          });
+        } else {
+          row.push(r.response || '');
+        }
+
+        row.push(new Date(r.createdAt).toLocaleString('en-US'));
+        return row;
+      });
 
       const csvContent = [
         headers.join(','),
-        ...rows.map((r: any) => r.map((c: any) => `"${c}"`).join(','))
+        ...rows.map((r: any) => r.map((c: any) => `"${String(c).replace(/"/g, '""')}"`).join(','))
       ].join('\n');
 
       const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
       const link = document.createElement('a');
       link.href = URL.createObjectURL(blob);
-      link.download = `Responses_${title.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`;
+      link.download = `Responses_${announcement.title.replace(/\s+/g, '_')}_${new Date().toISOString().slice(0, 10).replace(/-/g, '')}.csv`;
       link.click();
     } catch (err) {
       toast.error('Failed to download CSV');
@@ -587,7 +626,7 @@ const AdminAnnouncementsTab = () => {
         <div className="flex justify-between items-start w-full md:w-auto">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight mb-2 text-brand-accent dark:text-blue-300">Announcements Management</h2>
-            <p className="text-slate-500 dark:text-slate-400 text-sm">Create announcements and track user RSVP responses.</p>
+            <p className="text-slate-500 dark:text-slate-400 text-sm">Create announcements and track user's responses.</p>
           </div>
           <button
             onClick={() => refetch()}
@@ -698,11 +737,19 @@ const AdminAnnouncementsTab = () => {
                     <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Response Deadline (Optional)</label>
                     <input
                       type="datetime-local"
-                      min={new Date().toISOString().slice(0, 16)}
+                      min={(() => {
+                        const now = new Date();
+                        now.setMinutes(now.getMinutes() + 1);
+                        return new Date(now.getTime() - now.getTimezoneOffset() * 60000).toISOString().slice(0, 16);
+                      })()}
                       value={formData.deadline}
-                      onChange={(e) => setFormData({ ...formData, deadline: e.target.value })}
-                      className="input-field"
+                      onChange={(e) => {
+                        setFormData({ ...formData, deadline: e.target.value });
+                        if (errors.deadline) setErrors(prev => ({ ...prev, deadline: false }));
+                      }}
+                      className={`input-field ${errors.deadline ? 'border-red-500 animate-gentle-shake focus:border-red-500 focus:ring-red-200' : ''}`}
                     />
+                    {errors.deadline && <p className="text-red-500 text-xs px-1 mt-1">Deadline must be at least 1 minute ahead of the current time.</p>}
                     <p className="text-xs text-slate-400 mt-1">If set, responses will not be accepted after this time.</p>
                   </div>
                 )}
@@ -801,7 +848,7 @@ const AdminAnnouncementsTab = () => {
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
-                        
+
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
                           <div className="md:col-span-5">
                             <label className="block text-[10px] font-semibold text-slate-500 dark:text-slate-400 mb-1 uppercase tracking-wider">Field Name <span className="text-red-500">*</span></label>
@@ -846,11 +893,10 @@ const AdminAnnouncementsTab = () => {
                               }}
                               className="flex items-center space-x-3 cursor-pointer group focus:outline-none"
                             >
-                              <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
-                                field.required 
-                                  ? 'bg-brand-accent border-brand-accent text-white' 
-                                  : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
-                              }`}>
+                              <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${field.required
+                                ? 'bg-brand-accent border-brand-accent text-white'
+                                : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
+                                }`}>
                                 {field.required && <Check className="w-3 h-3" />}
                               </div>
                               <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">Required Field</span>
@@ -882,7 +928,7 @@ const AdminAnnouncementsTab = () => {
                         <p className="text-sm text-slate-500 dark:text-slate-400">Click "Add Field" to start building your form.</p>
                       </div>
                     )}
-                    
+
                     <div className="pt-2 flex justify-end">
                       <button
                         type="button"
