@@ -1403,7 +1403,7 @@ const AdminDashboard = () => {
                             </td>
                             <td className="px-4 py-4">
                               {user.sessionStatus === 'inUse' ? (
-                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-200">
+                                <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs font-semibold bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800/50">
                                   <span className="w-2 h-2 rounded-full bg-blue-500 mr-1.5 animate-pulse"></span>
                                   In Use
                                 </span>
@@ -1429,7 +1429,7 @@ const AdminDashboard = () => {
                                 <>
                                   <div className="text-xs text-slate-800 dark:text-slate-100">{new Date(user.lastLogin).toLocaleDateString()} {new Date(user.lastLogin).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</div>
                                   {user.sessionStatus === 'inUse' && user.sessionDuration !== null && (
-                                    <div className="text-xs text-blue-600 font-medium mt-0.5">({user.sessionDuration} mins)</div>
+                                    <div className="text-xs text-blue-600 dark:text-blue-400 font-medium mt-0.5">({user.sessionDuration} mins)</div>
                                   )}
                                 </>
                               ) : (
@@ -1475,7 +1475,7 @@ const AdminDashboard = () => {
                   </div>
                   <div className="bg-slate-50 dark:bg-slate-900/50 border-t border-slate-200 dark:border-slate-700 px-6 py-4 flex justify-between items-center text-sm shrink-0">
                     <div className="text-slate-600 dark:text-slate-300 dark:text-slate-200 font-medium">Total Members: <span className="text-slate-900 dark:text-slate-50 font-bold ml-1">{totalMembers}</span></div>
-                    <div className="text-blue-600 font-medium">{sessionsInUse === 1 ? "Session" : "Sessions"} In Use: {sessionsInUse} </div>
+                    <div className="text-blue-600 dark:text-blue-400 font-medium">{sessionsInUse === 1 ? "Session" : "Sessions"} In Use: {sessionsInUse} </div>
                   </div>
                 </div>
               </div>

@@ -31,7 +31,7 @@ const DashboardPage = () => {
           <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Available Relays</h3>
           <button
             onClick={() => refetch()}
-            className="p-2 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700 rounded-lg transition-colors flex items-center text-sm font-medium text-slate-600 dark:text-slate-300"
+            className="p-2 transition-colors flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-accent dark:text-blue-300 bg-transparent border-none cursor-pointer"
             title="Refresh Relays"
           >
             <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
