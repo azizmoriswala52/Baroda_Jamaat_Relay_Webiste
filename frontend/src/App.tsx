@@ -11,6 +11,8 @@ import DashboardPage from './pages/DashboardPage';
 import HomePage from './pages/HomePage';
 import AnnouncementsPage from './pages/AnnouncementsPage';
 import HelpSupportPage from './pages/HelpSupportPage';
+import PrivacyPolicyPage from './pages/PrivacyPolicyPage';
+import TermsConditionsPage from './pages/TermsConditionsPage';
 import Layout from './components/Layout';
 
 import { ConfirmProvider } from './contexts/ConfirmContext';
@@ -112,6 +114,8 @@ function App() {
           <Route path="/relay" element={<ProtectedRoute><Layout><RelayPage /></Layout></ProtectedRoute>} />
           <Route path="/profile" element={<ProtectedRoute><Layout><ProfilePage /></Layout></ProtectedRoute>} />
           <Route path="/support" element={<ProtectedRoute><Layout><HelpSupportPage /></Layout></ProtectedRoute>} />
+          <Route path="/privacy-policy" element={<ProtectedRoute><Layout><PrivacyPolicyPage /></Layout></ProtectedRoute>} />
+          <Route path="/terms-and-conditions" element={<ProtectedRoute><Layout><TermsConditionsPage /></Layout></ProtectedRoute>} />
           
           {/* Admin Routes inside Global Layout */}
           <Route path="/admin" element={<ProtectedRoute requireAdmin={true}><Layout><AdminDashboard /></Layout></ProtectedRoute>} />

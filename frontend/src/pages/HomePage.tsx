@@ -1,11 +1,31 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
+import { Radio, BellRing, UserCircle } from 'lucide-react';
 
 const HomePage = () => {
   const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : { fullName: 'User', jamaatName: '' };
-  useDocumentTitle('Dashboard');
+  useDocumentTitle('Home');
+
+  const features = [
+    {
+      icon: <Radio className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      title: 'Spiritual Connection',
+      description: 'Participate in live spiritual sessions and access our archive of essential community recordings.'
+    },
+    {
+      icon: <BellRing className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      title: 'Community Updates',
+      description: 'Stay informed with the latest news, schedules, and important announcements from the jamaat.'
+    },
+    {
+      icon: <UserCircle className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      title: 'Active Engagement',
+      description: 'A secure and authenticated space to connect with the community and participate in events.'
+    }
+  ];
 
   return (
     <div className="flex flex-col space-y-8">
@@ -33,50 +53,56 @@ const HomePage = () => {
           <div className="w-32 h-10 bg-[url('https://upload.wikimedia.org/wikipedia/commons/thumb/6/69/Bismillah_Calligraphy.svg/1024px-Bismillah_Calligraphy.svg.png')] bg-contain bg-center bg-no-repeat mx-auto mb-6 opacity-90" style={{ filter: 'invert(1) brightness(2)' }}></div>
           <h1 className="text-4xl md:text-5xl font-bold mb-4 tracking-tight">Ahlan wa Sahlan</h1>
           <p className="text-lg md:text-xl text-slate-200 font-light leading-relaxed">
-            Welcome to the official digital portal for Burhani Mohalla, Baroda Jamaat. Stay connected with our community through live spiritual sessions and recordings.
+            Welcome to the official digital portal for Burhani Mohalla, Baroda Jamaat. A unified platform for our community to connect, grow, and thrive together.
           </p>
         </div>
       </motion.div>
 
-      {/* Information Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      {/* Information & Features */}
+      <div className="space-y-6">
         <motion.div 
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.1 }}
           className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
         >
-          <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">About Our Jamaat</h2>
-          <p className="text-slate-600 dark:text-slate-300 leading-relaxed mb-4">
-            Burhani Mohalla, Baroda is a vibrant and deeply rooted community. This portal has been designed to ensure that every member, regardless of where they are, can actively participate in our spiritual and cultural gatherings.
-          </p>
-          <p className="text-slate-600 dark:text-slate-300 leading-relaxed">
-            We provide high-quality live relays and an archive of essential sessions. To access these broadcasts, please navigate to the <strong>Dashboard</strong> using the menu on your left.
-          </p>
+          <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">About Our Portal</h2>
+          <div className="space-y-4 text-slate-600 dark:text-slate-300 leading-relaxed text-lg">
+            <p>
+              The Baroda Jamaat digital portal is a dedicated, secure platform meticulously designed to streamline community engagement and keep members seamlessly connected with Burhani Mohalla. As our community grows and evolves, so too do our digital needs. This portal centralizes all essential jamaat services, ensuring that whether you are at home or traveling, you remain closely tied to the heart of our community.
+            </p>
+            <p>
+              <strong>Spiritual Relays & Archives:</strong> We provide high-quality, multi-server redundant streaming for uninterrupted viewing of Majalis, Waaz, and other spiritual gatherings. Additionally, our rich archive allows you to revisit important recordings at your convenience.
+            </p>
+            <p>
+              <strong>Targeted Communications & Administration:</strong> Stay instantly informed with targeted announcements tailored specifically to your demographics and mohalla. The portal also dramatically simplifies our internal community management processes, ensuring smooth, efficient, and highly secure administration for all members.
+            </p>
+            <p className="pt-4 text-sm text-slate-500 dark:text-slate-400">
+              For more information on how we handle your data and your rights as a user, please review our <Link to="/privacy-policy" className="text-brand-accent dark:text-blue-300 hover:underline">Privacy Policy</Link> and <Link to="/terms-and-conditions" className="text-brand-accent dark:text-blue-300 hover:underline">Terms & Conditions</Link>.
+            </p>
+          </div>
         </motion.div>
 
-        <motion.div 
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.2 }}
-          className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
-        >
-          <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">Live Portal Features</h2>
-          <ul className="space-y-4">
-            <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">1</div>
-              <p className="text-slate-600 dark:text-slate-300"><strong>Real-time Streaming:</strong> Watch live relay broadcasts with multi-server support for uninterrupted viewing.</p>
-            </li>
-            <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">2</div>
-              <p className="text-slate-600 dark:text-slate-300"><strong>Announcements:</strong> Receive instant updates and schedules directly within the streaming room.</p>
-            </li>
-            <li className="flex items-start">
-              <div className="w-6 h-6 rounded-full bg-brand-accent/10 dark:bg-brand-accent/20 flex items-center justify-center text-brand-accent dark:text-blue-300 font-bold text-sm mt-0.5 mr-3 shrink-0">3</div>
-              <p className="text-slate-600 dark:text-slate-300"><strong>Secure Access:</strong> Authenticated access ensures that our community content remains private and secure.</p>
-            </li>
-          </ul>
-        </motion.div>
+        <h2 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4 mt-8 tracking-tight">Portal Features</h2>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {features.map((feature, idx) => (
+            <motion.div 
+              key={idx}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.1 + (idx * 0.1) }}
+              className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:border-brand-accent/30 dark:hover:border-blue-400/30 transition-colors"
+            >
+              <div className="mb-4">
+                {feature.icon}
+              </div>
+              <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-2">{feature.title}</h3>
+              <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                {feature.description}
+              </p>
+            </motion.div>
+          ))}
+        </div>
       </div>
     </div>
   );

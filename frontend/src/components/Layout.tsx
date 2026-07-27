@@ -445,7 +445,12 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
           
           {/* Global Footer */}
           <footer className="mt-auto border-t border-slate-200 dark:border-slate-700 dark:border-slate-800 py-6 bg-[#f8f9fa] dark:bg-slate-900">
-            <div className="max-w-[1600px] mx-auto px-6 text-center text-slate-500 dark:text-slate-400 text-xs">
+            <div className="max-w-[1600px] mx-auto px-6 text-center text-slate-500 dark:text-slate-400 text-xs flex flex-col items-center justify-center space-y-2">
+              <div className="flex space-x-4 mb-1">
+                <Link to="/privacy-policy" className="hover:text-brand-accent dark:hover:text-blue-300 transition-colors">Privacy Policy</Link>
+                <span>|</span>
+                <Link to="/terms-and-conditions" className="hover:text-brand-accent dark:hover:text-blue-300 transition-colors">Terms & Conditions</Link>
+              </div>
               <p>2026 Copyright © Burhani Mohalla - Baroda. All rights reserved.</p>
             </div>
           </footer>
