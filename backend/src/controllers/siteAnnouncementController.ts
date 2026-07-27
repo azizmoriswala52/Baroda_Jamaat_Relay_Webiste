@@ -100,7 +100,7 @@ export const updateAnnouncement = async (req: Request, res: Response) => {
     const updatedAnnounce = await SiteAnnouncement.findByIdAndUpdate(
       id,
       { $set: req.body },
-      { new: true }
+      { returnDocument: 'after' }
     );
     
     if (!updatedAnnounce) {
@@ -213,7 +213,7 @@ export const updateResponseStatus = async (req: Request, res: Response) => {
     const response = await SiteAnnouncementResponse.findOneAndUpdate(
       { _id: responseId, announcementId: id },
       { status },
-      { new: true }
+      { returnDocument: 'after' }
     );
 
     if (!response) {

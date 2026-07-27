@@ -67,7 +67,7 @@ export const updateMohalla = async (req: Request, res: Response) => {
     const updatedMohalla = await Mohalla.findByIdAndUpdate(
       id,
       { name: formattedName, parentMohalla: parentMohalla || '' },
-      { new: true }
+      { returnDocument: 'after' }
     );
     
     if (!updatedMohalla) {

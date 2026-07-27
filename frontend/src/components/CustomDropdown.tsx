@@ -13,9 +13,10 @@ interface CustomDropdownProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
+  error?: boolean;
 }
 
-const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange, placeholder = 'Select an option', className = '' }) => {
+const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChange, placeholder = 'Select an option', className = '', error = false }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -105,7 +106,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between input-field bg-white dark:bg-slate-800 text-left focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent transition-all duration-200"
+        className={`w-full flex items-center justify-between input-field bg-white dark:bg-slate-800 text-left focus:outline-none focus:ring-2 focus:ring-brand-accent/30 focus:border-brand-accent transition-all duration-200 ${error ? 'border-red-500 animate-gentle-shake focus:border-red-500 focus:ring-red-200' : ''}`}
       >
         <span className={selectedOption ? 'text-slate-900 dark:text-slate-50' : 'text-slate-400'}>
           {selectedOption ? selectedOption.label : placeholder}

@@ -194,18 +194,18 @@ const AnnouncementsPage = () => {
                                     <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Will Attend <span className="text-red-500">*</span></label>
                                     <div className="space-y-2">
                                       {announcement.rsvpOptions.map((opt: string, idx: number) => (
-                                        <label key={idx} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors ${selectedRsvpOption === opt ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`}>
-                                            <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setSelectedRsvpOption(opt)}>
+                                        <div key={idx} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors group ${selectedRsvpOption === opt ? 'border-brand-accent dark:border-blue-400 bg-brand-accent/5 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`} onClick={() => setSelectedRsvpOption(opt)}>
+                                            <div className="flex items-center space-x-3 w-full">
                                               <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
                                                 selectedRsvpOption === opt 
-                                                  ? 'border-brand-accent text-brand-accent bg-brand-accent/10' 
+                                                  ? 'border-brand-accent dark:border-blue-400 text-brand-accent dark:text-blue-400 bg-brand-accent/10 dark:bg-blue-400/20' 
                                                   : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
                                               }`}>
-                                                {selectedRsvpOption === opt && <div className="w-2 h-2 rounded-full bg-brand-accent" />}
+                                                {selectedRsvpOption === opt && <div className="w-2 h-2 rounded-full bg-brand-accent dark:bg-blue-400" />}
                                               </div>
-                                              <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">{opt}</span>
+                                              <span className={`text-sm font-medium ${selectedRsvpOption === opt ? 'text-brand-accent dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>{opt}</span>
                                             </div>
-                                        </label>
+                                        </div>
                                       ))}
                                     </div>
                                   </div>
@@ -256,18 +256,18 @@ const AnnouncementsPage = () => {
                                         {field.type === 'radio' && (
                                           <div className="space-y-2">
                                             {(typeof field.options === 'string' ? field.options.split(',').map(o => o.trim()).filter(Boolean) : (Array.isArray(field.options) ? field.options : [])).map((opt, i) => (
-                                              <label key={i} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors ${formDataValues[`${announcement._id}_${idx}`] === opt ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`}>
-                                                <div className="flex items-center space-x-3 cursor-pointer group" onClick={() => setFormDataValues(prev => ({ ...prev, [`${announcement._id}_${idx}`]: opt }))}>
+                                              <div key={i} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors group ${formDataValues[`${announcement._id}_${idx}`] === opt ? 'border-brand-accent dark:border-blue-400 bg-brand-accent/5 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`} onClick={() => setFormDataValues(prev => ({ ...prev, [`${announcement._id}_${idx}`]: opt }))}>
+                                                <div className="flex items-center space-x-3 w-full">
                                                   <div className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
                                                     formDataValues[`${announcement._id}_${idx}`] === opt 
-                                                      ? 'border-brand-accent text-brand-accent bg-brand-accent/10' 
+                                                      ? 'border-brand-accent dark:border-blue-400 text-brand-accent dark:text-blue-400 bg-brand-accent/10 dark:bg-blue-400/20' 
                                                       : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
                                                   }`}>
-                                                    {formDataValues[`${announcement._id}_${idx}`] === opt && <div className="w-2 h-2 rounded-full bg-brand-accent" />}
+                                                    {formDataValues[`${announcement._id}_${idx}`] === opt && <div className="w-2 h-2 rounded-full bg-brand-accent dark:bg-blue-400" />}
                                                   </div>
-                                                  <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">{opt}</span>
+                                                  <span className={`text-sm font-medium ${formDataValues[`${announcement._id}_${idx}`] === opt ? 'text-brand-accent dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>{opt}</span>
                                                 </div>
-                                              </label>
+                                              </div>
                                             ))}
                                           </div>
                                         )}
@@ -276,30 +276,31 @@ const AnnouncementsPage = () => {
                                             {(typeof field.options === 'string' ? field.options.split(',').map(o => o.trim()).filter(Boolean) : (Array.isArray(field.options) ? field.options : [])).map((opt, i) => {
                                               const currentValues = (formDataValues[`${announcement._id}_${idx}`] as string[]) || [];
                                               return (
-                                                <label key={i} className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors ${currentValues.includes(opt) ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`}>
-                                                  <div 
-                                                    className="flex items-center space-x-3 cursor-pointer group" 
-                                                    onClick={() => {
-                                                      const isChecked = !currentValues.includes(opt);
-                                                      setFormDataValues(prev => {
-                                                        const prevVals = (prev[`${announcement._id}_${idx}`] as string[]) || [];
-                                                        return {
-                                                          ...prev,
-                                                          [`${announcement._id}_${idx}`]: isChecked ? [...prevVals, opt] : prevVals.filter((v: string) => v !== opt)
-                                                        };
-                                                      });
-                                                    }}
-                                                  >
+                                                <div 
+                                                  key={i} 
+                                                  className={`flex items-start p-3 border rounded-lg cursor-pointer transition-colors group ${currentValues.includes(opt) ? 'border-brand-accent dark:border-blue-400 bg-brand-accent/5 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-700 hover:border-slate-300 dark:border-slate-600'}`}
+                                                  onClick={() => {
+                                                    const isChecked = !currentValues.includes(opt);
+                                                    setFormDataValues(prev => {
+                                                      const prevVals = (prev[`${announcement._id}_${idx}`] as string[]) || [];
+                                                      return {
+                                                        ...prev,
+                                                        [`${announcement._id}_${idx}`]: isChecked ? [...prevVals, opt] : prevVals.filter((v: string) => v !== opt)
+                                                      };
+                                                    });
+                                                  }}
+                                                >
+                                                  <div className="flex items-center space-x-3 w-full">
                                                     <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${
                                                       currentValues.includes(opt) 
-                                                        ? 'bg-brand-accent border-brand-accent text-white' 
+                                                        ? 'bg-brand-accent border-brand-accent dark:bg-blue-500 dark:border-blue-500 text-white' 
                                                         : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
                                                     }`}>
                                                       {currentValues.includes(opt) && <Check className="w-3 h-3" />}
                                                     </div>
-                                                    <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">{opt}</span>
+                                                    <span className={`text-sm font-medium ${currentValues.includes(opt) ? 'text-brand-accent dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>{opt}</span>
                                                   </div>
-                                                </label>
+                                                </div>
                                               );
                                             })}
                                           </div>
@@ -379,7 +380,7 @@ const AnnouncementsPage = () => {
                                   <label className="block text-xs font-semibold text-slate-500 dark:text-slate-300 mb-2 uppercase tracking-wide">Selected RSVP Option</label>
                                   <div className="space-y-2">
                                     {announcement.rsvpOptions.map((opt: string, idx: number) => (
-                                      <label key={idx} className={`flex items-start p-3 border rounded-lg ${announcement.userResponse === opt ? 'border-brand-accent bg-brand-accent/5' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
+                                      <label key={idx} className={`flex items-start p-3 border rounded-lg ${announcement.userResponse === opt ? 'border-brand-accent dark:border-blue-400 bg-brand-accent/5 dark:bg-blue-500/10' : 'border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800'}`}>
                                         <div className="flex items-center h-5">
                                           <input
                                             type="radio"
@@ -388,7 +389,7 @@ const AnnouncementsPage = () => {
                                             className="w-4 h-4 text-brand-accent dark:text-blue-300 accent-brand-accent dark:text-blue-300 border-slate-300 dark:border-slate-600 focus:ring-brand-accent"
                                           />
                                         </div>
-                                        <div className="ml-3 text-sm text-slate-700 dark:text-slate-200 font-medium">
+                                        <div className={`ml-3 text-sm font-medium ${announcement.userResponse === opt ? 'text-brand-accent dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>
                                           {opt}
                                         </div>
                                       </label>

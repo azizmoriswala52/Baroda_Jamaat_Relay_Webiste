@@ -377,9 +377,9 @@ const AdminAnnouncementsTab = () => {
   }>({
     title: '',
     content: '',
-    responseType: 'APPROVAL',
+    responseType: '',
     rsvpOptions: '',
-    targetParentMohallas: ['All'],
+    targetParentMohallas: [],
     targetChildMohallas: ['All'],
     deadline: '',
     formFields: []
@@ -432,7 +432,7 @@ const AdminAnnouncementsTab = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-announcements'] });
       toast.success('Announcement created successfully');
       setShowForm(false);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: '', rsvpOptions: '', targetParentMohallas: [], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to create announcement')
@@ -458,7 +458,7 @@ const AdminAnnouncementsTab = () => {
       toast.success('Announcement updated successfully');
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: '', rsvpOptions: '', targetParentMohallas: [], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to update announcement')
@@ -490,10 +490,10 @@ const AdminAnnouncementsTab = () => {
       }
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: '', rsvpOptions: '', targetParentMohallas: [], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     } else {
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: '', rsvpOptions: '', targetParentMohallas: [], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setShowForm(true);
     }
   };
@@ -503,6 +503,8 @@ const AdminAnnouncementsTab = () => {
     const newErrors: Record<string, boolean> = {};
     if (!formData.title) newErrors.title = true;
     if (!formData.content) newErrors.content = true;
+    if (!formData.responseType) newErrors.responseType = true;
+    if (formData.targetParentMohallas.length === 0) newErrors.targetParentMohallas = true;
     if (formData.responseType === 'RSVP' && !formData.rsvpOptions.trim()) newErrors.rsvpOptions = true;
     if (formData.responseType === 'FORM' && formData.formFields.length === 0) {
       toast.error('Form must have at least one field');
@@ -735,9 +737,10 @@ const AdminAnnouncementsTab = () => {
                 </div>
 
                 <div className="space-y-1 max-w-sm">
-                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Record Response As</label>
+                  <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Record Response? <span className="text-red-500">*</span></label>
                   <CustomDropdown
                     options={[
+                      { label: 'Select Response Type', value: '' },
                       { label: 'None (Info Only)', value: 'NONE' },
                       { label: 'Approval Request', value: 'APPROVAL' },
                       { label: 'RSVP Confirmation', value: 'RSVP' },
@@ -745,6 +748,7 @@ const AdminAnnouncementsTab = () => {
                     ]}
                     value={formData.responseType}
                     onChange={(val) => setFormData({ ...formData, responseType: val })}
+                    error={errors.responseType}
                   />
                 </div>
 
@@ -772,11 +776,12 @@ const AdminAnnouncementsTab = () => {
                 <div className="space-y-4 max-w-2xl mt-4">
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Allowed Parent Mohallas</label>
-                      <MultiSelectDropdown
-                        options={[{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
-                        values={formData.targetParentMohallas}
-                        onChange={(vals) => {
+                      <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Allowed Parent Mohallas <span className="text-red-500">*</span></label>
+                      <div className={errors.targetParentMohallas ? "p-1 -m-1 rounded-xl bg-red-50 dark:bg-red-500/10 border border-red-500/40 animate-gentle-shake" : ""}>
+                        <MultiSelectDropdown
+                          options={[{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                          values={formData.targetParentMohallas}
+                          onChange={(vals) => {
                           const newVals = vals.length === 0 ? ['All'] : vals;
                           const childOptions = mohallas?.filter((m: any) =>
                             newVals.includes('All') ||
@@ -792,6 +797,7 @@ const AdminAnnouncementsTab = () => {
                           setFormData({ ...formData, targetParentMohallas: newVals, targetChildMohallas: newChildVals });
                         }}
                       />
+                      </div>
                       <p className="text-xs text-slate-400 mt-1">Grants access to everyone under this parent.</p>
                     </div>
                     <div>
