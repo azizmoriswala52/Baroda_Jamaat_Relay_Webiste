@@ -69,7 +69,7 @@ const DashboardPage = () => {
             >
               {/* Image Area - video aspect ratio */}
               <div
-                className={`relative aspect-video flex flex-col items-center justify-center p-6 pt-10 ${!relay.thumbnail && relay.isLive ? 'bg-gradient-to-b from-brand-accent dark:text-blue-300/10 to-brand-accent dark:text-blue-300/5' : 'bg-slate-100 dark:bg-slate-800'}`}
+                className={`relative aspect-video flex flex-col items-center justify-center p-6 pt-10 ${!relay.thumbnail && relay.isLive ? 'bg-gradient-to-b from-brand-accent/10 to-brand-accent/5 dark:from-slate-800 dark:to-slate-700' : 'bg-slate-100 dark:bg-slate-800'}`}
                 style={relay.thumbnail ? { backgroundImage: `url(${relay.thumbnail})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
               >
                 {/* Top Decorative Strip */}

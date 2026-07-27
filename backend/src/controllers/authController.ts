@@ -72,7 +72,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     await user.save();
 
     const token = jwt.sign(
-      { userId: user._id, role: user.role, itsId: user.itsId, mohalla: user.mohalla },
+      { userId: user._id, role: user.role, itsId: user.itsId, mohalla: user.mohalla, isSuperAdmin: user.isSuperAdmin },
       JWT_SECRET,
       { expiresIn: '24h' }
     );
@@ -90,7 +90,8 @@ export const login = async (req: Request, res: Response): Promise<void> => {
         role: user.role,
         jamaatName: user.jamaatName,
         mohalla: user.mohalla,
-        hasRelayAccess: user.hasRelayAccess
+        hasRelayAccess: user.hasRelayAccess,
+        isSuperAdmin: user.isSuperAdmin
       }
     });
   } catch (error) {

@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw, LogOut, Search, Megaphone } from 'lucide-react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -56,7 +56,7 @@ const AdminDashboard = () => {
         const optimistic = { ...newStream, _id: `temp-${Date.now()}`, isLive: newStream.isLive ?? true };
         return old ? [optimistic, ...old] : [optimistic];
       });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
       return { previousStreams };
     },
     onSuccess: () => {
@@ -81,7 +81,7 @@ const AdminDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
       queryClient.invalidateQueries({ queryKey: ['activeStream'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
       setEditingStreamId(null);
       toast.success('Stream updated successfully!');
     },
@@ -137,11 +137,12 @@ const AdminDashboard = () => {
         }
       }
       setEditingStreamId(null);
-      setStreamFormData(defaultStreamData);
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
       setInitialStreamFormData(defaultStreamData);
       setShowStreamForm(false);
       setStreamFormErrors({});
     } else {
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
       setShowStreamForm(true);
     }
   };
@@ -155,12 +156,16 @@ const AdminDashboard = () => {
         }
       }
       setEditingUserId(null);
-      setUserFormData(defaultUserData);
+      const defaultMohalla = isSuperAdmin ? '' : (adminParentMohalla === 'All' ? '' : adminParentMohalla);
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male' });
       setInitialUserFormData(defaultUserData);
-      setSelectedUserParentMohalla('');
+      setSelectedUserParentMohalla(defaultMohalla);
       setShowUserForm(false);
       setUserFormErrors({});
     } else {
+      const defaultMohalla = isSuperAdmin ? '' : (adminParentMohalla === 'All' ? '' : adminParentMohalla);
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male' });
+      setSelectedUserParentMohalla(defaultMohalla);
       setShowUserForm(true);
     }
   };
@@ -254,7 +259,7 @@ const AdminDashboard = () => {
       if (Object.keys(diff).length === 0) {
         toast('No changes were made.');
         setEditingStreamId(null);
-        setStreamFormData(defaultStreamData);
+        setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
         setShowStreamForm(false);
         return;
       }
@@ -292,6 +297,8 @@ const AdminDashboard = () => {
   const [initialUserFormData, setInitialUserFormData] = useState(defaultUserData);
   const [userFormErrors, setUserFormErrors] = useState<{ itsId?: boolean, fullName?: boolean, email?: boolean, mobile?: boolean }>({});
   const [selectedUserParentMohalla, setSelectedUserParentMohalla] = useState('');
+  const [userPage, setUserPage] = useState(1);
+  const USERS_PER_PAGE = 50;
 
   const [selectedQuery, setSelectedQuery] = useState<any>(null);
   const [selectedLoginIssue, setSelectedLoginIssue] = useState<any>(null);
@@ -325,8 +332,50 @@ const AdminDashboard = () => {
     if (!mohallas) return userMohalla;
     const m = mohallas.find((m: any) => m.name === userMohalla);
     if (!m) return userMohalla;
-    return m.parentMohalla ? `${m.name}(${m.parentMohalla})` : m.name;
+    return (m.parentMohalla && m.parentMohalla !== m.name) ? `${m.name}(${m.parentMohalla})` : m.name;
   };
+
+  const currentUser = useMemo(() => userStr ? JSON.parse(userStr) : null, [userStr]);
+  const isSuperAdmin = currentUser?.isSuperAdmin;
+  const adminParentMohalla = useMemo(() => {
+    if (!currentUser?.mohalla || !mohallas) return 'All';
+    const m = mohallas.find((m: any) => m.name.toLowerCase() === currentUser.mohalla.toLowerCase());
+    return m?.parentMohalla || m?.name || currentUser.mohalla;
+  }, [currentUser?.mohalla, mohallas]);
+
+  const filteredStreams = useMemo(() => {
+    if (!streams) return [];
+    if (isSuperAdmin) return streams;
+    return streams.filter((s: any) => s.allowedParentMohallas?.includes('All') || s.allowedParentMohallas?.includes(adminParentMohalla));
+  }, [streams, isSuperAdmin, adminParentMohalla]);
+
+  const filteredUsers = useMemo(() => {
+    if (!users) return [];
+    if (isSuperAdmin) return users;
+    return users.filter((u: any) => {
+      const parent = u.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
+      return parent === adminParentMohalla;
+    });
+  }, [users, isSuperAdmin, adminParentMohalla, mohallas]);
+
+  const filteredQueries = useMemo(() => {
+    if (!queries) return [];
+    if (isSuperAdmin) return queries;
+    return queries.filter((q: any) => {
+      const parent = q.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === q.mohalla.toLowerCase())?.parentMohalla || q.mohalla) : null;
+      return parent === adminParentMohalla;
+    });
+  }, [queries, isSuperAdmin, adminParentMohalla, mohallas]);
+
+  const filteredLoginIssues = useMemo(() => {
+    if (!loginIssues) return [];
+    if (isSuperAdmin) return loginIssues;
+    return loginIssues.filter((i: any) => {
+      const u = users?.find((u:any) => u.itsId === i.itsId);
+      const parent = u?.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
+      return parent === adminParentMohalla;
+    });
+  }, [loginIssues, isSuperAdmin, adminParentMohalla, mohallas, users]);
 
   const createMohallaMutation = useMutation({
     mutationFn: (data: { name: string; parentMohalla: string }) => apiClient('/mohallas', {
@@ -408,7 +457,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData(defaultUserData);
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
       setShowUserForm(false);
       toast.success('User created successfully!');
     },
@@ -475,7 +524,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData(defaultUserData);
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
       setShowUserForm(false);
       setEditingUserId(null);
       toast.success('User updated successfully!');
@@ -533,7 +582,7 @@ const AdminDashboard = () => {
       if (Object.keys(diff).length === 0) {
         toast('No changes were made.');
         setEditingUserId(null);
-        setUserFormData(defaultUserData);
+        setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
         setShowUserForm(false);
         return;
       }
@@ -566,12 +615,12 @@ const AdminDashboard = () => {
   };
 
   const processedUsers = React.useMemo(() => {
-    if (!users) return [];
-    let result = [...users];
+    if (!filteredUsers) return [];
+    let result = [...filteredUsers];
 
     // Search by ITS ID
     if (searchItsId.trim()) {
-      result = result.filter((u: any) => u.itsId?.toString().includes(searchItsId.trim()));
+      result = result.filter((u: any) => u.itsId?.toString().includes(searchItsId.trim()) || u.fullName.toLowerCase().includes(searchItsId.toLowerCase()) || u.mobile.includes(searchItsId));
     }
 
     // Sort by Mohallah, and keep Admins on top
@@ -587,7 +636,15 @@ const AdminDashboard = () => {
     });
 
     return result;
-  }, [users, searchItsId]);
+  }, [filteredUsers, searchItsId]);
+
+  const paginatedUsers = React.useMemo(() => {
+    return processedUsers.slice((userPage - 1) * USERS_PER_PAGE, userPage * USERS_PER_PAGE);
+  }, [processedUsers, userPage]);
+
+  React.useEffect(() => {
+    setUserPage(1);
+  }, [searchItsId, activeTab]);
 
   const totalMembers = processedUsers.length;
   const sessionsInUse = processedUsers.filter((u: any) => u.sessionStatus === 'inUse').length;
@@ -717,12 +774,12 @@ const AdminDashboard = () => {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Stream Title</label>
-                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} placeholder="Enter a Stream Title" />
+                            <input type="text" name="title" value={streamFormData.title} onChange={handleStreamChange} className={`input-field ${streamFormErrors.title ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} placeholder="Enter a Stream Title" />
                             {streamFormErrors.title && <p className="text-red-500 text-xs px-1">Stream Title is required</p>}
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Waaz karnar</label>
-                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} placeholder="Enter the name of Waaz Karnar" />
+                            <input type="text" name="speaker" value={streamFormData.speaker} onChange={handleStreamChange} className={`input-field ${streamFormErrors.speaker ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} placeholder="Enter the name of Waaz Karnar" />
                             {streamFormErrors.speaker && <p className="text-red-500 text-xs px-1">Waaz karnar is required</p>}
                           </div>
                           <div className="md:col-span-2">
@@ -897,7 +954,7 @@ const AdminDashboard = () => {
                             {streamFormData.thumbnail && (
                               <div className="mt-3 relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <img src={streamFormData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
-                                <button type="button" onClick={() => setStreamFormData({ ...streamFormData, thumbnail: '' })} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-50 dark:!bg-red-950/300 transition-colors">
+                                <button type="button" onClick={() => setStreamFormData({ ...streamFormData, thumbnail: '' })} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-50 dark:!bg-red-500/100 transition-colors">
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
@@ -920,7 +977,7 @@ const AdminDashboard = () => {
                                       type="text"
                                       value={server.name}
                                       onChange={(e) => handleServerChange(idx, 'name', e.target.value)}
-                                      className={`input-field py-2 ${streamFormErrors.servers?.[idx]?.name ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
+                                      className={`input-field py-2 ${streamFormErrors.servers?.[idx]?.name ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`}
                                       placeholder="e.g. Server A"
                                     />
                                     {streamFormErrors.servers?.[idx]?.name && <p className="text-red-500 text-xs px-1 mt-1">Server name is required</p>}
@@ -930,7 +987,7 @@ const AdminDashboard = () => {
                                       type="text"
                                       value={server.url}
                                       onChange={(e) => handleServerChange(idx, 'url', e.target.value)}
-                                      className={`input-field py-2 font-mono text-xs ${streamFormErrors.servers?.[idx]?.url ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
+                                      className={`input-field py-2 font-mono text-xs ${streamFormErrors.servers?.[idx]?.url ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`}
                                       placeholder="Live Link URL..."
                                     />
                                     {streamFormErrors.servers?.[idx]?.url && <p className="text-red-500 text-xs px-1 mt-1">URL is required</p>}
@@ -993,13 +1050,13 @@ const AdminDashboard = () => {
                       <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
                         {isLoadingStreams ? (
                           <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
-                        ) : streams?.map((stream: any) => (
+                        ) : filteredStreams?.map((stream: any) => (
                           <tr key={stream._id} className={`hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50 dark:bg-slate-800' : ''}`}>
                             <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{stream.title}</td>
                             <td className="px-4 py-3">{stream.speaker}</td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {stream.isLive ? (
-                                <span className="text-red-700 bg-red-50 dark:!bg-red-950/30 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
+                                <span className="text-red-700 bg-red-50 dark:!bg-red-500/10 border border-red-200 px-2.5 py-1 rounded-md text-xs font-semibold animate-pulse flex items-center w-max"><span className="w-1.5 h-1.5 rounded-full bg-red-600 mr-2"></span> LIVE</span>
                               ) : (
                                 <span className="text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 px-2.5 py-1 rounded-md text-xs font-semibold">Offline</span>
                               )}
@@ -1257,12 +1314,12 @@ const AdminDashboard = () => {
                               if (!/^\d{8}$/.test(e.target.value.trim())) {
                                 setUserFormErrors((prev) => ({ ...prev, itsId: true }));
                               }
-                            }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
+                            }} placeholder="8-digit ITS Number" className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${userFormErrors.itsId ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} />
                             {userFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Full Name</label>
-                            <input type="text" name="fullName" value={userFormData.fullName} onChange={handleUserChange} className={`input-field ${userFormErrors.fullName ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
+                            <input type="text" name="fullName" value={userFormData.fullName} onChange={handleUserChange} className={`input-field ${userFormErrors.fullName ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} />
                             {userFormErrors.fullName && <p className="text-red-500 text-xs px-1">Full Name is required</p>}
                           </div>
                           <div className="space-y-1">
@@ -1271,7 +1328,7 @@ const AdminDashboard = () => {
                           </div>
                           <div className="space-y-1">
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Mobile Number</label>
-                            <input type="text" name="mobile" value={userFormData.mobile} onChange={handleUserChange} className={`input-field ${userFormErrors.mobile ? 'border-red-500 bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`} />
+                            <input type="text" name="mobile" value={userFormData.mobile} onChange={handleUserChange} className={`input-field ${userFormErrors.mobile ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} />
                             {userFormErrors.mobile && <p className="text-red-500 text-xs px-1">Mobile Number is required</p>}
                           </div>
                           <div>
@@ -1293,8 +1350,8 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Parent Mohallah</label>
                               <CustomDropdown
-                                options={mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || []}
-                                value={selectedUserParentMohalla || 'Burhani'}
+                                options={[{ label: 'Select Parent Mohallah', value: '' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                                value={selectedUserParentMohalla}
                                 onChange={(val) => {
                                   setSelectedUserParentMohalla(val);
                                   handleUserChange({ target: { name: 'mohalla', value: val } } as any);
@@ -1373,8 +1430,8 @@ const AdminDashboard = () => {
                           <tr><td colSpan={8} className="px-6 py-4 text-center">Loading members...</td></tr>
                         ) : processedUsers.length === 0 ? (
                           <tr><td colSpan={8} className="px-6 py-4 text-center text-slate-500 dark:text-slate-400">No members found.</td></tr>
-                        ) : processedUsers.map((user: any) => (
-                          <tr key={user._id} className="group hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors">
+                        ) : paginatedUsers.map((user: any) => (
+                          <tr key={user._id} className="group hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors">
                             <td className="px-4 py-4 font-mono text-slate-700 dark:text-slate-200 font-medium">{user.itsId}</td>
                             <td className="px-4 py-4">
                               <div className="text-slate-900 dark:text-slate-50 font-semibold">{user.fullName}</div>
@@ -1382,7 +1439,7 @@ const AdminDashboard = () => {
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.role === 'ADMIN' ? 'text-amber-700 bg-amber-50 border-amber-200' : 'text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 border-slate-200 dark:border-slate-700'}`}>
                                   {user.role}
                                 </span>
-                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 dark:!bg-red-950/30 border-red-200'}`}>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold border ${user.isActive ? 'text-emerald-700 bg-emerald-50 border-emerald-200' : 'text-red-700 bg-red-50 dark:!bg-red-500/10 border-red-200'}`}>
                                   {user.isActive ? 'ACTIVE' : 'DISABLED'}
                                 </span>
                               </div>
@@ -1539,7 +1596,7 @@ const AdminDashboard = () => {
                                     setSelectedQuery(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-950/30 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Query"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
@@ -1593,7 +1650,7 @@ const AdminDashboard = () => {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                                {queries.map((q: any) => (
+                                {filteredQueries.map((q: any) => (
                                   <tr key={q._id} onClick={() => setSelectedQuery(q)} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors cursor-pointer group">
                                     <td className="py-4 px-6 whitespace-nowrap text-sm text-slate-500 dark:text-slate-400">
                                       {new Date(q.createdAt).toLocaleString()}
@@ -1699,7 +1756,7 @@ const AdminDashboard = () => {
                                     setSelectedLoginIssue(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-950/30 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Login Issue"
                               >
                                 <Trash2 className="w-4 h-4 mr-2" />
@@ -1756,7 +1813,7 @@ const AdminDashboard = () => {
                                 </tr>
                               </thead>
                               <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                                {loginIssues.map((issue: any) => {
+                                {filteredLoginIssues.map((issue: any) => {
                                   const issueUser = users?.find((u: any) => u.itsId === issue.itsId);
                                   return (
                                     <tr key={issue._id} onClick={() => setSelectedLoginIssue(issue)} className="hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors cursor-pointer group">

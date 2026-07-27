@@ -221,7 +221,8 @@ const LoginPage = () => {
                       <input
                         type="number"
                         inputMode="numeric"
-                        className={`input-field ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
+                        autoFocus
+                        className={`input-field ${fieldErrors.itsId ? '!border-red-500 !bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''} [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none`}
                         placeholder="ITS ID"
                         value={itsId}
                         onChange={(e) => {
@@ -242,7 +243,7 @@ const LoginPage = () => {
                       <div className="relative">
                         <input
                           type={showPassword ? 'text' : 'password'}
-                          className={`input-field pr-10 ${fieldErrors.password ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
+                          className={`input-field pr-10 ${fieldErrors.password ? '!border-red-500 !bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`}
                           placeholder="Password"
                           value={password}
                           onChange={(e) => {
@@ -332,7 +333,7 @@ const LoginPage = () => {
                           }
                         }}
                         placeholder="Enter your 8-digit ITS Number"
-                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId || issueServerError ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
+                        className={`input-field [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none ${issueFormErrors.itsId || issueServerError ? '!border-red-500 !bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`}
                       />
                       {issueFormErrors.itsId && <p className="text-red-500 text-xs px-1">ITS ID must be exact 8 digits</p>}
                       {issueServerError && <p className="text-red-500 text-xs px-1 font-semibold">{issueServerError}</p>}
@@ -346,7 +347,7 @@ const LoginPage = () => {
                         onChange={handleIssueChange}
                         placeholder="I am unable to login because..."
                         rows={3}
-                        className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 dark:!bg-red-950/30 animate-gentle-shake' : ''}`}
+                        className={`input-field resize-y ${issueFormErrors.issueDescription ? '!border-red-500 !bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`}
                       />
                       {issueFormErrors.issueDescription && <p className="text-red-500 text-xs px-1">Issue Description is required</p>}
                     </div>

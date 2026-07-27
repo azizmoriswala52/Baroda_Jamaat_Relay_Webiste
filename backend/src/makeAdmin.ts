@@ -27,11 +27,13 @@ const makeAdmin = async () => {
         email: 'admin@example.com',
         mobile: '0000000000',
         jamaatName: 'Baroda Jamaat',
-        role: 'ADMIN'
+        role: 'ADMIN',
+        isSuperAdmin: true
       });
       await newUser.save();
     } else {
       user.role = 'ADMIN';
+      user.isSuperAdmin = true;
       user.password = hashedPassword;
       await user.save();
     }

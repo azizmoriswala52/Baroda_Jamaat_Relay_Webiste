@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, CheckCircle2, Download, Edit2, Eye, Plus, Trash2, X, RefreshCw } from 'lucide-react';
@@ -403,8 +403,23 @@ const AdminAnnouncementsTab = () => {
     if (!mohallas) return userMohalla;
     const m = mohallas.find((m: any) => m.name === userMohalla);
     if (!m) return userMohalla;
-    return m.parentMohalla ? `${m.name}(${m.parentMohalla})` : m.name;
+    return (m.parentMohalla && m.parentMohalla !== m.name) ? `${m.name}(${m.parentMohalla})` : m.name;
   };
+
+  const userStr = sessionStorage.getItem('user');
+  const currentUser = useMemo(() => userStr ? JSON.parse(userStr) : null, [userStr]);
+  const isSuperAdmin = currentUser?.isSuperAdmin;
+  const adminParentMohalla = useMemo(() => {
+    if (!currentUser?.mohalla || !mohallas) return 'All';
+    const m = mohallas.find((m: any) => m.name.toLowerCase() === currentUser.mohalla.toLowerCase());
+    return m?.parentMohalla || m?.name || currentUser.mohalla;
+  }, [currentUser?.mohalla, mohallas]);
+
+  const filteredAnnouncements = useMemo(() => {
+    if (!announcements) return [];
+    if (isSuperAdmin) return announcements;
+    return announcements.filter((a: any) => a.targetParentMohallas?.includes('All') || a.targetParentMohallas?.includes(adminParentMohalla));
+  }, [announcements, isSuperAdmin, adminParentMohalla]);
 
   const createMutation = useMutation({
     mutationFn: (data: any) => apiClient('/site-announcements', {
@@ -417,7 +432,7 @@ const AdminAnnouncementsTab = () => {
       queryClient.invalidateQueries({ queryKey: ['admin-announcements'] });
       toast.success('Announcement created successfully');
       setShowForm(false);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to create announcement')
@@ -443,7 +458,7 @@ const AdminAnnouncementsTab = () => {
       toast.success('Announcement updated successfully');
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     },
     onError: () => toast.error('Failed to update announcement')
@@ -475,9 +490,10 @@ const AdminAnnouncementsTab = () => {
       }
       setShowForm(false);
       setEditingAnnouncementId(null);
-      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: ['All'], targetChildMohallas: ['All'], deadline: '', formFields: [] });
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setErrors({});
     } else {
+      setFormData({ title: '', content: '', responseType: 'APPROVAL', rsvpOptions: '', targetParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], targetChildMohallas: ['All'], deadline: '', formFields: [] });
       setShowForm(true);
     }
   };
@@ -962,7 +978,7 @@ const AdminAnnouncementsTab = () => {
           <div className="p-12 flex justify-center w-full">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-accent"></div>
           </div>
-        ) : announcements.length === 0 ? (
+        ) : filteredAnnouncements.length === 0 ? (
           <div className="p-12 text-center text-slate-500 dark:text-slate-400 w-full">No announcements created yet.</div>
         ) : (
           <div className="flex-1 overflow-y-auto overflow-x-auto">
@@ -978,7 +994,7 @@ const AdminAnnouncementsTab = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-700 bg-white dark:bg-slate-800">
-                {announcements.map((announcement: any) => (
+                {filteredAnnouncements.map((announcement: any) => (
                   <tr
                     key={announcement._id}
                     className={`group transition-colors ${selectedAnnouncement?._id === announcement._id ? 'bg-sky-50 dark:bg-slate-800' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50'}`}
