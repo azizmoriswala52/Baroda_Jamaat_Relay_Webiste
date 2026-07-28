@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import User from '../models/User';
+import StreamToken from '../models/StreamToken';
 import { activeSessions, blacklistedSessions } from './authController';
 
 export const getProfile = async (req: Request, res: Response): Promise<void> => {
@@ -151,6 +152,9 @@ export const createUser = async (req: Request, res: Response): Promise<void> => 
       jamaatName: jamaatName || 'Baroda Jamaat',
       mohalla: mohalla || 'Burhani',
       gender: gender || 'Male',
+      age: req.body.age,
+      dobEnglish: req.body.dobEnglish,
+      dobHijri: req.body.dobHijri,
       role: role || 'USER',
       isActive: isActive !== undefined ? isActive : true,
       hasRelayAccess: hasRelayAccess !== undefined ? hasRelayAccess : false
@@ -184,6 +188,9 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
     if (jamaatName) user.jamaatName = jamaatName;
     if (mohalla) user.mohalla = mohalla;
     if (gender) user.gender = gender;
+    if (req.body.age !== undefined) user.age = req.body.age;
+    if (req.body.dobEnglish !== undefined) user.dobEnglish = req.body.dobEnglish;
+    if (req.body.dobHijri !== undefined) user.dobHijri = req.body.dobHijri;
     if (role) user.role = role;
     if (isActive !== undefined) {
       user.isActive = isActive;
@@ -192,11 +199,17 @@ export const updateUserById = async (req: Request, res: Response): Promise<void>
         activeSessions.delete(user.itsId);
         blacklistedSessions.add(user.itsId);
         user.sessionStartTime = undefined;
+        await StreamToken.updateMany({ userId: user._id }, { $set: { isValid: false } });
       }
     }
 
     if (hasRelayAccess !== undefined) {
       user.hasRelayAccess = hasRelayAccess;
+      
+      // If access is revoked, invalidate active stream tokens so they can't continue watching
+      if (!hasRelayAccess) {
+        await StreamToken.updateMany({ userId: user._id }, { $set: { isValid: false } });
+      }
     }
 
     if (password && password.trim().length > 0) {
@@ -254,6 +267,9 @@ export const forceLogoutUser = async (req: Request, res: Response): Promise<void
     // Also update their status in the DB optionally
     user.sessionStartTime = undefined;
     await user.save();
+    
+    // Invalidate stream playback tokens
+    await StreamToken.updateMany({ userId: user._id }, { $set: { isValid: false } });
 
     res.json({ message: 'User forcefully logged out' });
   } catch (error) {

@@ -5,10 +5,31 @@ import { User, LogOut, ArrowLeft, Edit2, X, Lock, Shield, CheckCircle2, XCircle,
 import { useConfirm } from '../contexts/ConfirmContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import CustomDropdown from '../components/CustomDropdown';
+import DatePicker from "react-multi-date-picker";
+import arabic from "react-date-object/calendars/arabic";
+import arabic_en from "react-date-object/locales/arabic_en";
+import DateObject from "react-date-object";
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
 
-const ProfilePage = () => {
+class ErrorBoundary extends React.Component<any, { hasError: boolean, error: any }> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false, error: null };
+  }
+  static getDerivedStateFromError(error: any) {
+    return { hasError: true, error };
+  }
+  render() {
+    if (this.state.hasError) {
+      return <div className="p-8 text-red-500 bg-red-50 border border-red-500 rounded"><h1>Something went wrong.</h1><pre>{this.state.error?.toString()}</pre></div>;
+    }
+    return this.props.children;
+  }
+}
+
+const ProfilePageContent = () => {
+  const DatePickerComponent = (DatePicker as any).default || DatePicker;
   const navigate = useNavigate();
   useDocumentTitle('Profile');
   const [formData, setFormData] = useState({
@@ -17,7 +38,10 @@ const ProfilePage = () => {
     mobile: '',
     password: '',
     mohalla: 'Burhani',
-    gender: 'Male'
+    gender: 'Male',
+    age: '',
+    dobEnglish: '',
+    dobHijri: ''
   });
   const [formErrors, setFormErrors] = useState<{ [key: string]: boolean }>({});
   const [successMsg, setSuccessMsg] = useState('');
@@ -65,10 +89,32 @@ const ProfilePage = () => {
         mobile: user.mobile || '',
         password: '', // Don't populate password
         mohalla: user.mohalla || 'Burhani',
-        gender: user.gender || 'Male'
+        gender: user.gender || 'Male',
+        age: user.age || '',
+        dobEnglish: user.dobEnglish || '',
+        dobHijri: user.dobHijri || ''
       });
     }
   }, [user]);
+
+  React.useEffect(() => {
+    if (formData.dobHijri) {
+      try {
+        const DateObj = (DateObject as any).default || DateObject;
+        const dob = new DateObj({ date: formData.dobHijri, format: "YYYY/MM/DD", calendar: (arabic as any).default || arabic });
+        const today = new DateObj({ calendar: (arabic as any).default || arabic });
+        let calculatedAge = today.year - dob.year;
+        if (today.month.number < dob.month.number || (today.month.number === dob.month.number && today.day < dob.day)) {
+          calculatedAge--;
+        }
+        setFormData(prev => ({ ...prev, age: calculatedAge.toString() }));
+      } catch (err) {
+        // Ignore parsing errors
+      }
+    } else {
+      setFormData(prev => ({ ...prev, age: '' }));
+    }
+  }, [formData.dobHijri]);
 
   const updateProfileMutation = useMutation({
     mutationFn: (data: typeof formData) => apiClient('/users/profile', {
@@ -119,6 +165,9 @@ const ProfilePage = () => {
       if (formData.mobile !== (user.mobile || '')) diff.mobile = formData.mobile;
       if (formData.gender !== (user.gender || 'Male')) diff.gender = formData.gender;
       if (formData.mohalla !== (user.mohalla || 'Burhani')) diff.mohalla = formData.mohalla;
+      if (formData.age !== (user.age || '')) diff.age = formData.age;
+      if (formData.dobEnglish !== (user.dobEnglish || '')) diff.dobEnglish = formData.dobEnglish;
+      if (formData.dobHijri !== (user.dobHijri || '')) diff.dobHijri = formData.dobHijri;
       if (formData.password && formData.password.trim() !== '') {
         diff.password = formData.password;
       }
@@ -303,6 +352,27 @@ const ProfilePage = () => {
                   {formErrors.mobile && <p className="text-red-500 dark:text-red-400 text-xs px-1 mt-1">Mobile Number is required</p>}
                 </div>
                 <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Age</label>
+                  <input type="number" name="age" value={formData.age} className="input-field bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 cursor-not-allowed" placeholder="Auto-calculated" disabled />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">DOB (English)</label>
+                  <input type="date" name="dobEnglish" value={formData.dobEnglish} onChange={handleChange} className={`input-field ${!isEditing ? 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed' : ''}`} disabled={!isEditing} />
+                </div>
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">DOB (Hijri)</label>
+                  <DatePickerComponent
+                    calendar={(arabic as any).default || arabic}
+                    locale={(arabic_en as any).default || arabic_en}
+                    value={formData.dobHijri}
+                    onChange={(dateObject: any) => handleChange({ target: { name: 'dobHijri', value: dateObject?.format('YYYY/MM/DD') || '' } } as any)}
+                    format="YYYY/MM/DD"
+                    containerClassName="w-full"
+                    inputClass={`input-field w-full ${!isEditing ? 'bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 border-slate-200 dark:border-slate-700 cursor-not-allowed' : ''}`}
+                    disabled={!isEditing}
+                  />
+                </div>
+                <div>
                   <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Gender</label>
                   {isEditing ? (
                     <CustomDropdown
@@ -350,7 +420,10 @@ const ProfilePage = () => {
                           mobile: user.mobile || '',
                           password: '',
                           mohalla: user.mohalla || 'Burhani',
-                          gender: user.gender || 'Male'
+                          gender: user.gender || 'Male',
+                          age: user.age || '',
+                          dobEnglish: user.dobEnglish || '',
+                          dobHijri: user.dobHijri || ''
                         });
                       }
                     }} className="btn-secondary">
@@ -539,4 +612,10 @@ const ProfilePage = () => {
   );
 };
 
-export default ProfilePage;
+export default function ProfilePage() {
+  return (
+    <ErrorBoundary>
+      <ProfilePageContent />
+    </ErrorBoundary>
+  );
+}

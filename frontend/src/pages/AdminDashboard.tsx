@@ -10,8 +10,13 @@ import CustomDropdown from '../components/CustomDropdown';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { useConfirm } from '../contexts/ConfirmContext';
 import AdminAnnouncementsTab from './AdminAnnouncementsTab';
+import DatePicker from "react-multi-date-picker";
+import DateObject from "react-date-object";
+import arabic from "react-date-object/calendars/arabic";
+import arabic_en from "react-date-object/locales/arabic_en";
 
 const AdminDashboard = () => {
+  const DatePickerComponent = (DatePicker as any).default || DatePicker;
   const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState('stream');
   const queryClient = useQueryClient();
@@ -157,14 +162,14 @@ const AdminDashboard = () => {
       }
       setEditingUserId(null);
       const defaultMohalla = isSuperAdmin ? '' : (adminParentMohalla === 'All' ? '' : adminParentMohalla);
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male', age: '', dobEnglish: '', dobHijri: '' });
       setInitialUserFormData(defaultUserData);
       setSelectedUserParentMohalla(defaultMohalla);
       setShowUserForm(false);
       setUserFormErrors({});
     } else {
       const defaultMohalla = isSuperAdmin ? '' : (adminParentMohalla === 'All' ? '' : adminParentMohalla);
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: defaultMohalla, gender: 'Male', age: '', dobEnglish: '', dobHijri: '' });
       setSelectedUserParentMohalla(defaultMohalla);
       setShowUserForm(true);
     }
@@ -292,12 +297,32 @@ const AdminDashboard = () => {
   // --- USER STATE & MUTATIONS ---
   const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [showUserForm, setShowUserForm] = useState(false);
-  const defaultUserData = { itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani', gender: 'Male' };
+  const defaultUserData = { itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: 'Burhani', gender: 'Male', age: '', dobEnglish: '', dobHijri: '' };
   const [userFormData, setUserFormData] = useState(defaultUserData);
   const [initialUserFormData, setInitialUserFormData] = useState(defaultUserData);
   const [userFormErrors, setUserFormErrors] = useState<{ itsId?: boolean, fullName?: boolean, email?: boolean, mobile?: boolean }>({});
   const [selectedUserParentMohalla, setSelectedUserParentMohalla] = useState('');
   const [userPage, setUserPage] = useState(1);
+
+  React.useEffect(() => {
+    if (userFormData.dobHijri) {
+      try {
+        const DateObj = (DateObject as any).default || DateObject;
+        const dob = new DateObj({ date: userFormData.dobHijri, format: "YYYY/MM/DD", calendar: (arabic as any).default || arabic });
+        const today = new DateObj({ calendar: (arabic as any).default || arabic });
+        let calculatedAge = today.year - dob.year;
+        if (today.month.number < dob.month.number || (today.month.number === dob.month.number && today.day < dob.day)) {
+          calculatedAge--;
+        }
+        setUserFormData(prev => ({ ...prev, age: calculatedAge.toString() }));
+      } catch (err) {
+        // Ignore parsing errors
+      }
+    } else {
+      setUserFormData(prev => ({ ...prev, age: '' }));
+    }
+  }, [userFormData.dobHijri]);
+
   const USERS_PER_PAGE = 50;
 
   const [selectedQuery, setSelectedQuery] = useState<any>(null);
@@ -457,7 +482,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male', age: '', dobEnglish: '', dobHijri: '' });
       setShowUserForm(false);
       toast.success('User created successfully!');
     },
@@ -524,7 +549,7 @@ const AdminDashboard = () => {
     }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['users'] });
-      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
+      setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male', age: '', dobEnglish: '', dobHijri: '' });
       setShowUserForm(false);
       setEditingUserId(null);
       toast.success('User updated successfully!');
@@ -582,7 +607,7 @@ const AdminDashboard = () => {
       if (Object.keys(diff).length === 0) {
         toast('No changes were made.');
         setEditingUserId(null);
-        setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male' });
+        setUserFormData({ itsId: '', fullName: '', email: '', mobile: '', password: '', role: 'USER', mohalla: adminParentMohalla === 'All' ? 'Burhani' : adminParentMohalla, gender: 'Male', age: '', dobEnglish: '', dobHijri: '' });
         setShowUserForm(false);
         return;
       }
@@ -598,10 +623,13 @@ const AdminDashboard = () => {
       fullName: user.fullName,
       email: user.email,
       mobile: user.mobile,
-      password: '', // Leave empty to not change
+      password: '',
       role: user.role,
       mohalla: user.mohalla || 'Burhani',
-      gender: user.gender || 'Male'
+      gender: user.gender || 'Male',
+      age: user.age || '',
+      dobEnglish: user.dobEnglish || '',
+      dobHijri: user.dobHijri || ''
     };
     setUserFormData(newData);
     setInitialUserFormData(newData);
@@ -1109,8 +1137,8 @@ const AdminDashboard = () => {
                           </tr>
                         ))}
 
-                        {!isLoadingStreams && streams?.length === 0 && (
-                          <tr><td colSpan={7} className="px-4 py-6 whitespace-nowrap text-center text-slate-500 dark:text-slate-400">No relay history found. Create a stream to get started.</td></tr>
+                        {!isLoadingStreams && (!filteredStreams || filteredStreams.length === 0) && (
+                          <tr><td colSpan={8} className="px-4 py-6 text-center text-slate-500 dark:text-slate-400">No relay history found. Create a stream to get started.</td></tr>
                         )}
                       </tbody>
                     </table>
@@ -1330,6 +1358,26 @@ const AdminDashboard = () => {
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Mobile Number</label>
                             <input type="text" name="mobile" value={userFormData.mobile} onChange={handleUserChange} className={`input-field ${userFormErrors.mobile ? 'border-red-500 bg-red-50 dark:!bg-red-500/10 dark:!border-red-500/40 dark:shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-gentle-shake' : ''}`} />
                             {userFormErrors.mobile && <p className="text-red-500 text-xs px-1">Mobile Number is required</p>}
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Age</label>
+                            <input type="number" name="age" value={userFormData.age} className="input-field bg-slate-50 dark:bg-slate-900/50 text-slate-500 dark:text-slate-400 cursor-not-allowed" placeholder="Auto-calculated" disabled />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">DOB (English)</label>
+                            <input type="date" name="dobEnglish" value={userFormData.dobEnglish} onChange={handleUserChange} className="input-field" />
+                          </div>
+                          <div className="space-y-1">
+                            <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">DOB (Hijri)</label>
+                            <DatePickerComponent
+                              calendar={(arabic as any).default || arabic}
+                              locale={(arabic_en as any).default || arabic_en}
+                              value={userFormData.dobHijri}
+                              onChange={(dateObject: any) => handleUserChange({ target: { name: 'dobHijri', value: dateObject?.format('YYYY/MM/DD') || '' } } as any)}
+                              format="YYYY/MM/DD"
+                              containerClassName="w-full"
+                              inputClass="input-field w-full"
+                            />
                           </div>
                           <div>
                             <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Initial Password</label>

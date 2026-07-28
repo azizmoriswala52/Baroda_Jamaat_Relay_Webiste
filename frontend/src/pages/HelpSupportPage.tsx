@@ -74,7 +74,7 @@ const HelpSupportPage = () => {
       </div>
 
       <div className="max-w-2xl">
-        <div className="clean-panel p-8 relative">
+        <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-slate-800 p-8 relative">
           <div className="flex items-center space-x-3 mb-6">
             <HelpCircle className="w-5 h-5 text-brand-accent dark:text-blue-300 shrink-0" />
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Contact Support</h3>
@@ -106,7 +106,7 @@ const HelpSupportPage = () => {
             </div>
             </div>
 
-            <div className="pt-4 border-t border-slate-100 mt-2">
+            <div className="pt-6 border-t border-slate-100 dark:border-slate-800/50 mt-4">
               <button
                 type="submit"
                 disabled={submitQueryMutation.isPending}

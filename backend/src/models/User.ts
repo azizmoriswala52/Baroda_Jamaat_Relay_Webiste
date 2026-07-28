@@ -9,6 +9,9 @@ export interface IUser extends Document {
   jamaatName: string;
   mohalla?: string;
   gender?: 'Male' | 'Female';
+  age?: number;
+  dobEnglish?: string;
+  dobHijri?: string;
   role: 'USER' | 'ADMIN';
   isActive: boolean;
   lastLogin?: Date;
@@ -28,6 +31,9 @@ const UserSchema: Schema = new Schema({
   jamaatName: { type: String, required: true },
   mohalla: { type: String },
   gender: { type: String, enum: ['Male', 'Female'] },
+  age: { type: Number },
+  dobEnglish: { type: String },
+  dobHijri: { type: String },
   role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },
