@@ -69,6 +69,7 @@ const LoginPage = () => {
       if (response.ok) {
         sessionStorage.setItem('token', data.token);
         sessionStorage.setItem('user', JSON.stringify(data.user));
+        localStorage.setItem('has_active_streams', data.hasActiveStreams ? 'true' : 'false');
         toast.success('Login successful!');
         navigate('/home');
       } else {

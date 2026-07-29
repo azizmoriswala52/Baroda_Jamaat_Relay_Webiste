@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import bcrypt from 'bcrypt';
 import jwt from 'jsonwebtoken';
 import User from '../models/User';
+import StreamSession from '../models/StreamSession';
 import { UAParser } from 'ua-parser-js';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'supersecretjwtkey_please_change_in_production';
@@ -81,8 +82,12 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     activeSessions.set(user.itsId, Date.now());
     blacklistedSessions.delete(user.itsId); // Clear blacklist on fresh login
 
+    // Check if there are active streams available globally
+    const activeStreamsCount = await StreamSession.countDocuments({ isLive: true });
+
     res.json({
       token,
+      hasActiveStreams: activeStreamsCount > 0,
       user: {
         itsId: user.itsId,
         fullName: user.fullName,

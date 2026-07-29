@@ -24,6 +24,12 @@ const DashboardPage = () => {
     navigate('/relay');
   };
 
+  React.useEffect(() => {
+    if (!isLoading && (!streams || streams.length === 0)) {
+      navigate('/home', { replace: true });
+    }
+  }, [streams, isLoading, navigate]);
+
   return (
     <>
       <div className="mb-8">

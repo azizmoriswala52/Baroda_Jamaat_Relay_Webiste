@@ -65,6 +65,17 @@ const RelayPage = () => {
     streamErrorMsg
   } = usePlayer();
 
+  const { data: availableStreams, isLoading: isLoadingStreams } = useQuery({
+    queryKey: ['streams'],
+    queryFn: () => apiClient('/streams'),
+  });
+
+  useEffect(() => {
+    if (!isLoadingStreams && (!availableStreams || availableStreams.length === 0)) {
+      navigate('/home', { replace: true });
+    }
+  }, [availableStreams, isLoadingStreams, navigate]);
+
   const [showAgreementModal, setShowAgreementModal] = useState(false);
 
   useEffect(() => {

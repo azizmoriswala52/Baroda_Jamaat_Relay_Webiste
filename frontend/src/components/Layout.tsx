@@ -143,8 +143,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     }
   }, [freshUser, user, location.pathname, navigate]);
 
-  const hasAccess = true; // ALWAYS true, let the dashboard / API handle permissions
+  const { data: availableStreams, isLoading: isLoadingStreams } = useQuery({
+    queryKey: ['streams'],
+    queryFn: () => apiClient('/streams'),
+    refetchInterval: 15000,
+  });
 
+  useEffect(() => {
+    if (availableStreams !== undefined) {
+      localStorage.setItem('has_active_streams', availableStreams.length > 0 ? 'true' : 'false');
+    }
+  }, [availableStreams]);
+
+  const hasAccess = availableStreams !== undefined 
+    ? availableStreams.length > 0 
+    : (user?.hasRelayAccess && localStorage.getItem('has_active_streams') === 'true');
 
   const { data: supportQueries } = useQuery({
     queryKey: ['adminSupportQueries'],
