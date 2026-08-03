@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, Maximize } from 'lucide-react';
+import { Add } from 'iconsax-react';
+import { Maximize } from 'lucide-react';
+import { X } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { usePlayer } from '../contexts/PlayerContext';
 import ReactPlayer from 'react-player';
 import VideoPlayer from './VideoPlayer';
-
 const PersistentPlayer = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isCurrentlyLive, activeStream, selectedServer, isPlayerVisible, setIsPlayerVisible, playerRect, isLoadingStream, hasAgreedToRules } = usePlayer();
+  const { isCurrentlyLive, activeStream, selectedServer, isPlayerVisible, setIsPlayerVisible, playerRect, hasAgreedToRules } = usePlayer();
   const isRelayPage = location.pathname === '/relay';
   const playerRef = useRef<HTMLDivElement>(null);
   const videoContainerRef = useRef<HTMLDivElement>(null);
@@ -38,6 +39,7 @@ const PersistentPlayer = () => {
   // Fullscreen exit listener
   useEffect(() => {
     const handleFullscreenChange = () => {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const isFs = !!(document.fullscreenElement || (document as any).webkitFullscreenElement);
       setIsFullscreen(isFs);
       if (!isFs) {
@@ -96,11 +98,14 @@ const PersistentPlayer = () => {
     if (elem) {
       if (elem.requestFullscreen) {
         elem.requestFullscreen().then(() => {
-          if (screen.orientation && screen.orientation.lock) {
-            screen.orientation.lock('landscape').catch(() => {});
+          // eslint-disable-next-line @typescript-eslint/no-explicit-any
+          const orientation: any = screen.orientation;
+          if (orientation && orientation.lock) {
+            orientation.lock('landscape').catch(() => {});
           }
         }).catch(() => {});
-      } else if ((elem as any).webkitRequestFullscreen) {
+      } else if ('webkitRequestFullscreen' in elem) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         (elem as any).webkitRequestFullscreen();
       }
     }
@@ -129,14 +134,15 @@ const PersistentPlayer = () => {
   const renderVideo = () => {
     if (!isActive) return null;
     
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const ReactPlayerAny = ReactPlayer as any;
     if (activeStream.streamType === 'YOUTUBE') {
       return (
         <ReactPlayerAny
           url={
-            selectedServer.url.includes('<iframe')
+            selectedServer?.url?.includes('<iframe')
               ? (selectedServer.url.match(/src="([^"]+)"/) || [])[1] || selectedServer.url
-              : selectedServer.url
+              : (selectedServer?.url || '')
           }
           width="100%"
           height="100%"
@@ -147,6 +153,7 @@ const PersistentPlayer = () => {
           config={{
             youtube: {
               playerVars: { autoplay: 1 }
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
             } as any
           }}
         />
@@ -155,8 +162,8 @@ const PersistentPlayer = () => {
     return (
       <VideoPlayer
         className="w-full h-full absolute inset-0"
-        fallbackUrl={selectedServer.url}
-        serverName={selectedServer.name}
+        fallbackUrl={selectedServer?.url || ''}
+        serverName={selectedServer?.name || ''}
         hideControls={!isRelayPage && !isFullscreen}
         defaultMuted={!isRelayPage}
       />
@@ -211,7 +218,7 @@ const PersistentPlayer = () => {
                   onClick={handleMaximize}
                   title="Expand to Fullscreen"
                 >
-                  <Maximize className="w-10 h-10 drop-shadow-md" strokeWidth={2.5} />
+                  <Maximize className="w-10 h-10 drop-shadow-md text-white" />
                 </div>
                 <button
                   onClick={(e) => {
@@ -221,7 +228,7 @@ const PersistentPlayer = () => {
                   className="absolute top-2 right-2 p-1.5 text-white/80 hover:text-red-400 hover:bg-black/40 rounded transition-colors"
                   title="Close mini-player"
                 >
-                  <X className="w-5 h-5" strokeWidth={2.5} />
+                  <Add color="currentColor" size="32" className="w-6 h-6 sm:w-7 sm:h-7 rotate-45" />
                 </button>
               </motion.div>
             )}

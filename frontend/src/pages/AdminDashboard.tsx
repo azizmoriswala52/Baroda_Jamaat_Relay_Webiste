@@ -1,7 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Users, Server, Radio, Plus, Trash2, Link as LinkIcon, Edit2, X, LifeBuoy, ToggleLeft, ToggleRight, ChevronDown, AlertCircle, RefreshCw, LogOut, Search, Megaphone } from 'lucide-react';
+import { ArrowDown2, Add, SearchNormal1, Refresh2, Trash, Edit2, Warning2, Link, Data, ToggleOnCircle, ToggleOffCircle, Logout, Radio, Profile2User, Lifebuoy, VolumeHigh, MessageQuestion, SecurityUser } from 'iconsax-react';
+
+const IconStream = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}><path d="M16.19 2H7.81C4.17 2 2 4.17 2 7.81v8.37C2 19.83 4.17 22 7.81 22h8.37c3.64 0 5.81-2.17 5.81-5.81V7.81C22 4.17 19.83 2 16.19 2Zm-1.53 11.73-1.28.74-1.28.74c-1.65.95-3 .17-3-1.73v-2.96c0-1.91 1.35-2.68 3-1.73l1.28.74 1.28.74c1.65.95 1.65 2.51 0 3.46Z" fill="currentColor"></path></svg>
+);
+const IconMembers = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}><path d="M9 2C6.38 2 4.25 4.13 4.25 6.75c0 2.57 2.01 4.65 4.63 4.74.08-.01.16-.01.22 0h.07a4.738 4.738 0 0 0 4.58-4.74C13.75 4.13 11.62 2 9 2ZM14.08 14.149c-2.79-1.86-7.34-1.86-10.15 0-1.27.85-1.97 2-1.97 3.23s.7 2.37 1.96 3.21c1.4.94 3.24 1.41 5.08 1.41 1.84 0 3.68-.47 5.08-1.41 1.26-.85 1.96-1.99 1.96-3.23-.01-1.23-.7-2.37-1.96-3.21ZM19.99 7.338c.16 1.94-1.22 3.64-3.13 3.87h-.05c-.06 0-.12 0-.17.02-.97.05-1.86-.26-2.53-.83 1.03-.92 1.62-2.3 1.5-3.8a4.64 4.64 0 0 0-.77-2.18 3.592 3.592 0 0 1 5.15 2.92Z" fill="currentColor"></path><path d="M21.988 16.59c-.08.97-.7 1.81-1.74 2.38-1 .55-2.26.81-3.51.78.72-.65 1.14-1.46 1.22-2.32.1-1.24-.49-2.43-1.67-3.38-.67-.53-1.45-.95-2.3-1.26 2.21-.64 4.99-.21 6.7 1.17.92.74 1.39 1.67 1.3 2.63Z" fill="currentColor"></path></svg>
+);
+const IconSupport = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}><path d="M17 2.43H7c-3 0-5 2-5 5v6c0 3 2 5 5 5v2.13c0 .8.89 1.28 1.55.83L13 18.43h4c3 0 5-2 5-5v-6c0-3-2-5-5-5ZM12 14.6a.749.749 0 1 1 0-1.5.749.749 0 1 1 0 1.5Zm1.26-4.15c-.39.26-.51.43-.51.71v.21c0 .41-.34.75-.75.75s-.75-.34-.75-.75v-.21c0-1.16.85-1.73 1.17-1.95.37-.25.49-.42.49-.68 0-.5-.41-.91-.91-.91s-.91.41-.91.91c0 .41-.34.75-.75.75s-.75-.34-.75-.75c0-1.33 1.08-2.41 2.41-2.41s2.41 1.08 2.41 2.41c0 1.14-.84 1.71-1.15 1.92Z" fill="currentColor"></path></svg>
+);
+const IconLogins = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}><path d="m19.51 5.85-5.94-3.43c-.97-.56-2.17-.56-3.15 0L4.49 5.85a3.15 3.15 0 0 0-1.57 2.73v6.84c0 1.12.6 2.16 1.57 2.73l5.94 3.43c.97.56 2.17.56 3.15 0l5.94-3.43a3.15 3.15 0 0 0 1.57-2.73V8.58a3.192 3.192 0 0 0-1.58-2.73Zm-8.26 1.9c0-.41.34-.75.75-.75s.75.34.75.75V13c0 .41-.34.75-.75.75s-.75-.34-.75-.75V7.75Zm1.67 8.88c-.05.12-.12.23-.21.33a.99.99 0 0 1-1.09.21c-.13-.05-.23-.12-.33-.21-.09-.1-.16-.21-.22-.33a.986.986 0 0 1-.07-.38c0-.26.1-.52.29-.71.1-.09.2-.16.33-.21.37-.16.81-.07 1.09.21.09.1.16.2.21.33.05.12.08.25.08.38s-.03.26-.08.38Z" fill="currentColor"></path></svg>
+);
+const IconAnnouncements = ({ className }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" className={className}><path d="M19 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6Z" fill="currentColor"></path><path d="M19.8 9.42c-.02 0-.04.01-.06.01-.1.02-.2.03-.31.05-.42.04-.87.02-1.33-.07-.12-.03-.22-.05-.33-.09-.33-.08-.64-.21-.93-.38-.12-.06-.24-.14-.35-.21-.48-.33-.89-.74-1.22-1.22-.07-.11-.15-.23-.21-.35-.17-.29-.3-.6-.38-.93-.04-.11-.06-.21-.09-.33a4.65 4.65 0 0 1-.07-1.33c.02-.11.03-.21.05-.31 0-.02.01-.04.01-.06A1 1 0 0 0 13.6 3H7.52c-.14 0-.28.01-.41.02-.12.01-.23.02-.35.04-.12.01-.24.03-.35.05-2.41.35-3.95 1.88-4.3 4.3-.02.11-.04.23-.05.35-.02.12-.03.23-.04.35-.01.13-.02.27-.02.41v7.96c0 .14.01.28.02.41.01.12.02.23.04.35.01.12.03.24.05.35.35 2.42 1.89 3.95 4.3 4.3.11.02.23.04.35.05.12.02.23.03.35.04.13.01.27.02.41.02h7.96c.14 0 .28-.01.41-.02.12-.01.23-.02.35-.04.12-.01.24-.03.35-.05 2.41-.35 3.95-1.88 4.3-4.3.02-.11.04-.23.05-.35.02-.12.03-.23.04-.35.01-.13.02-.27.02-.41V10.4a1 1 0 0 0-1.2-.98ZM6.75 12.5h5c.41 0 .75.34.75.75s-.34.75-.75.75h-5c-.41 0-.75-.34-.75-.75s.34-.75.75-.75Zm9 5.5h-9c-.41 0-.75-.34-.75-.75s.34-.75.75-.75h9c.41 0 .75.34.75.75s-.34.75-.75.75Z" fill="currentColor"></path></svg>
+);
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
@@ -42,7 +58,7 @@ const AdminDashboard = () => {
     refetchInterval: 5000,
   });
 
-  const { data: siteAnnouncements } = useQuery({
+  useQuery({
     queryKey: ['siteAnnouncements'],
     queryFn: () => apiClient('/site-announcements'),
     refetchInterval: 10000,
@@ -208,8 +224,7 @@ const AdminDashboard = () => {
   };
 
   const handleServerChange = (index: number, field: 'name' | 'url', value: string) => {
-    const newServers = [...streamFormData.servers];
-    newServers[index][field] = value;
+    const newServers = streamFormData.servers.map((s, i) => i === index ? { ...s, [field]: value } : s);
     setStreamFormData({ ...streamFormData, servers: newServers });
 
     // Clear server specific error if user is typing
@@ -249,7 +264,7 @@ const AdminDashboard = () => {
 
     if (hasErrors) {
       setStreamFormErrors(newErrors);
-      toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
+      toast.error('Please fill in all required fields', { icon: <Warning2 color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300" /> });
       return;
     }
 
@@ -280,11 +295,11 @@ const AdminDashboard = () => {
       title: stream.title,
       speaker: stream.speaker,
       description: stream.description,
-      servers: stream.servers?.length ? stream.servers : [{ name: 'Server A', url: stream.streamUrl || '' }],
+      servers: stream.servers?.length ? JSON.parse(JSON.stringify(stream.servers)) : [{ name: 'Server A', url: stream.streamUrl || '' }],
       streamType: stream.streamType,
       thumbnail: stream.thumbnail || '',
-      allowedParentMohallas: stream.allowedParentMohallas || ['All'],
-      allowedChildMohallas: stream.allowedChildMohallas || ['All'],
+      allowedParentMohallas: stream.allowedParentMohallas ? [...stream.allowedParentMohallas] : ['All'],
+      allowedChildMohallas: stream.allowedChildMohallas ? [...stream.allowedChildMohallas] : ['All'],
       allowedGender: stream.allowedGender || 'All',
       visibility: stream.visibility || 'ADMIN'
     };
@@ -315,7 +330,7 @@ const AdminDashboard = () => {
           calculatedAge--;
         }
         setUserFormData(prev => ({ ...prev, age: calculatedAge.toString() }));
-      } catch (err) {
+      } catch {
         // Ignore parsing errors
       }
     } else {
@@ -362,11 +377,11 @@ const AdminDashboard = () => {
 
   const currentUser = useMemo(() => userStr ? JSON.parse(userStr) : null, [userStr]);
   const isSuperAdmin = currentUser?.isSuperAdmin;
-  const adminParentMohalla = useMemo(() => {
+  const adminParentMohalla = (() => {
     if (!currentUser?.mohalla || !mohallas) return 'All';
     const m = mohallas.find((m: any) => m.name.toLowerCase() === currentUser.mohalla.toLowerCase());
     return m?.parentMohalla || m?.name || currentUser.mohalla;
-  }, [currentUser?.mohalla, mohallas]);
+  })();
 
   const filteredStreams = useMemo(() => {
     if (!streams) return [];
@@ -378,7 +393,7 @@ const AdminDashboard = () => {
     if (!users) return [];
     if (isSuperAdmin) return users;
     return users.filter((u: any) => {
-      const parent = u.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
+      const parent = u.mohalla ? (mohallas?.find((m: any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
       return parent === adminParentMohalla;
     });
   }, [users, isSuperAdmin, adminParentMohalla, mohallas]);
@@ -387,7 +402,7 @@ const AdminDashboard = () => {
     if (!queries) return [];
     if (isSuperAdmin) return queries;
     return queries.filter((q: any) => {
-      const parent = q.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === q.mohalla.toLowerCase())?.parentMohalla || q.mohalla) : null;
+      const parent = q.mohalla ? (mohallas?.find((m: any) => m.name.toLowerCase() === q.mohalla.toLowerCase())?.parentMohalla || q.mohalla) : null;
       return parent === adminParentMohalla;
     });
   }, [queries, isSuperAdmin, adminParentMohalla, mohallas]);
@@ -396,8 +411,8 @@ const AdminDashboard = () => {
     if (!loginIssues) return [];
     if (isSuperAdmin) return loginIssues;
     return loginIssues.filter((i: any) => {
-      const u = users?.find((u:any) => u.itsId === i.itsId);
-      const parent = u?.mohalla ? (mohallas?.find((m:any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
+      const u = users?.find((u: any) => u.itsId === i.itsId);
+      const parent = u?.mohalla ? (mohallas?.find((m: any) => m.name.toLowerCase() === u.mohalla.toLowerCase())?.parentMohalla || u.mohalla) : null;
       return parent === adminParentMohalla;
     });
   }, [loginIssues, isSuperAdmin, adminParentMohalla, mohallas, users]);
@@ -586,7 +601,7 @@ const AdminDashboard = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('Please fill in all required fields', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
+        toast.error('Please fill in all required fields', { icon: <Warning2 color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300" /> });
       }
       return;
     }
@@ -671,6 +686,7 @@ const AdminDashboard = () => {
   }, [processedUsers, userPage]);
 
   React.useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setUserPage(1);
   }, [searchItsId, activeTab]);
 
@@ -691,19 +707,19 @@ const AdminDashboard = () => {
         <div className="w-full md:hidden bg-slate-50 dark:bg-slate-900/50 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-20">
           <div className="flex overflow-x-auto hide-scrollbar p-3 space-x-2">
             <button onClick={() => setActiveTab('stream')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Radio className="w-4 h-4 mr-2" /> Stream
+              <Radio color="currentColor"  size="20" variant={activeTab === 'stream' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Stream
             </button>
             <button onClick={() => setActiveTab('users')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Users className="w-4 h-4 mr-2" /> Members
+              <Profile2User color="currentColor"  size="20" variant={activeTab === 'users' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Members
             </button>
             <button onClick={() => setActiveTab('queries')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <LifeBuoy className="w-4 h-4 mr-2" /> Support
+              <MessageQuestion color="currentColor"  size="20" variant={activeTab === 'queries' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Support
             </button>
             <button onClick={() => setActiveTab('login-issues')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <AlertCircle className="w-4 h-4 mr-2" /> Logins
+              <SecurityUser color="currentColor"  size="20" variant={activeTab === 'login-issues' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Logins
             </button>
             <button onClick={() => setActiveTab('announcements')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Megaphone className="w-4 h-4 mr-2" /> Announcements
+              <VolumeHigh color="currentColor"  size="20" variant={activeTab === 'announcements' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Announcements
             </button>
           </div>
         </div>
@@ -712,26 +728,31 @@ const AdminDashboard = () => {
         <aside className="w-64 border-r border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50 p-6 hidden md:block sticky top-0 self-start max-h-[calc(100vh-10rem)] overflow-y-auto">
           <nav className="space-y-2">
             <div className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-4 px-3">Management</div>
-            <button onClick={() => setActiveTab('stream')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Radio className="w-4 h-4 mr-3" /> Live Stream
-            </button>
-            <button onClick={() => setActiveTab('users')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Users className="w-4 h-4 mr-3" /> Members
-            </button>
-            <button onClick={() => setActiveTab('queries')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <LifeBuoy className="w-4 h-4 mr-2.5" /> Support Queries
-            </button>
-            <button onClick={() => setActiveTab('login-issues')} className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <AlertCircle className="w-4 h-4 mr-2.5" /> Login Issues
-            </button>
-            <button onClick={() => setActiveTab('announcements')} className={`w-full flex items-center px-2 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Megaphone className="w-4 h-4 mr-2.5" /> Announcement Responses
-            </button>
+            <div role="button" tabIndex={0} onClick={() => setActiveTab('stream')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+              <Radio color="currentColor"  size="20" variant={activeTab === 'stream' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
+              <span>Live Stream</span>
+            </div>
+            <div role="button" tabIndex={0} onClick={() => setActiveTab('users')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+              <Profile2User color="currentColor"  size="20" variant={activeTab === 'users' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
+              <span>Members</span>
+            </div>
+            <div role="button" tabIndex={0} onClick={() => setActiveTab('queries')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+              <MessageQuestion color="currentColor"  size="20" variant={activeTab === 'queries' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
+              <span>Support Queries</span>
+            </div>
+            <div role="button" tabIndex={0} onClick={() => setActiveTab('login-issues')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+              <SecurityUser color="currentColor"  size="20" variant={activeTab === 'login-issues' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
+              <span>Login Issues</span>
+            </div>
+            <div role="button" tabIndex={0} onClick={() => setActiveTab('announcements')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
+              <VolumeHigh color="currentColor"  size="20" variant={activeTab === 'announcements' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
+              <span>Announcements</span>
+            </div>
           </nav>
         </aside>
 
         <main className="flex-1 p-4 md:p-8 w-full max-w-[100vw] overflow-x-hidden">
-          <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="max-w-4xl pb-10">
+          <motion.div key={activeTab} initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3 }} className="pb-10 max-w-full">
 
             {/* STREAMS TAB */}
             {activeTab === 'stream' && (
@@ -747,7 +768,7 @@ const AdminDashboard = () => {
                       className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Streams"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
@@ -756,7 +777,7 @@ const AdminDashboard = () => {
                       className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Streams"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingStreams ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                     <motion.button
                       layout
@@ -772,7 +793,7 @@ const AdminDashboard = () => {
                           transition={{ duration: 0.15 }}
                           className="flex items-center whitespace-nowrap"
                         >
-                          {(showStreamForm || editingStreamId) ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                          {(showStreamForm || editingStreamId) ? <Add color="currentColor" size="24" variant="Linear" className="mr-2 rotate-45" /> : <Add color="currentColor"  size="20" variant="Linear" className="mr-2" />}
                           {(showStreamForm || editingStreamId) ? 'Close Form' : 'Create Relay'}
                         </motion.div>
                       </AnimatePresence>
@@ -903,13 +924,13 @@ const AdminDashboard = () => {
                               >
                                 <div className="flex items-center">
                                   {streamFormData.streamType === 'YOUTUBE' ? (
-                                    <span className="flex items-center"><LinkIcon className="w-4 h-4 mr-2 text-red-500" /> YouTube / External Player</span>
+                                    <span className="flex items-center"><Link color="currentColor"  size="20" variant="Linear" className="mr-2 text-red-500" /> YouTube / External Player</span>
                                   ) : (
-                                    <span className="flex items-center"><Server className="w-4 h-4 mr-2 text-sky-500" /> Secure Proxy (HLS / RTMP)</span>
+                                    <span className="flex items-center"><Data color="currentColor"  size="20" variant="Linear" className="mr-2 text-sky-500" /> Secure Proxy (HLS / RTMP)</span>
                                   )}
                                 </div>
                                 <motion.div animate={{ rotate: showStreamTypeDropdown ? 180 : 0 }} className="text-slate-400 flex items-center justify-center">
-                                  <ChevronDown className="w-4 h-4" />
+                                  <ArrowDown2 color="currentColor"  size="20" variant="Linear" />
                                 </motion.div>
                               </button>
 
@@ -929,7 +950,7 @@ const AdminDashboard = () => {
                                       }}
                                       className={`p-4 cursor-pointer transition-colors border-b border-slate-100 flex items-start ${streamFormData.streamType === 'HLS' ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                                     >
-                                      <Server className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'HLS' ? 'text-sky-500' : 'text-slate-400'}`} />
+                                      <Data color="currentColor"  size="24" variant="Linear" className={`mt-0.5 mr-3 ${streamFormData.streamType === 'HLS' ? 'text-sky-500' : 'text-slate-400'}`} />
                                       <div>
                                         <div className={`font-semibold ${streamFormData.streamType === 'HLS' ? 'text-slate-900 dark:text-slate-50' : 'text-slate-700 dark:text-slate-200'}`}>Secure Proxy (HLS / RTMP)</div>
                                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Premium custom player. Hides origin URLs from users using tokens.</div>
@@ -942,7 +963,7 @@ const AdminDashboard = () => {
                                       }}
                                       className={`p-4 cursor-pointer transition-colors flex items-start ${streamFormData.streamType === 'YOUTUBE' ? 'bg-slate-50 dark:bg-slate-900/50' : 'hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                                     >
-                                      <LinkIcon className={`w-5 h-5 mt-0.5 mr-3 ${streamFormData.streamType === 'YOUTUBE' ? 'text-red-500' : 'text-slate-400'}`} />
+                                      <Link color="currentColor"  size="24" variant="Linear" className={`mt-0.5 mr-3 ${streamFormData.streamType === 'YOUTUBE' ? 'text-red-500' : 'text-slate-400'}`} />
                                       <div>
                                         <div className={`font-semibold ${streamFormData.streamType === 'YOUTUBE' ? 'text-slate-900 dark:text-slate-50' : 'text-slate-700 dark:text-slate-200'}`}>YouTube / External Link</div>
                                         <div className="text-xs text-slate-500 dark:text-slate-400 mt-1">Standard embedded player. Best for public youtube links or Google Drive.</div>
@@ -983,7 +1004,7 @@ const AdminDashboard = () => {
                               <div className="mt-3 relative w-32 h-20 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-900/50">
                                 <img src={streamFormData.thumbnail} alt="Thumbnail preview" className="w-full h-full object-cover" />
                                 <button type="button" onClick={() => setStreamFormData({ ...streamFormData, thumbnail: '' })} className="absolute top-1 right-1 bg-black/50 text-white rounded-full p-1 hover:bg-red-50 dark:!bg-red-500/100 transition-colors">
-                                  <X className="w-3 h-3" />
+                                  <Add color="currentColor" size="32" className="w-6 h-6 sm:w-7 sm:h-7 rotate-45" />
                                 </button>
                               </div>
                             )}
@@ -993,7 +1014,7 @@ const AdminDashboard = () => {
                             <div className="flex justify-between items-center mb-4">
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wide">Server Connections</label>
                               <button type="button" onClick={addServer} className="text-xs font-medium text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover flex items-center bg-sky-50 dark:bg-slate-800 px-3 py-1.5 rounded-full border border-sky-100 dark:border-slate-700">
-                                <Plus className="w-3 h-3 mr-1" /> Add Server
+                                <Add color="currentColor"  size="12" variant="Linear" className="mr-1" /> Add Server
                               </button>
                             </div>
 
@@ -1022,7 +1043,7 @@ const AdminDashboard = () => {
                                   </div>
                                   {streamFormData.servers.length > 1 && (
                                     <button type="button" onClick={() => removeServer(idx)} className="text-slate-400 hover:text-red-500 p-2">
-                                      <Trash2 className="w-4 h-4" />
+                                      <Trash color="currentColor"  size="20" variant="Linear" />
                                     </button>
                                   )}
                                 </div>
@@ -1123,14 +1144,14 @@ const AdminDashboard = () => {
                                   }} className="inline-flex items-center px-3 py-1.5 bg-brand-accent text-white text-xs font-semibold rounded shadow-sm hover:bg-brand-accent-hover transition-colors">Go Live</button>
                                 )}
                                 <button onClick={() => handleEditStream(stream)} className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors inline-flex align-middle" title="Edit Relay">
-                                  <Edit2 className="w-4 h-4" />
+                                  <Edit2 color="currentColor"  size="20" variant="Linear" />
                                 </button>
                                 <button onClick={async () => {
                                   if (await confirm('Are you sure you want to delete this relay?', { confirmText: 'Delete Relay' })) {
                                     deleteStreamMutation.mutate(stream._id);
                                   }
                                 }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete Relay">
-                                  <Trash2 className="w-4 h-4" />
+                                  <Trash color="currentColor"  size="20" variant="Linear" />
                                 </button>
                               </div>
                             </td>
@@ -1161,7 +1182,7 @@ const AdminDashboard = () => {
                       className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Members"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
@@ -1169,7 +1190,7 @@ const AdminDashboard = () => {
                       onClick={() => setShowMohallaManager(!showMohallaManager)}
                       className={`btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-4 transition-colors ${showMohallaManager ? 'bg-slate-100 dark:bg-slate-800 border-slate-300 dark:border-slate-600' : 'bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800'}`}
                     >
-                      <Plus className={`w-4 h-4 mr-2 transition-transform ${showMohallaManager ? 'rotate-45' : ''}`} />
+                      <Add color="currentColor"  size="20" variant="Linear" className={`mr-2 transition-transform ${showMohallaManager ? 'rotate-45' : ''}`} />
                       Manage Mohallas
                     </button>
                     <button
@@ -1177,7 +1198,7 @@ const AdminDashboard = () => {
                       className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Members"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingUsers ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                     <motion.button
                       layout
@@ -1192,7 +1213,7 @@ const AdminDashboard = () => {
                           exit={{ opacity: 0, rotate: 90 }}
                           transition={{ duration: 0.15 }}
                         >
-                          {showUserForm ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                          {showUserForm ? <Add color="currentColor" size="24" variant="Linear" className="mr-2 rotate-45" /> : <Add color="currentColor"  size="20" variant="Linear" className="mr-2" />}
                         </motion.div>
                       </AnimatePresence>
                       {showUserForm ? 'Close' : 'Add Member'}
@@ -1211,7 +1232,7 @@ const AdminDashboard = () => {
                       <div className="clean-panel p-6 border-brand-accent/20 mb-6 bg-slate-50 dark:bg-slate-900/50">
                         <div className="flex justify-between items-center mb-6">
                           <h3 className="text-lg font-medium text-brand-dark">Manage Mohallas</h3>
-                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:text-slate-200 transition-colors"><X className="w-5 h-5" /></button>
+                          <button onClick={() => setShowMohallaManager(false)} className="text-slate-400 hover:text-slate-600 dark:text-slate-300 dark:text-slate-200 transition-colors"><Add color="currentColor" size="32" className="w-6 h-6 sm:w-7 sm:h-7 rotate-45" /></button>
                         </div>
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-6">
                           <div className="w-full sm:w-48 shrink-0">
@@ -1299,7 +1320,7 @@ const AdminDashboard = () => {
                                           className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover p-1 transition-colors"
                                           title="Edit Mohallah"
                                         >
-                                          <Edit2 className="w-4 h-4" />
+                                          <Edit2 color="currentColor"  size="20" variant="Linear" />
                                         </button>
                                         <button
                                           onClick={async () => {
@@ -1310,7 +1331,7 @@ const AdminDashboard = () => {
                                           className="text-red-500 hover:text-red-700 p-1 transition-colors"
                                           title="Delete Mohallah"
                                         >
-                                          <Trash2 className="w-4 h-4" />
+                                          <Trash color="currentColor"  size="20" variant="Linear" />
                                         </button>
                                       </div>
                                     </td>
@@ -1443,7 +1464,7 @@ const AdminDashboard = () => {
 
                 <div className="mb-4 flex items-center justify-end">
                   <div className="relative w-full sm:w-64">
-                    <Search className="w-4 h-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
+                    <SearchNormal1 color="currentColor"  size="20" variant="Linear" className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400" />
                     <input
                       type="number"
                       inputMode="numeric"
@@ -1520,7 +1541,7 @@ const AdminDashboard = () => {
                             </td>
                             <td className="px-4 py-4">
                               <button onClick={() => toggleRelayAccessMutation.mutate({ id: user._id, hasRelayAccess: !user.hasRelayAccess })} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 transition-colors inline-flex align-middle" title={user.hasRelayAccess ? 'Revoke Relay Access' : 'Grant Relay Access'}>
-                                {user.hasRelayAccess ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+                                {user.hasRelayAccess ? <ToggleOnCircle color="currentColor"  size="24" variant="Linear" className="text-emerald-600" /> : <ToggleOffCircle color="currentColor"  size="24" variant="Linear" className="text-slate-400" />}
                               </button>
                             </td>
                             <td className="px-4 py-4 max-w-[200px]">
@@ -1551,17 +1572,17 @@ const AdminDashboard = () => {
                                   toggleUserStatusMutation.mutate({ id: user._id, isActive: true });
                                 }
                               }} className="text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:text-slate-100 transition-colors inline-flex align-middle" title={user.isActive ? 'Disable User' : 'Enable User'}>
-                                {user.isActive ? <ToggleRight className="w-5 h-5 text-emerald-600" /> : <ToggleLeft className="w-5 h-5 text-slate-400" />}
+                                {user.isActive ? <ToggleOnCircle color="currentColor"  size="24" variant="Linear" className="text-emerald-600" /> : <ToggleOffCircle color="currentColor"  size="24" variant="Linear" className="text-slate-400" />}
                               </button>
                               <button onClick={() => handleEditUser(user)} className="text-brand-accent dark:text-blue-300 hover:text-brand-accent dark:text-blue-300-hover transition-colors inline-flex align-middle" title="Edit User">
-                                <Edit2 className="w-4 h-4" />
+                                <Edit2 color="currentColor"  size="20" variant="Linear" />
                               </button>
                               <button onClick={async () => {
                                 if (await confirm(`Are you sure you want to delete ${user.fullName}?`, { confirmText: 'Delete User' })) {
                                   deleteUserMutation.mutate(user._id);
                                 }
                               }} className="text-red-500 hover:text-red-700 transition-colors inline-flex align-middle" title="Delete User">
-                                <Trash2 className="w-4 h-4" />
+                                <Trash color="currentColor"  size="20" variant="Linear" />
                               </button>
                               {user.sessionStatus === 'inUse' && (
                                 <button onClick={async () => {
@@ -1569,7 +1590,7 @@ const AdminDashboard = () => {
                                     forceLogoutUserMutation.mutate(user._id);
                                   }
                                 }} className="text-orange-500 hover:text-orange-700 transition-colors inline-flex align-middle ml-3 border-l border-slate-200 dark:border-slate-700 pl-3" title="Force Logout">
-                                  <LogOut className="w-4 h-4" />
+                                  <Logout color="currentColor"  size="20" variant="Linear" />
                                 </button>
                               )}
                             </td>
@@ -1599,7 +1620,7 @@ const AdminDashboard = () => {
                       className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Queries"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
@@ -1608,7 +1629,7 @@ const AdminDashboard = () => {
                       className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Queries"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingQueries ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                 </div>
@@ -1647,7 +1668,7 @@ const AdminDashboard = () => {
                                 className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Query"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash color="currentColor"  size="20" variant="Linear" className="mr-2" />
                                 <span className="text-sm font-medium">Delete</span>
                               </button>
                             </div>
@@ -1725,7 +1746,7 @@ const AdminDashboard = () => {
                                         }}
                                         className="text-slate-400 hover:text-red-500 transition-colors"
                                       >
-                                        <Trash2 className="w-4 h-4" />
+                                        <Trash color="currentColor"  size="20" variant="Linear" />
                                       </button>
                                     </td>
                                   </tr>
@@ -1759,7 +1780,7 @@ const AdminDashboard = () => {
                       className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 shrink-0 ml-4"
                       title="Refresh Login Issues"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                   <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
@@ -1768,7 +1789,7 @@ const AdminDashboard = () => {
                       className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800"
                       title="Refresh Login Issues"
                     >
-                      <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                      <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 dark:text-slate-200 ${isFetchingLoginIssues ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} style={{ animationDirection: 'reverse' }} />
                     </button>
                   </div>
                 </div>
@@ -1807,7 +1828,7 @@ const AdminDashboard = () => {
                                 className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Login Issue"
                               >
-                                <Trash2 className="w-4 h-4 mr-2" />
+                                <Trash color="currentColor"  size="20" variant="Linear" className="mr-2" />
                                 <span className="text-sm font-medium">Delete</span>
                               </button>
                             </div>
@@ -1890,7 +1911,7 @@ const AdminDashboard = () => {
                                           }}
                                           className="text-slate-400 hover:text-red-500 transition-colors"
                                         >
-                                          <Trash2 className="w-4 h-4" />
+                                          <Trash color="currentColor"  size="20" variant="Linear" />
                                         </button>
                                       </td>
                                     </tr>

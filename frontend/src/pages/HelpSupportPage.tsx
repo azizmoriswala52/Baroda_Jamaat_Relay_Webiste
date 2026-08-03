@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
-import { HelpCircle, Send } from 'lucide-react';
+import { InfoCircle, Send2 } from 'iconsax-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import toast from 'react-hot-toast';
 import { motion } from 'framer-motion';
@@ -76,7 +76,7 @@ const HelpSupportPage = () => {
       <div className="max-w-2xl">
         <div className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md rounded-2xl shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:shadow-[0_8px_30px_rgb(0,0,0,0.1)] border border-white/50 dark:border-slate-800 p-8 relative">
           <div className="flex items-center space-x-3 mb-6">
-            <HelpCircle className="w-5 h-5 text-brand-accent dark:text-blue-300 shrink-0" />
+            <InfoCircle color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300 shrink-0" />
             <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100">Contact Support</h3>
           </div>
 
@@ -122,7 +122,7 @@ const HelpSupportPage = () => {
                   </span>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 mr-2" />
+                    <Send2 color="currentColor"  size="20" variant="Linear" className="mr-2" />
                     Submit Support Request
                   </>
                 )}

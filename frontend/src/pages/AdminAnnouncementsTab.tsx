@@ -1,12 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, CheckCircle2, Download, Edit2, Eye, Plus, Trash2, X, RefreshCw } from 'lucide-react';
+import { Check, TickCircle, DocumentDownload, Edit2, Eye, Add, Trash, Refresh2 } from 'iconsax-react';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
 import CustomDropdown from '../components/CustomDropdown';
 import MultiSelectDropdown from '../components/MultiSelectDropdown';
 import { useConfirm } from '../contexts/ConfirmContext';
+
 
 const ResponseTable = ({
   announcement,
@@ -120,13 +121,13 @@ const ResponseTable = ({
                 onClick={() => handleDownloadCsv(announcement)}
                 className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50"
               >
-                <Download className="w-4 h-4 mr-1.5" /> Download CSV
+                <DocumentDownload color="currentColor"  size="20" variant="Linear" className="mr-1.5" /> Download CSV
               </button>
               <button
                 onClick={() => setSelectedAnnouncement(null)}
                 className="btn-secondary text-sm font-medium flex items-center px-3 py-1.5 bg-white dark:bg-slate-800 border-slate-300 dark:border-slate-600 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50"
               >
-                <X className="w-4 h-4 mr-1" /> Close
+                <Add color="currentColor" size="24" variant="Linear" className="mr-1 shrink-0 rotate-45" /> Close
               </button>
             </div>
           )}
@@ -652,7 +653,7 @@ const AdminAnnouncementsTab = () => {
             className="md:hidden btn-secondary flex items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 shrink-0 ml-4 disabled:opacity-50"
             title="Refresh Announcements"
           >
-            <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+            <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
           </button>
         </div>
         <div className="flex flex-wrap items-center justify-end gap-3 w-full md:w-auto">
@@ -662,7 +663,7 @@ const AdminAnnouncementsTab = () => {
             className="hidden md:flex btn-secondary items-center shadow-sm overflow-hidden min-h-[38px] px-3 border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 disabled:opacity-50"
             title="Refresh Announcements"
           >
-            <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+            <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
           </button>
           <motion.button
             layout
@@ -678,7 +679,7 @@ const AdminAnnouncementsTab = () => {
                 transition={{ duration: 0.15 }}
                 className="flex items-center whitespace-nowrap"
               >
-                {(showForm || editingAnnouncementId) ? <X className="w-4 h-4 mr-2" /> : <Plus className="w-4 h-4 mr-2" />}
+                {(showForm || editingAnnouncementId) ? <Add color="currentColor" size="24" variant="Linear" className="mr-2 rotate-45" /> : <Add color="currentColor"  size="20" variant="Linear" className="mr-2" />}
                 {(showForm || editingAnnouncementId) ? 'Close Form' : 'Create Announcement'}
               </motion.div>
             </AnimatePresence>
@@ -868,7 +869,7 @@ const AdminAnnouncementsTab = () => {
                           }}
                           className="absolute top-4 right-4 text-slate-400 hover:text-red-500 transition-colors"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash color="currentColor"  size="20" variant="Linear" />
                         </button>
 
                         <div className="grid grid-cols-1 md:grid-cols-12 gap-4">
@@ -916,10 +917,8 @@ const AdminAnnouncementsTab = () => {
                               className="flex items-center space-x-3 cursor-pointer group focus:outline-none"
                             >
                               <div className={`w-4 h-4 rounded border flex items-center justify-center flex-shrink-0 transition-colors ${field.required
-                                ? 'bg-brand-accent border-brand-accent text-white'
-                                : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
                                 }`}>
-                                {field.required && <Check className="w-3 h-3" />}
+                                {field.required && <Check color="currentColor"  size="12" variant="Linear" />}
                               </div>
                               <span className="text-sm text-slate-700 dark:text-slate-200 font-medium">Required Field</span>
                             </button>
@@ -957,7 +956,7 @@ const AdminAnnouncementsTab = () => {
                         onClick={() => setFormData({ ...formData, formFields: [...formData.formFields, { name: '', type: 'text', options: '', required: false }] })}
                         className="text-sm font-semibold text-brand-accent dark:text-blue-300 hover:underline flex items-center transition-colors"
                       >
-                        <Plus className="w-4 h-4 mr-1" /> Add Field
+                        <Add color="currentColor"  size="20" variant="Linear" className="mr-1" /> Add Field
                       </button>
                     </div>
                   </motion.div>
@@ -1033,17 +1032,17 @@ const AdminAnnouncementsTab = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       {announcement.responseType === 'APPROVAL' ? (
                         <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-amber-50 text-amber-700 border border-amber-200">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          <TickCircle color="currentColor"  size="12" variant="Linear" className="mr-1" />
                           APPROVAL
                         </span>
                       ) : announcement.responseType === 'RSVP' ? (
                         <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          <TickCircle color="currentColor"  size="12" variant="Linear" className="mr-1" />
                           RSVP
                         </span>
                       ) : announcement.responseType === 'FORM' ? (
                         <span className="inline-flex items-center px-2.5 py-1 rounded text-[10px] font-bold bg-purple-50 text-purple-700 border border-purple-200">
-                          <CheckCircle2 className="w-3 h-3 mr-1" />
+                          <TickCircle color="currentColor"  size="12" variant="Linear" className="mr-1" />
                           FORM
                         </span>
                       ) : (
@@ -1057,7 +1056,7 @@ const AdminAnnouncementsTab = () => {
                             onClick={() => setSelectedAnnouncement(announcement)}
                             className={`inline-flex items-center px-3 py-1.5 rounded-md text-xs font-semibold transition-colors ${selectedAnnouncement?._id === announcement._id ? 'bg-brand-accent text-white shadow-md' : 'bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 text-slate-700 dark:text-slate-200 hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 shadow-sm'}`}
                           >
-                            <Eye className="w-3 h-3 mr-1.5" /> View Responses
+                            <Eye color="currentColor"  size="12" variant="Linear" className="mr-1.5" /> View Responses
                           </button>
                         )}
                         <button
@@ -1065,7 +1064,7 @@ const AdminAnnouncementsTab = () => {
                           className="p-1.5 text-slate-400 hover:text-brand-accent dark:text-blue-300 hover:bg-sky-50 dark:hover:bg-slate-800 dark:hover:bg-slate-800 rounded transition-colors inline-flex align-middle"
                           title="Edit"
                         >
-                          <Edit2 className="w-4 h-4" />
+                          <Edit2 color="currentColor"  size="20" variant="Linear" />
                         </button>
                         <button
                           onClick={async () => {
@@ -1076,7 +1075,7 @@ const AdminAnnouncementsTab = () => {
                           className="text-slate-400 hover:text-red-600 transition-colors inline-flex align-middle p-1.5 rounded hover:bg-red-50"
                           title="Delete Announcement"
                         >
-                          <Trash2 className="w-4 h-4" />
+                          <Trash color="currentColor"  size="20" variant="Linear" />
                         </button>
                       </div>
                     </td>

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Menu, Home, Video, Settings, LogOut, User, ShieldAlert, LifeBuoy, Megaphone, Sun, Moon } from 'lucide-react';
+import { HambergerMenu, Home2, Video, Setting2, Logout, User, ShieldSecurity, Lifebuoy, NotificationStatus, Add, Sun1, Moon } from 'iconsax-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
@@ -274,16 +274,16 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             onClick={() => setIsSidebarExpanded(!isSidebarExpanded)}
             className="text-white hover:text-slate-200 transition-colors hidden md:block focus:outline-none p-1"
           >
-            <Menu className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
+            <HambergerMenu color="currentColor"  size="28" variant="Linear" className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
           </button>
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="text-white hover:text-slate-200 transition-colors md:hidden focus:outline-none p-1"
           >
             {isMobileMenuOpen ? (
-              <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" /></svg>
+              <Add color="currentColor" size="32" className="w-6 h-6 sm:w-7 sm:h-7 rotate-45" />
             ) : (
-              <Menu className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
+              <HambergerMenu color="currentColor"  size="28" variant="Linear" className="w-5 h-5 sm:w-6 sm:h-6 scale-x-[1.2]" />
             )}
           </button>
           <Link to="/home" className="flex items-center group ml-1 sm:ml-2">
@@ -307,7 +307,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 transition={{ duration: 0.2 }}
                 className="absolute inset-0 flex items-center justify-center"
               >
-                {theme === 'dark' ? <Sun className="w-4 h-4 sm:w-5 sm:h-5" /> : <Moon className="w-4 h-4 sm:w-5 sm:h-5" />}
+                {theme === 'dark' ? <Sun1 color="currentColor" variant="Bold" className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500" /> : <Moon color="currentColor" variant="Bold" className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-400" />}
               </motion.div>
             </AnimatePresence>
           </button>
@@ -319,7 +319,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </span>
               <span className="text-sm text-white font-medium group-hover:text-slate-200 transition-colors whitespace-nowrap hidden sm:block">{displayName}</span>
               <div className="w-8 h-8 shrink-0 rounded-full bg-white dark:bg-slate-800 text-brand-accent dark:text-blue-300 flex items-center justify-center font-bold shadow-sm">
-                <User className="w-4 h-4" />
+                <User color="currentColor" size="20" variant="Linear" className="w-4 h-4" />
               </div>
             </div>
           </div>
@@ -341,7 +341,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               title="Home"
               className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/home') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
             >
-              <Home className="w-5 h-5 shrink-0" />
+              <Home2 color="currentColor"  size="24" variant={isActive('/home') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
               <motion.span 
                 animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -356,7 +356,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               title="Announcements"
               className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/announcements') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
             >
-              <Megaphone className="w-5 h-5 shrink-0" />
+              <NotificationStatus color="currentColor"  size="24" variant={isActive('/announcements') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
               <motion.span 
                 animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -372,7 +372,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title="Relay Dashboard"
                 className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
               >
-                <Video className="w-5 h-5 shrink-0" />
+                <Video color="currentColor"  size="24" variant={(isActive('/dashboard') || isActive('/relay')) ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
                 <motion.span 
                   animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -389,7 +389,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title="Admin Dashboard"
                 className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/admin') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
               >
-                <ShieldAlert className="w-5 h-5 shrink-0" />
+                <ShieldSecurity color="currentColor"  size="24" variant={isActive('/admin') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
                 <motion.span 
                   animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -405,7 +405,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               title="Settings"
               className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/profile') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
             >
-              <Settings className="w-5 h-5 shrink-0" />
+              <Setting2 color="currentColor"  size="24" variant={isActive('/profile') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
               <motion.span 
                 animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -420,7 +420,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               title="Help & Support"
               className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/support') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
             >
-              <LifeBuoy className="w-5 h-5 shrink-0" />
+              <Lifebuoy color="currentColor"  size="24" variant={isActive('/support') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
               <motion.span 
                 animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                 transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -436,7 +436,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 title="Logout"
                 className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors text-red-600 hover:bg-red-50 w-full whitespace-nowrap`}
               >
-                <LogOut className="w-5 h-5 shrink-0" />
+                <Logout color="currentColor"  size="24" variant="Linear" className="w-5 h-5 shrink-0" />
                 <motion.span 
                   animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
@@ -483,7 +483,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
             <div className="p-6 border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <div className="flex items-center space-x-3">
                 <div className="w-12 h-12 rounded-full bg-white dark:bg-slate-700 text-brand-accent dark:text-blue-300 flex items-center justify-center font-bold shadow-sm text-xl border border-slate-200 dark:border-slate-600">
-                  <User className="w-6 h-6" />
+                  <User color="currentColor" size="28" variant="Linear" className="w-6 h-6" />
                 </div>
                 <div>
                   <div className="font-bold text-slate-800 dark:text-white text-lg leading-tight">{user?.fullName || 'User'}</div>
@@ -494,29 +494,29 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
 
             <nav className="flex flex-col space-y-2 p-6">
               <Link to="/home" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/home') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                <Home className="w-6 h-6 mr-4" /> Home
+                <Home2 color="currentColor"  size="28" variant={isActive('/home') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Home
               </Link>
               <Link to="/announcements" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/announcements') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                <Megaphone className="w-6 h-6 mr-4" /> Announcements
+                <NotificationStatus color="currentColor"  size="28" variant={isActive('/announcements') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Announcements
               </Link>
               {hasAccess && (
                 <Link to="/dashboard" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/dashboard') || isActive('/relay') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                  <Video className="w-6 h-6 mr-4" /> Relay Dashboard
+                  <Video color="currentColor"  size="28" variant={(isActive('/dashboard') || isActive('/relay')) ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Relay Dashboard
                 </Link>
               )}
               {user?.role === 'ADMIN' && (
                 <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/admin') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                  <ShieldAlert className="w-6 h-6 mr-4" /> Admin Dashboard
+                  <ShieldSecurity color="currentColor"  size="28" variant={isActive('/admin') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Admin Dashboard
                 </Link>
               )}
               <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/profile') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                <Settings className="w-6 h-6 mr-4" /> Settings
+                <Setting2 color="currentColor"  size="28" variant={isActive('/profile') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Settings
               </Link>
               <Link to="/support" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/support') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                <LifeBuoy className="w-6 h-6 mr-4" /> Help & Support
+                <Lifebuoy color="currentColor"  size="28" variant={isActive('/support') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Help & Support
               </Link>
               <button onClick={() => { setIsMobileMenuOpen(false); handleLogoutWithConfirm(); }} className="flex items-center p-4 rounded-xl text-base font-semibold transition-colors text-red-600 mt-8 border border-red-100 bg-red-50">
-                <LogOut className="w-6 h-6 mr-4" /> Logout
+                <Logout color="currentColor"  size="28" variant="Linear" className="w-6 h-6 mr-4" /> Logout
               </button>
 
               <div className="mt-8 text-left px-4">

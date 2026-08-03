@@ -3,12 +3,14 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import { useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
-import { HelpCircle, Send, ArrowLeft, AlertCircle } from 'lucide-react';
+import { InfoCircle, Send2, ArrowLeft, Warning2 } from 'iconsax-react';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { motion, AnimatePresence } from 'framer-motion';
 
 const LoginPage = () => {
   // Login State
+  const [supportMessage, setSupportMessage] = useState('');
+  
   const [itsId, setItsId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -134,7 +136,7 @@ const LoginPage = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('All fields are required', { icon: <AlertCircle className="w-5 h-5 text-brand-accent dark:text-blue-300" /> });
+        toast.error('All fields are required', { icon: <Warning2 color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300" /> });
       }
       return;
     }
@@ -210,7 +212,9 @@ const LoginPage = () => {
                   exit={{ opacity: 0, x: 20 }}
                   transition={{ duration: 0.2 }}
                 >
-                  <h2 className="text-3xl text-center text-slate-800 dark:text-slate-100 mb-10 font-light tracking-wide">Sign In</h2>
+                  <h2 className="text-3xl text-center text-slate-800 dark:text-slate-100 mb-10 font-light tracking-wide">
+                    Sign In
+                  </h2>
                   <form className="space-y-5" onSubmit={handleLogin} noValidate>
                     {error && (
                       <div className="bg-red-50 text-red-600 p-3 rounded-lg text-sm text-center border border-red-100 font-medium">
@@ -308,11 +312,11 @@ const LoginPage = () => {
                     onClick={() => setShowIssueForm(false)}
                     className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-brand-accent dark:text-blue-300 transition-colors mb-6 bg-transparent border-none p-0 cursor-pointer"
                   >
-                    <ArrowLeft className="w-4 h-4 mr-1" /> Back to Login
+                    <ArrowLeft color="currentColor"  size="20" variant="Linear" className="mr-1" /> Back to Login
                   </button>
 
                   <div className="flex items-center space-x-3 mb-8">
-                    <HelpCircle className="w-5 h-5 text-brand-accent dark:text-blue-300 shrink-0" />
+                    <InfoCircle color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300 shrink-0" />
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-none mb-1">Login Issue</h2>
                       <p className="text-sm text-slate-500 dark:text-slate-400">Submit your details to get help.</p>
@@ -366,7 +370,7 @@ const LoginPage = () => {
                           </span>
                         ) : (
                           <>
-                            <Send className="w-4 h-4 mr-2" />
+                            <Send2 color="currentColor"  size="20" variant="Linear" className="mr-2" />
                             Submit Support Request
                           </>
                         )}

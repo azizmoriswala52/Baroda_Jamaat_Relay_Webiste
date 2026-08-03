@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown } from 'lucide-react';
+import { ArrowDown2 } from 'iconsax-react';
 
 interface Option {
   label: string;
@@ -112,7 +112,7 @@ const CustomDropdown: React.FC<CustomDropdownProps> = ({ options, value, onChang
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }}>
-          <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <ArrowDown2 color="currentColor"  size="20" variant="Linear" className="text-slate-500 dark:text-slate-400" />
         </motion.div>
       </button>
 

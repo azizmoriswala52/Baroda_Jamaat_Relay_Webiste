@@ -31,7 +31,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
       return;
     }
 
-    const { fullName, email, mobile, password } = req.body;
+    const { fullName, email, mobile, password, age, dobEnglish, dobHijri, gender, mohalla } = req.body;
 
     const user = await User.findById((req as any).user.userId);
     if (!user) {
@@ -42,6 +42,11 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
     if (fullName) user.fullName = fullName;
     if (email) user.email = email;
     if (mobile) user.mobile = mobile;
+    if (age !== undefined) user.age = age;
+    if (dobEnglish !== undefined) user.dobEnglish = dobEnglish;
+    if (dobHijri !== undefined) user.dobHijri = dobHijri;
+    if (gender) user.gender = gender;
+    if (mohalla) user.mohalla = mohalla;
     
     if (password && password.trim().length > 0) {
       const salt = await bcrypt.genSalt(10);

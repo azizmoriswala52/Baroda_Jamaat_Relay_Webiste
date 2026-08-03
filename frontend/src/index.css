@@ -89,3 +89,21 @@
 .animate-gentle-shake {
   animation: gentle-shake 0.3s cubic-bezier(.36, .07, .19, .97) both;
 }
+/* Anti-Screenshot / Printing Deterrents */
+@media print {
+  html, body {
+    display: none !important;
+  }
+}
+
+body {
+  -webkit-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}
+
+input, textarea {
+  -webkit-user-select: text;
+  -ms-user-select: text;
+  user-select: text;
+}

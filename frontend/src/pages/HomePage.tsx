@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
-import { Radio, BellRing, UserCircle } from 'lucide-react';
+import { Radio, NotificationBing, ProfileCircle } from 'iconsax-react';
 
 const HomePage = () => {
   const userStr = sessionStorage.getItem('user');
@@ -11,17 +11,17 @@ const HomePage = () => {
 
   const features = [
     {
-      icon: <Radio className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      icon: <Radio color="currentColor"  size="32" variant="Linear" className="text-brand-accent dark:text-blue-300" />,
       title: 'Spiritual Connection',
       description: 'Participate in live spiritual sessions and access our archive of essential community recordings.'
     },
     {
-      icon: <BellRing className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      icon: <NotificationBing color="currentColor"  size="32" variant="Linear" className="text-brand-accent dark:text-blue-300" />,
       title: 'Community Updates',
       description: 'Stay informed with the latest news, schedules, and important announcements from the jamaat.'
     },
     {
-      icon: <UserCircle className="w-8 h-8 text-brand-accent dark:text-blue-300" />,
+      icon: <ProfileCircle color="currentColor"  size="32" variant="Linear" className="text-brand-accent dark:text-blue-300" />,
       title: 'Active Engagement',
       description: 'A secure and authenticated space to connect with the community and participate in events.'
     }

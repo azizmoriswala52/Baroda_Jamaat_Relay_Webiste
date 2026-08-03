@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, PlayCircle, Settings, Users, Server, ExternalLink, RefreshCw, Radio, FileText, ChevronRight, Share2, MessageSquare, Plus, Trash2, Calendar, Menu, Home, Video, LogOut, User, Bell, Maximize, Volume2, VolumeX, Pause, Play } from 'lucide-react';
+import { Warning2, PlayCircle, Setting2, Profile2User, Data, ExportSquare, Refresh2, Radio, DocumentText, ArrowRight2, Share, Message, Add, Trash, Calendar, HambergerMenu, Home2, Video, Logout, Profile, Notification, Maximize4, VolumeHigh, VolumeCross, Pause, Play } from 'iconsax-react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -219,7 +219,7 @@ const RelayPage = () => {
                 className="p-2 transition-colors bg-transparent border-none cursor-pointer group"
                 title="Refresh Stream"
               >
-                <RefreshCw className={`w-4 h-4 text-slate-600 dark:text-slate-300 group-hover:text-brand-accent dark:text-blue-300 transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+                <Refresh2 color="currentColor"  size="16" variant="Linear" className={`text-slate-600 dark:text-slate-300 group-hover:text-brand-accent dark:text-blue-300 transition-colors ${isFetchingStream ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
               </button>
               <span className="bg-red-600 text-white px-4 py-1.5 rounded-full text-xs font-bold tracking-widest flex items-center shadow-sm">
                 <span className="w-2 h-2 rounded-full bg-white animate-pulse mr-2"></span> LIVE NOW
@@ -257,7 +257,7 @@ const RelayPage = () => {
           {streamErrorMsg ? (
             <div className="w-full aspect-video rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex flex-col items-center justify-center p-8 text-center">
               <div className="w-20 h-20 rounded-full bg-red-50 dark:bg-red-900/30 flex items-center justify-center mb-4">
-                <AlertCircle className="w-10 h-10 text-red-500" />
+                <Warning2 color="currentColor"  size="40" variant="Linear" className="text-red-500" />
               </div>
               <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-2">Access Denied</h3>
               <p className="text-slate-600 dark:text-slate-300 font-medium">{streamErrorMsg}</p>
@@ -267,7 +267,7 @@ const RelayPage = () => {
             <div ref={placeholderRef} className="w-full aspect-video rounded-2xl bg-transparent relative">
               {!isCurrentlyLive && !isFetchingStream && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-slate-100 dark:bg-slate-800 rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-600">
-                  <Video className="w-12 h-12 text-slate-300 mb-4" />
+                  <Video color="currentColor"  size="48" variant="Linear" className="text-slate-300 mb-4" />
                   <h3 className="text-lg font-bold text-slate-500 dark:text-slate-400 mb-1">Relay Offline</h3>
                   <p className="text-sm text-slate-400">Waiting for stream to begin...</p>
                 </div>
@@ -305,7 +305,7 @@ const RelayPage = () => {
           <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
             <div className="bg-slate-200 dark:bg-slate-700 dark:bg-slate-800 px-6 py-4 border-b border-slate-300 dark:border-slate-600 dark:border-slate-700 flex justify-between items-center">
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 dark:text-slate-300 flex items-center">
-                <Calendar className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                <Calendar color="currentColor"  size="20" variant="Linear" className="mr-2 text-slate-500 dark:text-slate-400" />
                 Schedule
               </h3>
             </div>
@@ -325,7 +325,7 @@ const RelayPage = () => {
                     className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${scheduleError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200 dark:border-slate-700'}`}
                   />
                   <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
-                    <Plus className="w-4 h-4" />
+                    <Add color="currentColor"  size="20" variant="Linear" />
                   </button>
                 </div>
                 {scheduleError && <p className="text-red-500 text-xs px-1">Schedule Event Title is required</p>}
@@ -348,7 +348,7 @@ const RelayPage = () => {
                     </div>
                     {isAdmin && (
                       <button onClick={() => deleteAnnMutation.mutate(item._id)} className="text-slate-300 hover:text-red-500 transition-colors ml-2 flex-shrink-0">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash color="currentColor"  size="20" variant="Linear" />
                       </button>
                     )}
                   </div>
@@ -363,7 +363,7 @@ const RelayPage = () => {
           <div className="clean-panel flex flex-col flex-1 max-h-[450px]">
             <div className="bg-slate-200 dark:bg-slate-700 px-6 py-4 border-b border-slate-300 dark:border-slate-600 flex justify-between items-center">
               <h3 className="text-xs font-bold uppercase tracking-widest text-slate-700 dark:text-slate-200 flex items-center">
-                <Bell className="w-4 h-4 mr-2 text-slate-500 dark:text-slate-400" />
+                <Notification color="currentColor"  size="20" variant="Linear" className="mr-2 text-slate-500 dark:text-slate-400" />
                 Live Updates
               </h3>
             </div>
@@ -383,7 +383,7 @@ const RelayPage = () => {
                     className={`flex-1 text-xs px-3 py-2 border rounded-lg shadow-sm focus:outline-none focus:border-brand-accent focus:ring-1 focus:ring-brand-accent transition-all ${updateError ? 'border-red-500 bg-red-50 animate-gentle-shake' : 'border-slate-200 dark:border-slate-700'}`}
                   />
                   <button type="submit" disabled={createAnnMutation.isPending} className="btn-primary !px-3 !py-2 !min-w-0">
-                    <Plus className="w-4 h-4" />
+                    <Add color="currentColor"  size="20" variant="Linear" />
                   </button>
                 </div>
                 {updateError && <p className="text-red-500 text-xs px-1">Live Update is required</p>}
@@ -402,7 +402,7 @@ const RelayPage = () => {
                     </div>
                     {isAdmin && (
                       <button onClick={() => deleteAnnMutation.mutate(ann._id)} className="text-slate-300 hover:text-red-500 transition-colors opacity-0 group-hover:opacity-100 pt-1">
-                        <Trash2 className="w-4 h-4" />
+                        <Trash color="currentColor"  size="20" variant="Linear" />
                       </button>
                     )}
                   </div>
@@ -436,7 +436,7 @@ const RelayPage = () => {
               </div>
               <div className="p-8 flex flex-col items-center text-center">
                 <div className="w-16 h-16 bg-brand-accent/10 rounded-full flex items-center justify-center mb-6">
-                  <AlertCircle className="w-8 h-8 text-brand-accent dark:text-blue-300" />
+                  <Warning2 color="currentColor"  size="32" variant="Linear" className="text-brand-accent dark:text-blue-300" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 mb-4">Before you join...</h3>
                 <p className="text-slate-600 dark:text-slate-300 leading-relaxed font-medium">

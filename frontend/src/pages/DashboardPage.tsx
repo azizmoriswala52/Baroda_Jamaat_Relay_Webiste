@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { PlayCircle, Radio, RefreshCw } from 'lucide-react';
+import { PlayCircle, Radio, Refresh2 } from 'iconsax-react';
 import { useQuery } from '@tanstack/react-query';
 import { toast } from 'react-hot-toast';
 import { apiClient } from '../api/apiClient';
@@ -40,7 +40,7 @@ const DashboardPage = () => {
             className="p-2 transition-colors flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-accent dark:text-blue-300 bg-transparent border-none cursor-pointer"
             title="Refresh Relays"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+            <Refresh2 color="currentColor"  size="16" variant="Linear" className={`mr-2 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
             Refresh
           </button>
         </div>
@@ -53,7 +53,7 @@ const DashboardPage = () => {
         </div>
       ) : !streams || streams.length === 0 ? (
         <div className="p-16 text-center text-slate-500 dark:text-slate-400">
-          <Radio className="w-12 h-12 text-slate-300 mx-auto mb-4" />
+          <Radio color="currentColor"  size="48" variant="Linear" className="text-slate-300 mx-auto mb-4" />
           <p className="text-sm">There are no relays currently active.</p>
         </div>
       ) : (
@@ -108,7 +108,7 @@ const DashboardPage = () => {
                 {relay.isLive && (
                   <div className="absolute inset-0 bg-brand-accent/0 group-hover:bg-brand-accent/10 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
                     <div className="bg-white dark:bg-slate-800 text-brand-accent dark:text-blue-300 rounded-full p-4 shadow-lg transform scale-90 group-hover:scale-100 transition-all">
-                      <PlayCircle className="w-8 h-8" />
+                      <PlayCircle color="currentColor"  size="32" variant="Linear" />
                     </div>
                   </div>
                 )}

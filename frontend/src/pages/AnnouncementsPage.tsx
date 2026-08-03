@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Check, Megaphone, CheckCircle2, ShieldAlert, RefreshCw, Clock, XCircle } from 'lucide-react';
+import { Check, VolumeHigh, TickCircle, ShieldCross, Refresh2, Clock, CloseCircle } from 'iconsax-react';
 import { apiClient } from '../api/apiClient';
 import { toast } from 'react-hot-toast';
 import CustomDropdown from '../components/CustomDropdown';
@@ -85,7 +85,7 @@ const AnnouncementsPage = () => {
             className="p-2 transition-colors flex items-center text-sm font-medium text-slate-600 dark:text-slate-300 hover:text-brand-accent dark:text-blue-300 bg-transparent border-none cursor-pointer"
             title="Refresh Announcements"
           >
-            <RefreshCw className={`w-4 h-4 mr-2 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
+            <Refresh2 color="currentColor"  size="16" variant="Linear" className={`mr-2 ${isFetching ? 'animate-spin text-brand-accent dark:text-blue-300' : ''}`} />
             Refresh
           </button>
         </div>
@@ -99,7 +99,7 @@ const AnnouncementsPage = () => {
           </div>
         ) : !announcements || announcements.length === 0 ? (
           <div className="flex flex-col items-center justify-center p-16 text-center text-slate-500 dark:text-slate-400 min-h-[40vh]">
-            <Megaphone className="w-12 h-12 text-slate-300 mb-4" />
+            <VolumeHigh color="currentColor"  size="48" variant="Linear" className="text-slate-300 mb-4" />
             <p className="text-lg font-medium">No announcements yet</p>
             <p className="text-sm mt-1">Check back later for updates</p>
           </div>
@@ -156,7 +156,7 @@ const AnnouncementsPage = () => {
                       <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-700">
                         {announcement.deadline && (
                           <div className="mb-4 flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-slate-900/50 dark:bg-slate-900 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
-                            <Clock className="w-4 h-4 mr-2 shrink-0 text-slate-400 dark:text-slate-500" />
+                            <Clock color="currentColor"  size="20" variant="Linear" className="mr-2 shrink-0 text-slate-400 dark:text-slate-500" />
                             <span>Responses accepted till: <span className="text-slate-700 dark:text-slate-200 dark:text-slate-300 font-semibold">{new Date(announcement.deadline).toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true })}</span></span>
                           </div>
                         )}
@@ -170,11 +170,11 @@ const AnnouncementsPage = () => {
                             >
                               <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 mb-4 border-b border-slate-100 pb-3 flex items-center">
                                 {announcement.responseType === 'APPROVAL' ? (
-                                  <><ShieldAlert className="w-4 h-4 mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Request Approval</>
+                                  <><ShieldCross color="currentColor"  size="20" variant="Linear" className="mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Request Approval</>
                                 ) : announcement.responseType === 'RSVP' ? (
-                                  <><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Confirm RSVP</>
+                                  <><TickCircle color="currentColor"  size="20" variant="Linear" className="mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Confirm RSVP</>
                                 ) : (
-                                  <><CheckCircle2 className="w-4 h-4 mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Complete Form</>
+                                  <><TickCircle color="currentColor"  size="20" variant="Linear" className="mr-2" style={{ color: 'var(--color-brand-accent dark:text-blue-300)' }} /> Complete Form</>
                                 )}
                               </h4>
 
@@ -296,7 +296,7 @@ const AnnouncementsPage = () => {
                                                         ? 'bg-brand-accent border-brand-accent dark:bg-blue-500 dark:border-blue-500 text-white' 
                                                         : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 group-hover:border-slate-400 dark:group-hover:border-slate-500'
                                                     }`}>
-                                                      {currentValues.includes(opt) && <Check className="w-3 h-3" />}
+                                                      {currentValues.includes(opt) && <Check color="currentColor"  size="12" variant="Linear" />}
                                                     </div>
                                                     <span className={`text-sm font-medium ${currentValues.includes(opt) ? 'text-brand-accent dark:text-blue-300' : 'text-slate-700 dark:text-slate-200'}`}>{opt}</span>
                                                   </div>
@@ -350,7 +350,7 @@ const AnnouncementsPage = () => {
                           <div className="clean-panel p-5 bg-slate-50 dark:bg-slate-900/50 border border-slate-200 dark:border-slate-700">
                             <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 border-b border-slate-200 dark:border-slate-700 pb-3">
                               <h4 className="text-sm font-bold text-emerald-700 dark:text-emerald-400 flex items-center">
-                                <CheckCircle2 className="w-4 h-4 mr-2" />
+                                <TickCircle color="currentColor"  size="20" variant="Linear" className="mr-2" />
                                 Your response has been recorded.
                               </h4>
                               <div className="flex items-center space-x-4 mt-2 sm:mt-0">
@@ -500,7 +500,7 @@ const AnnouncementsPage = () => {
                                   <p className="text-xs text-slate-400 mt-1">This form is no longer accepting responses.</p>
                                 </div>
                                 <span className="px-4 py-2 bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400 font-semibold rounded-lg text-sm border border-slate-200 dark:border-slate-700 flex items-center">
-                                  <XCircle className="w-4 h-4 mr-2" /> Closed
+                                  <CloseCircle color="currentColor"  size="20" variant="Linear" className="mr-2" /> Closed
                                 </span>
                               </div>
                             ) : (

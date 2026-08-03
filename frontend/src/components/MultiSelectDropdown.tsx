@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ChevronDown, Check } from 'lucide-react';
+import { ArrowDown2, Check } from 'iconsax-react';
 
 interface Option {
   label: string;
@@ -135,7 +135,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
           {displayValue}
         </span>
         <motion.div animate={{ rotate: isOpen ? 180 : 0 }} transition={{ duration: 0.2 }} className="flex-shrink-0">
-          <ChevronDown className="w-4 h-4 text-slate-500 dark:text-slate-400" />
+          <ArrowDown2 color="currentColor"  size="20" variant="Linear" className="text-slate-500 dark:text-slate-400" />
         </motion.div>
       </button>
 
@@ -171,7 +171,7 @@ const MultiSelectDropdown: React.FC<MultiSelectDropdownProps> = ({ options, valu
                         ? 'bg-brand-accent border-brand-accent text-white' 
                         : 'border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800'
                     }`}>
-                      {isSelected && <Check className="w-3 h-3" />}
+                      {isSelected && <Check color="currentColor"  size="12" variant="Linear" className="text-white" />}
                     </div>
                     <span className="truncate">{option.label}</span>
                   </button>

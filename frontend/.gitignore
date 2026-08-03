@@ -12,7 +12,9 @@ node_modules
 dist
 dist-ssr
 *.local
-
+test-errors.js
+replaceSizes.cjs
+test-imports.js
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Link, useNavigate } from 'react-router-dom';
-import { User, LogOut, ArrowLeft, Edit2, X, Lock, Shield, CheckCircle2, XCircle, Eye, EyeOff } from 'lucide-react';
+import { Profile, Logout, ArrowLeft2, Edit2, Lock, SecuritySafe, TickCircle, CloseCircle, Eye, EyeSlash } from 'iconsax-react';
 import { useConfirm } from '../contexts/ConfirmContext';
 import { useDocumentTitle } from '../hooks/useDocumentTitle';
 import CustomDropdown from '../components/CustomDropdown';
@@ -11,6 +11,7 @@ import arabic_en from "react-date-object/locales/arabic_en";
 import DateObject from "react-date-object";
 import { useQuery, useMutation } from '@tanstack/react-query';
 import { apiClient } from '../api/apiClient';
+
 
 class ErrorBoundary extends React.Component<any, { hasError: boolean, error: any }> {
   constructor(props: any) {
@@ -244,7 +245,7 @@ const ProfilePageContent = () => {
             <button
               onClick={() => setActiveTab('general')}
               className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <User className="w-4 h-4 mr-2" /> General
+              <Profile color="currentColor" size="20" variant={activeTab === 'general' ? 'Bold' : 'Linear'} className="mr-2" /> General
             </button>
             <button
               onClick={() => {
@@ -258,13 +259,13 @@ const ProfilePageContent = () => {
                 setIsEditing(false);
               }}
               className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Shield className="w-4 h-4 mr-2" /> Security
+              <SecuritySafe color="currentColor" size="20" variant={activeTab === 'security' ? 'Bold' : 'Linear'} className="mr-2" /> Security
             </button>
             <button
               onClick={handleLogoutWithConfirm}
               className="shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/30"
             >
-              <LogOut className="w-4 h-4 mr-2" /> Logout
+              <Logout color="currentColor"  size="20" variant="Linear" className="mr-2" /> Logout
             </button>
           </div>
         </div>
@@ -276,7 +277,7 @@ const ProfilePageContent = () => {
             <button
               onClick={() => setActiveTab('general')}
               className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'general' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <User className="w-4 h-4 mr-3" /> General
+              <Profile color="currentColor" size="20" variant={activeTab === 'general' ? 'Bold' : 'Linear'} className="mr-3" /> General
             </button>
             <button
               onClick={() => {
@@ -290,7 +291,7 @@ const ProfilePageContent = () => {
                 setIsEditing(false);
               }}
               className={`w-full flex items-center px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'security' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
-              <Shield className="w-4 h-4 mr-3" /> Security
+              <SecuritySafe color="currentColor" size="20" variant={activeTab === 'security' ? 'Bold' : 'Linear'} className="mr-3" /> Security
             </button>
           </nav>
         </aside>
@@ -319,7 +320,7 @@ const ProfilePageContent = () => {
             <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-8 border-b border-slate-200 dark:border-slate-700 gap-6">
               <div className="flex items-center space-x-4 sm:space-x-6">
                 <div className="w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 dark:border-slate-600 flex items-center justify-center shadow-sm">
-                  <User className="w-6 h-6 sm:w-8 sm:h-8 text-slate-400 dark:text-slate-500" />
+                  <Profile color="currentColor"  size="32" variant="Linear" className="text-slate-400 dark:text-slate-500" />
                 </div>
                 <div>
                   <h2 className="text-lg sm:text-xl font-semibold mb-1 text-slate-800 dark:text-slate-100 break-words">{user?.fullName}</h2>
@@ -328,7 +329,7 @@ const ProfilePageContent = () => {
               </div>
               {!isEditing && activeTab === 'general' && (
                 <button onClick={() => setIsEditing(true)} className="btn-primary flex items-center justify-center w-full sm:w-auto shrink-0">
-                  <Edit2 className="w-4 h-4 mr-2" />
+                  <Edit2 color="currentColor"  size="20" variant="Linear" className="mr-2" />
                   Edit Profile
                 </button>
               )}
@@ -440,7 +441,7 @@ const ProfilePageContent = () => {
                 {pwdStep === 0 ? (
                   <div className="flex items-center space-x-4 mb-6">
                     <div className="text-brand-accent dark:text-blue-300 shrink-0">
-                      <Lock className="w-6 h-6" />
+                      <Lock color="currentColor"  size="28" variant="Linear" />
                     </div>
                     <div className="flex-1">
                       <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Account Security</h3>
@@ -467,7 +468,7 @@ const ProfilePageContent = () => {
                     }} className="space-y-6">
                     <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
                       <div className="text-brand-accent dark:text-blue-300 shrink-0">
-                        <Lock className="w-6 h-6" />
+                        <Lock color="currentColor"  size="28" variant="Linear" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Update Password</h3>
@@ -489,7 +490,7 @@ const ProfilePageContent = () => {
                             onClick={() => setShowOldPassword(!showOldPassword)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
-                            {showOldPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showOldPassword ? <EyeSlash color="currentColor" size="20" variant="Linear" /> : <Eye color="currentColor"  size="20" variant="Linear" />}
                           </button>
                         </div>
                         {pwdError && <p className="text-red-500 text-xs mt-2 font-medium">{pwdError}</p>}
@@ -527,7 +528,7 @@ const ProfilePageContent = () => {
                     }} className="space-y-6">
                     <div className="flex items-center space-x-4 mb-6 pb-6 border-b border-slate-100">
                       <div className="text-brand-accent dark:text-blue-300 shrink-0">
-                        <Lock className="w-6 h-6" />
+                        <Lock color="currentColor"  size="28" variant="Linear" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">Update Password</h3>
@@ -549,7 +550,7 @@ const ProfilePageContent = () => {
                             onClick={() => setShowNewPassword(!showNewPassword)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
-                            {showNewPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showNewPassword ? <EyeSlash color="currentColor" size="20" variant="Linear" /> : <Eye color="currentColor"  size="20" variant="Linear" />}
                           </button>
                         </div>
                       </div>
@@ -575,18 +576,18 @@ const ProfilePageContent = () => {
                             onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                             className="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-600 dark:text-slate-300 focus:outline-none"
                           >
-                            {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showConfirmPassword ? <EyeSlash color="currentColor" size="20" variant="Linear" /> : <Eye color="currentColor"  size="20" variant="Linear" />}
                           </button>
                         </div>
                         {confirmTouched && confirmPassword && confirmPassword === newPassword && !pwdError && (
                           <p className="text-green-500 text-xs mt-2 font-medium flex items-center">
-                            <CheckCircle2 className="w-3.5 h-3.5 mr-1" />
+                            <TickCircle color="currentColor"  size="14" variant="Linear" className="mr-1" />
                             Password matches!
                           </p>
                         )}
                         {confirmTouched && confirmPassword && confirmPassword !== newPassword && !pwdError && (
                           <p className="text-red-500 text-xs mt-2 font-medium flex items-center">
-                            <XCircle className="w-3.5 h-3.5 mr-1" />
+                            <CloseCircle color="currentColor"  size="14" variant="Linear" className="mr-1" />
                             Password doesn't match!
                           </p>
                         )}

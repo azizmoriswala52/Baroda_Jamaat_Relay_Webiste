@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Bell, Calendar, User, Server, Play, Pause, Volume2, VolumeX, Maximize } from 'lucide-react';
+import { Notification as Bell, Calendar, User, Data as Server, Play, Pause, VolumeHigh as Volume2, VolumeCross as VolumeX, Maximize } from 'iconsax-react';
 import { Link } from 'react-router-dom';
 import ReactPlayer from 'react-player';
 

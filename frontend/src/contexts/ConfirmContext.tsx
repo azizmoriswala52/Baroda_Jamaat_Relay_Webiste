@@ -1,7 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import type { ReactNode } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { AlertCircle, X } from 'lucide-react';
+import { Warning2 } from 'iconsax-react';
 
 interface ConfirmOptions {
   type?: 'danger' | 'warning' | 'info';
@@ -91,7 +91,7 @@ export const ConfirmProvider: React.FC<{ children: ReactNode }> = ({ children })
               <div className="p-8 relative">
                 <div className="flex items-center space-x-3 mb-4">
                   <div className={`flex-shrink-0 ${modalType === 'danger' ? 'text-red-500' : 'text-brand-accent dark:text-blue-300'}`}>
-                    <AlertCircle className="w-6 h-6" strokeWidth={2.5} aria-hidden="true" />
+                    <Warning2 color="currentColor"  size="28" variant="Linear" aria-hidden="true" />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900 dark:text-slate-50 tracking-tight" id="modal-title">
                     {modalType === 'danger' ? 'Warning' : modalType === 'warning' ? 'Confirm Action' : 'Notice'}

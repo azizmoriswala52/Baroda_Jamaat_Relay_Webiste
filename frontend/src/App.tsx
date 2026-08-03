@@ -61,6 +61,33 @@ function App() {
       
       return () => clearTimeout(timeout);
     }
+
+    // Anti-screenshot / Anti-copy deterrents
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // PrintScreen key
+      if (e.key === 'PrintScreen') {
+        navigator.clipboard.writeText('');
+      }
+      
+      // Mac screenshot shortcuts (Cmd+Shift+3, Cmd+Shift+4, Cmd+Shift+5, etc)
+      if (e.metaKey && e.shiftKey && ['3', '4', '5', 's', 'S'].includes(e.key)) {
+        navigator.clipboard.writeText('');
+      }
+    };
+
+    const handleCopy = (e: ClipboardEvent) => {
+      e.preventDefault();
+    };
+
+    window.addEventListener('keyup', handleKeyDown);
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('copy', handleCopy);
+
+    return () => {
+      window.removeEventListener('keyup', handleKeyDown);
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('copy', handleCopy);
+    };
   }, []);
 
   React.useEffect(() => {

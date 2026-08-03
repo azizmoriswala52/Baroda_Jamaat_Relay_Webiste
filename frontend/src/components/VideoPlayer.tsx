@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import Hls from 'hls.js';
-import { Play, Pause, Volume2, VolumeX, Maximize, Minimize, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
+import { Play, Pause, VolumeHigh, VolumeCross, Warning2, Refresh, Refresh2 } from 'iconsax-react';
+import { Maximize, Minimize } from 'lucide-react';
 import { apiClient } from '../api/apiClient';
 
 interface VideoPlayerProps {
@@ -409,7 +410,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       {/* Offline State */}
       {isOffline && (
         <div className="absolute inset-0 flex flex-col items-center justify-center bg-black/90 z-20">
-          <AlertCircle className="w-12 h-12 text-red-500 mb-4 opacity-80" />
+          <Warning2 color="currentColor"  size="48" variant="Linear" className="text-red-500 mb-4 opacity-80" />
           <p className="text-white font-medium text-lg tracking-wide">Stream Offline</p>
           <p className="text-slate-400 text-sm mt-2 text-center max-w-md break-words">
             {error || 'Waiting for broadcast to begin...'}
@@ -418,7 +419,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
             onClick={() => fetchStreamUrl()} 
             className="mt-6 flex items-center px-4 py-2 bg-white/10 hover:bg-white/20 text-white rounded-full transition-colors text-sm font-semibold border border-white/20"
           >
-            <RefreshCw className="w-4 h-4 mr-2" /> Retry Connection
+            <Refresh2 color="currentColor"  size="16" variant="Linear" className="mr-2" /> Retry Connection
           </button>
         </div>
       )}
@@ -426,7 +427,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
       {/* Loading State */}
       {isBuffering && !isOffline && (
         <div className="absolute inset-0 flex items-center justify-center bg-black/50 z-10">
-          <Loader2 className="w-10 h-10 text-white animate-spin" />
+          <Refresh color="currentColor"  size="40" variant="Linear" className="text-white animate-spin" />
         </div>
       )}
 
@@ -460,7 +461,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
               onClick={togglePlay}
               className="text-white hover:text-white/80 transition-transform hover:scale-110"
             >
-              {isPlaying ? <Pause className="w-7 h-7 fill-current" /> : <Play className="w-7 h-7 fill-current ml-1" />}
+              {isPlaying ? <Pause color="currentColor" size="24" variant="Linear" className="fill-current" /> : <Play color="currentColor"  size="24" variant="Linear" className="fill-current ml-1" />}
             </button>
 
             <div className="flex items-center space-x-3 group/volume">
@@ -468,7 +469,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
                 onClick={handleSpeakerClick}
                 className="text-white hover:text-white/80 transition-colors"
               >
-                {isMuted || volume === 0 ? <VolumeX className="w-6 h-6" /> : <Volume2 className="w-6 h-6" />}
+                {isMuted || volume === 0 ? <VolumeCross color="currentColor" size="28" variant="Linear" /> : <VolumeHigh color="currentColor"  size="28" variant="Linear" />}
               </button>
               <input 
                 type="range" 
@@ -501,7 +502,7 @@ const VideoPlayer: React.FC<VideoPlayerProps> = ({ className = '', fallbackUrl, 
               onClick={toggleFullscreen}
               className="text-white hover:text-white/80 transition-transform hover:scale-110"
             >
-              {isFullscreen ? <Minimize className="w-6 h-6" /> : <Maximize className="w-6 h-6" />}
+              {isFullscreen ? <Minimize className="w-7 h-7" /> : <Maximize className="w-7 h-7" />}
             </button>
           </div>
           </div>
