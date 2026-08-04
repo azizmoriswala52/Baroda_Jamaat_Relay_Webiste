@@ -1665,7 +1665,7 @@ const AdminDashboard = () => {
                                     setSelectedQuery(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 dark:hover:!bg-red-500/20 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Query"
                               >
                                 <Trash color="currentColor"  size="20" variant="Linear" className="mr-2" />
@@ -1825,7 +1825,7 @@ const AdminDashboard = () => {
                                     setSelectedLoginIssue(null);
                                   }
                                 }}
-                                className="text-red-600 hover:text-red-700 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
+                                className="text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 bg-red-50 dark:!bg-red-500/10 hover:bg-red-100 dark:hover:!bg-red-500/20 px-3 py-2 rounded-lg transition-colors shadow-sm flex items-center shrink-0 ml-4"
                                 title="Delete Login Issue"
                               >
                                 <Trash color="currentColor"  size="20" variant="Linear" className="mr-2" />

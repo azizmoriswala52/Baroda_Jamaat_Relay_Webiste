@@ -434,7 +434,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <button 
                 onClick={handleLogoutWithConfirm} 
                 title="Logout"
-                className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors text-red-600 hover:bg-red-50 w-full whitespace-nowrap`}
+                className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 w-full whitespace-nowrap`}
               >
                 <Logout color="currentColor"  size="24" variant="Linear" className="w-5 h-5 shrink-0" />
                 <motion.span 
@@ -515,7 +515,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               <Link to="/support" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/support') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
                 <Lifebuoy color="currentColor"  size="28" variant={isActive('/support') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Help & Support
               </Link>
-              <button onClick={() => { setIsMobileMenuOpen(false); handleLogoutWithConfirm(); }} className="flex items-center p-4 rounded-xl text-base font-semibold transition-colors text-red-600 mt-8 border border-red-100 bg-red-50">
+              <button onClick={() => { setIsMobileMenuOpen(false); handleLogoutWithConfirm(); }} className="flex items-center p-4 rounded-xl text-base font-semibold transition-colors text-red-600 dark:text-red-400 mt-8 border border-red-100 dark:border-red-900/50 bg-red-50 dark:bg-red-500/10">
                 <Logout color="currentColor"  size="28" variant="Linear" className="w-6 h-6 mr-4" /> Logout
               </button>
 
