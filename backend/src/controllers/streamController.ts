@@ -51,6 +51,7 @@ export const getAllStreams = async (req: Request, res: Response): Promise<void> 
       
       streams = streams.filter(stream => {
         if (stream.visibility === 'ADMIN') return false;
+        if (stream.visibility === 'ADMIN_OPS' && reqUser.role !== 'OPS') return false;
         if (stream.visibility === 'AS_APPROVED' && !freshUser?.hasRelayAccess) return false;
         
         const hasParentRestriction = stream.allowedParentMohallas && stream.allowedParentMohallas.length > 0 && !stream.allowedParentMohallas.includes('All');
@@ -103,6 +104,11 @@ export const getActiveStream = async (req: Request, res: Response): Promise<void
     if (!reqUser || reqUser.role !== 'ADMIN') {
       if (activeStream.visibility === 'ADMIN') {
         res.status(403).json({ message: 'This relay is currently visible only to Admins.' });
+        return;
+      }
+      
+      if (activeStream.visibility === 'ADMIN_OPS' && reqUser.role !== 'OPS') {
+        res.status(403).json({ message: 'This relay is currently visible only to Admins and Ops.' });
         return;
       }
 
@@ -168,6 +174,9 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
       await StreamSession.updateMany({}, { $set: { isLive: false } });
     }
 
+    const creator = await User.findById((req as any).user.userId);
+    const creatorName = creator ? creator.fullName : (req as any).user.itsId;
+
     const newStream = new StreamSession({
       title,
       speaker,
@@ -180,7 +189,9 @@ export const createStream = async (req: Request, res: Response): Promise<void> =
       allowedParentMohallas: allowedParentMohallas || [],
       allowedChildMohallas: allowedChildMohallas || [],
       allowedGender: allowedGender || 'All',
-      visibility: visibility || 'ADMIN'
+      visibility: visibility || 'ADMIN',
+      createdBy: creatorName,
+      updatedBy: creatorName
     });
 
     await newStream.save();
@@ -215,6 +226,13 @@ export const updateStream = async (req: Request, res: Response): Promise<void> =
     // If stream is going offline, clean the media folder
     if (updatePayload.isLive === false) {
       clearLiveMedia().catch(e => console.error('Clear media error:', e));
+    }
+
+    const updater = await User.findById((req as any).user.userId);
+    if (updater) {
+      updatePayload.updatedBy = updater.fullName;
+    } else {
+      updatePayload.updatedBy = (req as any).user.itsId;
     }
 
     const updatedStream = await StreamSession.findByIdAndUpdate(

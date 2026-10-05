@@ -39,14 +39,15 @@ const AdminDashboard = () => {
 
   const userStr = sessionStorage.getItem('user');
 
-  useDocumentTitle('Admin Control Room');
+  const userRole = userStr ? JSON.parse(userStr).role : null;
+  useDocumentTitle(userRole === 'ADMIN' ? 'Admin Dashboard' : 'Management Portal');
 
   const [searchItsId, setSearchItsId] = useState('');
 
   // --- STREAM STATE & MUTATIONS ---
   const [showStreamForm, setShowStreamForm] = useState(false);
   const [editingStreamId, setEditingStreamId] = useState<string | null>(null);
-  const defaultStreamData = { title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS' as 'YOUTUBE' | 'HLS' | 'RTMP', thumbnail: '', allowedParentMohallas: ['All'], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' };
+  const defaultStreamData = { title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS' as 'YOUTUBE' | 'HLS' | 'RTMP', thumbnail: '', allowedParentMohallas: [] as string[], allowedChildMohallas: [] as string[], allowedGender: 'All', visibility: 'ADMIN' };
   const [streamFormData, setStreamFormData] = useState(defaultStreamData);
   const [initialStreamFormData, setInitialStreamFormData] = useState(defaultStreamData);
   const [streamFormErrors, setStreamFormErrors] = useState<{ title?: boolean, speaker?: boolean, servers?: { name?: boolean, url?: boolean }[] }>({});
@@ -77,7 +78,7 @@ const AdminDashboard = () => {
         const optimistic = { ...newStream, _id: `temp-${Date.now()}`, isLive: newStream.isLive ?? true };
         return old ? [optimistic, ...old] : [optimistic];
       });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []), allowedGender: 'All', visibility: currentUser?.role === 'OPS' ? 'ADMIN_OPS' : 'ADMIN' });
       return { previousStreams };
     },
     onSuccess: () => {
@@ -102,7 +103,7 @@ const AdminDashboard = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['streams'] });
       queryClient.invalidateQueries({ queryKey: ['activeStream'] });
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []), allowedGender: 'All', visibility: currentUser?.role === 'OPS' ? 'ADMIN_OPS' : 'ADMIN' });
       setEditingStreamId(null);
       toast.success('Stream updated successfully!');
     },
@@ -158,12 +159,12 @@ const AdminDashboard = () => {
         }
       }
       setEditingStreamId(null);
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []), allowedGender: 'All', visibility: currentUser?.role === 'OPS' ? 'ADMIN_OPS' : 'ADMIN' });
       setInitialStreamFormData(defaultStreamData);
       setShowStreamForm(false);
       setStreamFormErrors({});
     } else {
-      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+      setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []), allowedGender: 'All', visibility: currentUser?.role === 'OPS' ? 'ADMIN_OPS' : 'ADMIN' });
       setShowStreamForm(true);
     }
   };
@@ -279,7 +280,7 @@ const AdminDashboard = () => {
       if (Object.keys(diff).length === 0) {
         toast('No changes were made.');
         setEditingStreamId(null);
-        setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: ['All'], allowedGender: 'All', visibility: 'ADMIN' });
+        setStreamFormData({ title: '', speaker: '', description: '', servers: [{ name: 'Server A', url: '' }], streamType: 'HLS', thumbnail: '', allowedParentMohallas: [isSuperAdmin ? 'All' : adminParentMohalla], allowedChildMohallas: isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []), allowedGender: 'All', visibility: currentUser?.role === 'OPS' ? 'ADMIN_OPS' : 'ADMIN' });
         setShowStreamForm(false);
         return;
       }
@@ -298,8 +299,12 @@ const AdminDashboard = () => {
       servers: stream.servers?.length ? JSON.parse(JSON.stringify(stream.servers)) : [{ name: 'Server A', url: stream.streamUrl || '' }],
       streamType: stream.streamType,
       thumbnail: stream.thumbnail || '',
-      allowedParentMohallas: stream.allowedParentMohallas ? [...stream.allowedParentMohallas] : ['All'],
-      allowedChildMohallas: stream.allowedChildMohallas ? [...stream.allowedChildMohallas] : ['All'],
+      allowedParentMohallas: stream.allowedParentMohallas?.length && !stream.allowedParentMohallas.includes('All') 
+        ? [...stream.allowedParentMohallas] 
+        : [isSuperAdmin ? 'All' : adminParentMohalla],
+      allowedChildMohallas: stream.allowedChildMohallas?.length && !stream.allowedChildMohallas.includes('All')
+        ? [...stream.allowedChildMohallas]
+        : isSuperAdmin ? ['All'] : (mohallas?.filter((m: any) => m.parentMohalla === adminParentMohalla || m.name === adminParentMohalla).map((m: any) => m.name) || []),
       allowedGender: stream.allowedGender || 'All',
       visibility: stream.visibility || 'ADMIN'
     };
@@ -376,11 +381,13 @@ const AdminDashboard = () => {
   };
 
   const currentUser = useMemo(() => userStr ? JSON.parse(userStr) : null, [userStr]);
-  const isSuperAdmin = currentUser?.isSuperAdmin;
+  const isSuperAdmin = currentUser?.role === 'ADMIN' && currentUser?.isSuperAdmin === true;
   const adminParentMohalla = (() => {
-    if (!currentUser?.mohalla || !mohallas) return 'All';
+    if (!currentUser?.mohalla) return 'Unassigned';
+    if (!mohallas) return currentUser.mohalla === 'All' ? 'Unassigned' : currentUser.mohalla;
     const m = mohallas.find((m: any) => m.name.toLowerCase() === currentUser.mohalla.toLowerCase());
-    return m?.parentMohalla || m?.name || currentUser.mohalla;
+    const finalVal = m?.parentMohalla || m?.name || currentUser.mohalla;
+    return finalVal === 'All' ? 'Unassigned' : finalVal;
   })();
 
   const filteredStreams = useMemo(() => {
@@ -698,7 +705,7 @@ const AdminDashboard = () => {
     <>
       <div className="mb-8 w-full">
         <div className="flex justify-between items-center">
-          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Admin Dashboard</h3>
+          <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">{currentUser?.role === 'ADMIN' ? 'Admin Dashboard' : 'Management Portal'}</h3>
         </div>
         <div className="h-0.5 w-full bg-slate-200 dark:bg-slate-700 mt-2"></div>
       </div>
@@ -709,18 +716,22 @@ const AdminDashboard = () => {
             <button onClick={() => setActiveTab('stream')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'stream' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Radio color="currentColor"  size="20" variant={activeTab === 'stream' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Stream
             </button>
+{currentUser?.role === 'ADMIN' && (
             <button onClick={() => setActiveTab('users')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Profile2User color="currentColor"  size="20" variant={activeTab === 'users' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Members
             </button>
+)}
             <button onClick={() => setActiveTab('queries')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <MessageQuestion color="currentColor"  size="20" variant={activeTab === 'queries' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Support
             </button>
             <button onClick={() => setActiveTab('login-issues')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'login-issues' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <SecurityUser color="currentColor"  size="20" variant={activeTab === 'login-issues' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Logins
             </button>
+{currentUser?.role === 'ADMIN' && (
             <button onClick={() => setActiveTab('announcements')} className={`shrink-0 flex items-center px-4 py-2 rounded-full text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-100 dark:bg-sky-900/40 text-brand-accent dark:text-blue-300 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <VolumeHigh color="currentColor"  size="20" variant={activeTab === 'announcements' ? 'Bold' : 'Linear'} className="mr-2 shrink-0" /> Announcements
             </button>
+)}
           </div>
         </div>
 
@@ -732,10 +743,12 @@ const AdminDashboard = () => {
               <Radio color="currentColor"  size="20" variant={activeTab === 'stream' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
               <span>Live Stream</span>
             </div>
+{currentUser?.role === 'ADMIN' && (
             <div role="button" tabIndex={0} onClick={() => setActiveTab('users')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'users' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <Profile2User color="currentColor"  size="20" variant={activeTab === 'users' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
               <span>Members</span>
             </div>
+)}
             <div role="button" tabIndex={0} onClick={() => setActiveTab('queries')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'queries' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <MessageQuestion color="currentColor"  size="20" variant={activeTab === 'queries' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
               <span>Support Queries</span>
@@ -744,10 +757,12 @@ const AdminDashboard = () => {
               <SecurityUser color="currentColor"  size="20" variant={activeTab === 'login-issues' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
               <span>Login Issues</span>
             </div>
+{currentUser?.role === 'ADMIN' && (
             <div role="button" tabIndex={0} onClick={() => setActiveTab('announcements')} className={`cursor-pointer w-full flex justify-start items-center text-left px-3 py-2.5 rounded-md text-sm font-medium transition-colors ${activeTab === 'announcements' ? 'bg-sky-50 dark:bg-slate-800 text-brand-accent dark:text-blue-300 border border-sky-100 dark:border-slate-700 shadow-sm' : 'text-slate-600 dark:text-slate-200 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-slate-800'}`}>
               <VolumeHigh color="currentColor"  size="20" variant={activeTab === 'announcements' ? 'Bold' : 'Linear'} className="mr-3 shrink-0" />
               <span>Announcements</span>
             </div>
+)}
           </nav>
         </aside>
 
@@ -840,8 +855,13 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Visibility</label>
                               <CustomDropdown
-                                options={[
+                                options={currentUser?.role === 'OPS' ? [
+                                  { label: 'Admin and Ops Only', value: 'ADMIN_OPS' },
+                                  { label: 'All Users', value: 'USERS' },
+                                  { label: 'As Approved', value: 'AS_APPROVED' }
+                                ] : [
                                   { label: 'Admin Only', value: 'ADMIN' },
+                                  { label: 'Admin and Ops Only', value: 'ADMIN_OPS' },
                                   { label: 'All Users', value: 'USERS' },
                                   { label: 'As Approved', value: 'AS_APPROVED' }
                                 ]}
@@ -853,10 +873,10 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Allowed Parent Mohallas</label>
                               <MultiSelectDropdown
-                                options={[{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                                options={isSuperAdmin ? [{ label: 'All', value: 'All' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])] : [{ label: adminParentMohalla, value: adminParentMohalla }]}
                                 values={streamFormData.allowedParentMohallas}
                                 onChange={(vals) => {
-                                  const newVals = vals.length === 0 ? ['All'] : vals;
+                                  const newVals = vals.length === 0 ? (isSuperAdmin ? ['All'] : [adminParentMohalla]) : vals;
 
                                   const childOptions = mohallas?.filter((m: any) =>
                                     newVals.includes('All') ||
@@ -887,14 +907,11 @@ const AdminDashboard = () => {
                                     streamFormData.allowedParentMohallas.includes(m.name)
                                   ).map((m: any) => ({ label: m.name, value: m.name })) || [];
 
-                                  return childOptions.length > 1
-                                    ? [{ label: 'All', value: 'All' }, ...childOptions]
-                                    : childOptions;
+                                  return childOptions;
                                 })()}
                                 values={streamFormData.allowedChildMohallas}
                                 onChange={(vals) => {
-                                  const newVals = vals.length === 0 ? ['All'] : vals;
-                                  setStreamFormData({ ...streamFormData, allowedChildMohallas: newVals });
+                                  setStreamFormData({ ...streamFormData, allowedChildMohallas: vals });
                                 }}
                               />
                               <p className={`text-xs mt-1 ${streamFormData.allowedParentMohallas.includes('All') ? 'text-slate-300' : 'text-slate-400'}`}>Grants access only to specific Mohallahs (including Mains).</p>
@@ -1101,7 +1118,15 @@ const AdminDashboard = () => {
                           <tr><td colSpan={8} className="px-4 py-3 text-center">Loading streams...</td></tr>
                         ) : filteredStreams?.map((stream: any) => (
                           <tr key={stream._id} className={`hover:bg-slate-50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 dark:bg-slate-900/50 dark:hover:bg-slate-800 transition-colors ${editingStreamId === stream._id ? 'bg-sky-50 dark:bg-slate-800' : ''}`}>
-                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">{stream.title}</td>
+                            <td className="px-4 py-3 font-medium text-slate-900 dark:text-slate-50">
+                              <div>{stream.title}</div>
+                              {(stream.createdBy || stream.updatedBy) && (
+                                <div className="text-[10px] text-slate-400 mt-1 font-normal">
+                                  {stream.createdBy && <div>Created by: {stream.createdBy}</div>}
+                                  {stream.updatedBy && stream.updatedBy !== stream.createdBy && <div>Updated by: {stream.updatedBy}</div>}
+                                </div>
+                              )}
+                            </td>
                             <td className="px-4 py-3">{stream.speaker}</td>
                             <td className="px-4 py-3 whitespace-nowrap">
                               {stream.isLive ? (
@@ -1115,6 +1140,8 @@ const AdminDashboard = () => {
                                 <span className="text-emerald-700 bg-emerald-50 border border-emerald-200 px-2.5 py-1 rounded-md text-xs font-semibold">All Users</span>
                               ) : stream.visibility === 'AS_APPROVED' ? (
                                 <span className="text-amber-700 bg-amber-50 border border-amber-200 px-2.5 py-1 rounded-md text-xs font-semibold">As Approved</span>
+                              ) : stream.visibility === 'ADMIN_OPS' ? (
+                                <span className="text-indigo-700 bg-indigo-50 border border-indigo-200 px-2.5 py-1 rounded-md text-xs font-semibold">Admin & Ops</span>
                               ) : (
                                 <span className="text-brand-accent dark:text-blue-300 bg-brand-accent/10 border border-brand-accent/20 px-2.5 py-1 rounded-md text-xs font-semibold">Admin Only</span>
                               )}
@@ -1169,7 +1196,7 @@ const AdminDashboard = () => {
             )}
 
             {/* USERS TAB */}
-            {activeTab === 'users' && (
+            {currentUser?.role === 'ADMIN' && activeTab === 'users' && (
               <div className="space-y-8">
                 <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-4">
                   <div className="flex justify-between items-start w-full md:w-auto">
@@ -1409,7 +1436,8 @@ const AdminDashboard = () => {
                             <CustomDropdown
                               options={[
                                 { label: 'User', value: 'USER' },
-                                { label: 'Admin', value: 'ADMIN' }
+                                { label: 'Admin', value: 'ADMIN' },
+                                { label: 'Ops', value: 'OPS' }
                               ]}
                               value={userFormData.role}
                               onChange={(val) => handleUserChange({ target: { name: 'role', value: val } } as any)}
@@ -1419,7 +1447,7 @@ const AdminDashboard = () => {
                             <div>
                               <label className="block text-xs font-semibold text-slate-500 dark:text-slate-400 mb-2 uppercase tracking-wide">Parent Mohallah</label>
                               <CustomDropdown
-                                options={[{ label: 'Select Parent Mohallah', value: '' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])]}
+                                options={isSuperAdmin ? [{ label: 'Select Parent Mohallah', value: '' }, ...(mohallas?.filter((m: any) => !m.parentMohalla).map((m: any) => ({ label: m.name, value: m.name })) || [])] : [{ label: adminParentMohalla, value: adminParentMohalla }]}
                                 value={selectedUserParentMohalla}
                                 onChange={(val) => {
                                   setSelectedUserParentMohalla(val);
@@ -1932,7 +1960,7 @@ const AdminDashboard = () => {
               </div>
             )}
 
-            {activeTab === 'announcements' && (
+            {currentUser?.role === 'ADMIN' && activeTab === 'announcements' && (
               <div className="space-y-8">
                 <AdminAnnouncementsTab />
               </div>

@@ -10,7 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const LoginPage = () => {
   // Login State
   const [supportMessage, setSupportMessage] = useState('');
-  
+
   const [itsId, setItsId] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -136,7 +136,7 @@ const LoginPage = () => {
       if (newErrors.itsId) {
         toast.error('ITS ID must be exactly 8 digits');
       } else {
-        toast.error('All fields are required', { icon: <Warning2 color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300" /> });
+        toast.error('All fields are required', { icon: <Warning2 color="currentColor" size="24" variant="Linear" className="text-brand-accent dark:text-blue-300" /> });
       }
       return;
     }
@@ -312,11 +312,11 @@ const LoginPage = () => {
                     onClick={() => setShowIssueForm(false)}
                     className="inline-flex items-center text-sm font-medium text-slate-500 dark:text-slate-400 hover:text-brand-accent dark:text-blue-300 transition-colors mb-6 bg-transparent border-none p-0 cursor-pointer"
                   >
-                    <ArrowLeft color="currentColor"  size="20" variant="Linear" className="mr-1" /> Back to Login
+                    <ArrowLeft color="currentColor" size="20" variant="Linear" className="mr-1" /> Back to Login
                   </button>
 
                   <div className="flex items-center space-x-3 mb-8">
-                    <InfoCircle color="currentColor"  size="24" variant="Linear" className="text-brand-accent dark:text-blue-300 shrink-0" />
+                    <InfoCircle color="currentColor" size="24" variant="Linear" className="text-brand-accent dark:text-blue-300 shrink-0" />
                     <div>
                       <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 leading-none mb-1">Login Issue</h2>
                       <p className="text-sm text-slate-500 dark:text-slate-400">Submit your details to get help.</p>
@@ -370,7 +370,7 @@ const LoginPage = () => {
                           </span>
                         ) : (
                           <>
-                            <Send2 color="currentColor"  size="20" variant="Linear" className="mr-2" />
+                            <Send2 color="currentColor" size="20" variant="Linear" className="mr-2" />
                             Submit Support Request
                           </>
                         )}
@@ -394,7 +394,7 @@ const LoginPage = () => {
                 backgroundSize: "40px 40px"
               }}
             ></div>
-            <p className="text-white text-[11px] font-bold tracking-widest uppercase opacity-90 relative z-10">Live Streaming / Recording</p>
+            <p className="text-white text-[11px] font-bold tracking-widest uppercase opacity-90 relative z-10">Please Login to access the portal</p>
           </div>
         </div>
 

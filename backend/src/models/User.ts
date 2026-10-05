@@ -12,7 +12,7 @@ export interface IUser extends Document {
   age?: number;
   dobEnglish?: string;
   dobHijri?: string;
-  role: 'USER' | 'ADMIN';
+  role: 'USER' | 'ADMIN' | 'OPS';
   isActive: boolean;
   lastLogin?: Date;
   lastIpAddress?: string;
@@ -34,7 +34,7 @@ const UserSchema: Schema = new Schema({
   age: { type: Number },
   dobEnglish: { type: String },
   dobHijri: { type: String },
-  role: { type: String, enum: ['USER', 'ADMIN'], default: 'USER' },
+  role: { type: String, enum: ['USER', 'ADMIN', 'OPS'], default: 'USER' },
   isActive: { type: Boolean, default: true },
   lastLogin: { type: Date },
   lastIpAddress: { type: String },

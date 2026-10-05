@@ -9,6 +9,18 @@ const HomePage = () => {
   const user = userStr ? JSON.parse(userStr) : { fullName: 'User', jamaatName: '' };
   useDocumentTitle('Home');
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: { staggerChildren: 0.15 }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 24 },
+    show: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
+  };
   const features = [
     {
       icon: <Radio color="currentColor"  size="32" variant="Linear" className="text-brand-accent dark:text-blue-300" />,
@@ -28,7 +40,13 @@ const HomePage = () => {
   ];
 
   return (
-    <div className="flex flex-col space-y-8">
+    <motion.div 
+      variants={containerVariants as any}
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, margin: "-50px" }}
+      className="flex flex-col space-y-8"
+    >
       <div className="mb-8">
         <div className="flex justify-between items-center">
           <h3 className="text-2xl font-bold text-brand-accent dark:text-blue-300 tracking-wide">Home</h3>
@@ -38,8 +56,7 @@ const HomePage = () => {
 
       {/* Welcome Banner */}
       <motion.div 
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        variants={itemVariants as any}
         className="relative w-full h-[400px] rounded-2xl overflow-hidden shadow-lg flex items-center justify-center text-white"
       >
         <div 
@@ -61,9 +78,7 @@ const HomePage = () => {
       {/* Information & Features */}
       <div className="space-y-6">
         <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
+          variants={itemVariants as any}
           className="bg-white dark:bg-slate-800 p-8 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700"
         >
           <h2 className="text-2xl font-semibold text-brand-accent dark:text-blue-300 mb-4">About Our Portal</h2>
@@ -88,9 +103,7 @@ const HomePage = () => {
           {features.map((feature, idx) => (
             <motion.div 
               key={idx}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.1 + (idx * 0.1) }}
+              variants={itemVariants as any}
               className="bg-white dark:bg-slate-800 p-6 rounded-2xl shadow-sm border border-slate-100 dark:border-slate-700 hover:border-brand-accent/30 dark:hover:border-blue-400/30 transition-colors"
             >
               <div className="mb-4">
@@ -104,7 +117,7 @@ const HomePage = () => {
           ))}
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 };
 

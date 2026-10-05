@@ -107,7 +107,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   const userStr = sessionStorage.getItem('user');
   const user = userStr ? JSON.parse(userStr) : null;
   const itsText = user?.itsId ? `${user.itsId} - ` : '';
-  const displayName = user?.role === 'ADMIN' ? `${itsText}${user?.fullName || 'User'} (Admin)` : `${itsText}${user?.fullName || 'User'}`;
+  const displayName = (user?.role === 'ADMIN' || user?.role === 'OPS') ? `${itsText}${user?.fullName || 'User'} (${user.role === 'ADMIN' ? 'Admin' : 'Ops'})` : `${itsText}${user?.fullName || 'User'}`;
 
   useEffect(() => {
     document.getElementById('main-scroll-container')?.scrollTo(0, 0);
@@ -163,21 +163,21 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     queryKey: ['adminSupportQueries'],
     queryFn: () => apiClient('/support'),
     refetchInterval: 10000,
-    enabled: user?.role === 'ADMIN'
+    enabled: (user?.role === 'ADMIN' || user?.role === 'OPS')
   });
 
   const { data: loginIssues } = useQuery({
     queryKey: ['adminLoginIssues'],
     queryFn: () => apiClient('/login-issues'),
     refetchInterval: 10000,
-    enabled: user?.role === 'ADMIN'
+    enabled: (user?.role === 'ADMIN' || user?.role === 'OPS')
   });
 
   const [previousQueryCount, setPreviousQueryCount] = useState<number | null>(null);
   const [previousLoginIssueCount, setPreviousLoginIssueCount] = useState<number | null>(null);
 
   useEffect(() => {
-    if (user?.role === 'ADMIN' && supportQueries) {
+    if ((user?.role === 'ADMIN' || user?.role === 'OPS') && supportQueries) {
       if (previousQueryCount !== null && supportQueries.length > previousQueryCount) {
         toast('Someone needs support! Please check the support submissions.', {
           icon: '🚨',
@@ -195,7 +195,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
   }, [supportQueries, previousQueryCount, user?.role]);
 
   useEffect(() => {
-    if (user?.role === 'ADMIN' && loginIssues) {
+    if ((user?.role === 'ADMIN' || user?.role === 'OPS') && loginIssues) {
       if (previousLoginIssueCount !== null && loginIssues.length > previousLoginIssueCount) {
         toast('A user reported a login issue! Please check the Login Issues tab.', {
           icon: '🔑',
@@ -383,10 +383,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
               </Link>
             )}
 
-            {user?.role === 'ADMIN' && (
+            {(user?.role === 'ADMIN' || user?.role === 'OPS') && (
               <Link 
                 to="/admin" 
-                title="Admin Dashboard"
+                title={user?.role === 'ADMIN' ? 'Admin Dashboard' : 'Management Portal'}
                 className={`flex items-center py-3 px-4 rounded-lg text-sm font-semibold transition-colors ${isActive('/admin') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300 dark:text-slate-200 hover:bg-slate-200 dark:hover:bg-slate-700 dark:hover:bg-slate-700/50 hover:text-slate-900 dark:hover:text-white dark:text-slate-50 dark:hover:text-white '} whitespace-nowrap`}
               >
                 <ShieldSecurity color="currentColor"  size="24" variant={isActive('/admin') ? 'Bold' : 'Linear'} className="w-5 h-5 shrink-0" />
@@ -394,9 +394,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   animate={{ width: isSidebarExpanded ? "auto" : 0, opacity: isSidebarExpanded ? 1 : 0, marginLeft: isSidebarExpanded ? 16 : 0 }}
                   transition={{ duration: 0.3, ease: "easeInOut" }}
                   className="overflow-hidden"
-                >
-                  Admin Dashboard
-                </motion.span>
+                >{user?.role === 'ADMIN' ? 'Admin Dashboard' : 'Management Portal'}</motion.span>
               </Link>
             )}
 
@@ -487,7 +485,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                 </div>
                 <div>
                   <div className="font-bold text-slate-800 dark:text-white text-lg leading-tight">{user?.fullName || 'User'}</div>
-                  <div className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">ITS: {user?.itsId || 'N/A'} {user?.role === 'ADMIN' && <span className="text-brand-accent dark:text-blue-300 ml-1">(Admin)</span>}</div>
+                  <div className="text-sm text-slate-500 dark:text-slate-400 font-medium mt-0.5">ITS: {user?.itsId || 'N/A'} {(user?.role === 'ADMIN' || user?.role === 'OPS') && <span className="text-brand-accent dark:text-blue-300 ml-1">(Admin)</span>}</div>
                 </div>
               </div>
             </div>
@@ -504,9 +502,9 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
                   <Video color="currentColor"  size="28" variant={(isActive('/dashboard') || isActive('/relay')) ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Relay Dashboard
                 </Link>
               )}
-              {user?.role === 'ADMIN' && (
+              {(user?.role === 'ADMIN' || user?.role === 'OPS') && (
                 <Link to="/admin" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/admin') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>
-                  <ShieldSecurity color="currentColor"  size="28" variant={isActive('/admin') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> Admin Dashboard
+                  <ShieldSecurity color="currentColor"  size="28" variant={isActive('/admin') ? 'Bold' : 'Linear'} className="w-6 h-6 mr-4" /> {user?.role === 'ADMIN' ? 'Admin Dashboard' : 'Management Portal'}
                 </Link>
               )}
               <Link to="/profile" onClick={() => setIsMobileMenuOpen(false)} className={`flex items-center p-4 rounded-xl text-base font-semibold transition-colors ${isActive('/profile') ? 'bg-[#e2e8f0] dark:bg-slate-800 text-brand-accent dark:text-blue-300' : 'text-slate-600 dark:text-slate-300'}`}>

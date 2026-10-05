@@ -44,3 +44,12 @@ export const adminMiddleware = (req: Request, res: Response, next: NextFunction)
     return;
   }
 };
+
+export const adminOrOpsMiddleware = (req: Request, res: Response, next: NextFunction): void => {
+  if (req.user && (req.user.role === 'ADMIN' || req.user.role === 'OPS')) {
+    next();
+  } else {
+    res.status(403).json({ message: 'Management access required' });
+    return;
+  }
+};

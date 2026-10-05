@@ -38,7 +38,7 @@ const ProtectedRoute = ({ children, requireAdmin = false, requireRelayAccess = f
     return <Navigate to="/login" replace />;
   }
 
-  if (requireAdmin && user?.role !== 'ADMIN') {
+  if (requireAdmin && user?.role !== 'ADMIN' && user?.role !== 'OPS') {
     return <Navigate to="/home" replace />;
   }
 

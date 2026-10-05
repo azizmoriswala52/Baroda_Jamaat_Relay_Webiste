@@ -2,7 +2,7 @@ import express from 'express';
 import fs from 'fs';
 import path from 'path';
 import { getAllStreams, getActiveStream, createStream, updateStream, deleteStream, getStreamAccess, renewStreamAccess } from '../controllers/streamController';
-import { authMiddleware, adminMiddleware } from '../middlewares/authMiddleware';
+import { authMiddleware, adminMiddleware, adminOrOpsMiddleware } from '../middlewares/authMiddleware';
 import { validateStreamToken } from '../middlewares/proxyMiddleware';
 import rateLimit from 'express-rate-limit';
 
@@ -59,8 +59,8 @@ router.get('/play/:token/:file', validateStreamToken, (req, res) => {
 });
 
 // Admin only routes
-router.post('/', authMiddleware, adminMiddleware, createStream);
-router.put('/:id', authMiddleware, adminMiddleware, updateStream);
-router.delete('/:id', authMiddleware, adminMiddleware, deleteStream);
+router.post('/', authMiddleware, adminOrOpsMiddleware, createStream);
+router.put('/:id', authMiddleware, adminOrOpsMiddleware, updateStream);
+router.delete('/:id', authMiddleware, adminOrOpsMiddleware, deleteStream);
 
 export default router;
